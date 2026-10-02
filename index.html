@@ -1,0 +1,1332 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E4A36">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="مسعّر المنشآت">
+<meta name="application-name" content="مسعّر المنشآت">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<title>مسعّر المنشآت الصحية</title>
+<style>
+/* Layout: RTL tool shell — header, tab bar; calculator splits into a sticky input panel (right) and results (left); reference tables scroll inside their own containers. */
+:root{
+  --bg:#F5F7F4; --surface:#FFFFFF; --surface-2:#EDF2EE; --ink:#10251C; --muted:#56685F; --line:#D5DFD8;
+  --accent:#0E4A36; --accent-ink:#FFFFFF; --accent-soft:#E1EDE6;
+  --hi:#C9A227; --hi-soft:#F8EFD2; --on-hi:#2E2406;
+  --ok:#2C7650; --ok-soft:#DDEFE4; --warn:#A8441F; --warn-soft:#F8E3DA;
+  --font-ui:-apple-system,"SF Arabic","Geeza Pro","Segoe UI",Tahoma,Roboto,Arial,sans-serif;
+  --font-display:-apple-system,"SF Arabic","Geeza Pro","Segoe UI",Tahoma,Roboto,Arial,sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1712; --surface:#11231B; --surface-2:#173026; --ink:#E6EEE9; --muted:#98ABA1; --line:#284036;
+    --accent:#5DBB8E; --accent-ink:#06140E; --accent-soft:#183A2C;
+    --hi:#D8B444; --hi-soft:#3A321A; --on-hi:#241B03;
+    --ok:#74C495; --ok-soft:#1C3527; --warn:#E58A66; --warn-soft:#3B2219;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1712; --surface:#11231B; --surface-2:#173026; --ink:#E6EEE9; --muted:#98ABA1; --line:#284036;
+  --accent:#5DBB8E; --accent-ink:#06140E; --accent-soft:#183A2C;
+  --hi:#D8B444; --hi-soft:#3A321A; --on-hi:#241B03;
+  --ok:#74C495; --ok-soft:#1C3527; --warn:#E58A66; --warn-soft:#3B2219;
+  color-scheme:dark;
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-ui);font-size:15px;line-height:1.6}
+*{box-sizing:border-box}
+.app{max-width:1280px;margin:0 auto;padding-inline:clamp(16px,3vw,32px);padding-block:18px 56px}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0;line-height:1.35}
+h1{font-size:1.45rem;color:var(--ink)}
+h2{font-size:1.05rem}
+h3{font-size:.95rem}
+p{margin:0}
+a{color:var(--accent)}
+.num{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+
+/* header */
+.top{display:flex;align-items:center;gap:14px;padding-bottom:14px}
+.mark{flex:none;width:46px;height:46px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.top p{color:var(--muted);font-size:.85rem}
+.top{flex-wrap:wrap}
+.top .actions{margin-inline-start:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn:disabled{opacity:.6;cursor:progress}
+@media (max-width:560px){.top .actions{width:100%;margin-inline-start:0}.top .actions .btn{flex:1}}
+
+/* tabs */
+.tabs{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:18px;scrollbar-width:thin}
+.tab{appearance:none;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);font:inherit;font-weight:600;padding:10px 14px;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.tab:hover{color:var(--ink)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,tr:focus-visible,.chip input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.hint{color:var(--muted);font-size:.8rem}
+
+/* calculator */
+.calc-grid{display:grid;grid-template-columns:minmax(290px,370px) minmax(0,1fr);gap:20px;align-items:start}
+.inputs{display:flex;flex-direction:column;gap:14px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+.results{display:flex;flex-direction:column;gap:18px;min-width:0}
+@media (max-width:920px){.calc-grid{grid-template-columns:minmax(0,1fr)}.inputs{position:static}}
+.field{display:grid;gap:6px;margin:0;padding:0;border:0;min-width:0}
+.field>span,.field>legend{font-weight:600;font-size:.88rem;padding:0}
+select,input[type=number]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+input[type=number]{font-variant-numeric:tabular-nums}
+input:disabled{opacity:.55;cursor:not-allowed}
+.num-unit{display:flex;gap:8px;align-items:center}
+.num-unit .unit{flex:none;color:var(--muted);font-size:.85rem;min-width:5.5em}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(74px,1fr));gap:6px}
+.chip{position:relative;display:block}
+.chip input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.chip span{display:block;text-align:center;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:.84rem;background:var(--surface);cursor:pointer;line-height:1.4}
+.chip input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.chip:hover span{border-color:var(--accent)}
+details summary{cursor:pointer;font-weight:600;font-size:.88rem}
+.addons-list{display:grid;gap:8px;margin-top:10px}
+.addon{display:grid;grid-template-columns:minmax(0,1fr) 80px;gap:8px;align-items:center;font-size:.84rem}
+.addon small{display:block;color:var(--muted)}
+.btn{appearance:none;font:inherit;font-weight:600;font-size:.88rem;border-radius:8px;padding:8px 14px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.danger{border-color:var(--warn);background:var(--warn);color:#fff}
+
+/* summary */
+.summary{border-top:4px solid var(--hi)}
+.eyebrow{font-size:.75rem;letter-spacing:.04em;color:var(--muted);font-weight:600}
+.sum-desc{font-weight:600;margin-top:4px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+@media (max-width:560px){.kpis{grid-template-columns:minmax(0,1fr)}}
+.kpi .label{font-size:.8rem;color:var(--muted)}
+.kpi .value{font-size:1.25rem;font-weight:700}
+.kpi.main .value{font-size:1.9rem;color:var(--accent)}
+.kpi .cur{font-size:.8rem;color:var(--muted);font-weight:500;margin-inline-start:4px}
+.sum-foot{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.includes{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font-size:.78rem;border-radius:999px;padding:2px 10px;border:1px solid var(--line)}
+.pill.on{background:var(--ok-soft);color:var(--ok);border-color:transparent;font-weight:600}
+.pill.off{color:var(--muted);text-decoration:line-through}
+.warn{background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:8px 12px;font-size:.85rem;margin-top:10px}
+.copy-row{display:flex;gap:10px;align-items:center}
+#copy-status{font-size:.8rem;color:var(--ok)}
+#copy-fallback{width:100%;min-height:140px;margin-top:10px;font:inherit;font-size:.82rem;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);color:var(--ink);padding:8px}
+
+/* bars */
+.bars{display:grid;gap:8px;margin:14px 0 16px}
+.bar-row{display:grid;grid-template-columns:8.5rem minmax(0,1fr) 8.5rem;gap:10px;align-items:center;font-size:.84rem;cursor:pointer;border-radius:6px;padding:2px 4px}
+.bar-row:hover{background:var(--surface-2)}
+.bar-track{height:12px;border-radius:6px;background:var(--surface-2);overflow:hidden}
+.bar-fill{height:100%;background:var(--accent);border-radius:6px}
+.bar-row.sel .bar-fill{background:var(--hi)}
+.bar-row.sel{font-weight:700}
+.bar-val{text-align:left}
+@media (max-width:560px){.bar-row{grid-template-columns:6.5rem minmax(0,1fr);}.bar-val{grid-column:1/-1;text-align:right}}
+
+/* tables */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle}
+thead th{background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:.82rem;white-space:nowrap}
+thead tr.sub th{background:var(--accent-soft);color:var(--ink)}
+td.n,th.n{text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+.cmp th.colbtn{cursor:pointer;text-align:center}
+.cmp th.colbtn:hover{text-decoration:underline}
+.cmp th.sel{background:var(--hi);color:var(--on-hi)}
+.cmp td.sel{background:var(--hi-soft)}
+.cmp tr.subtotal td{font-weight:700;background:var(--surface-2)}
+.cmp tr.subtotal td.sel{background:var(--hi-soft)}
+.cmp tr.total td{font-weight:700;font-size:.95rem;color:var(--accent);background:var(--accent-soft)}
+.cmp tr.total td.sel{background:var(--hi);color:var(--on-hi)}
+.cat td{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.ref tbody tr.row{cursor:pointer}
+.ref tbody tr.row:hover td{background:var(--surface-2)}
+.ref td.ref-mid{background:var(--hi-soft);font-weight:700}
+.en{display:block;color:var(--muted);font-size:.75rem;direction:ltr;text-align:right}
+.params dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 18px;margin:12px 0 0;font-size:.85rem}
+.params dt{color:var(--muted)}
+.params dd{margin:0;text-align:left;font-weight:600}
+
+/* sections */
+.page-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:10px;margin-bottom:12px}
+.page-head p{color:var(--muted);font-size:.85rem;max-width:70ch}
+.notes{display:grid;gap:8px;margin-top:14px}
+.note{display:grid;grid-template-columns:9rem minmax(0,1fr);gap:12px;font-size:.84rem;padding:8px 0;border-top:1px solid var(--line)}
+.note b{color:var(--accent)}
+@media (max-width:560px){.note{grid-template-columns:minmax(0,1fr);gap:2px}}
+
+/* assumptions */
+.as-grid{display:grid;gap:18px}
+.as-sec h2{margin-bottom:10px}
+.as-sec table input[type=number]{max-width:120px;padding:5px 8px}
+.as-sec td input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
+.pct-wrap{display:inline-flex;align-items:center;gap:4px}
+.reset-box{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.saved{font-size:.8rem;color:var(--muted)}
+
+/* methodology */
+.method{display:grid;gap:16px;max-width:900px}
+.method p,.method li{max-width:75ch}
+.formula{background:var(--surface-2);border-radius:8px;padding:12px 14px;font-size:.88rem;display:grid;gap:4px}
+.method ul{margin:6px 0 0;padding-inline-start:20px;display:grid;gap:4px}
+@media (prefers-reduced-motion:no-preference){.bar-fill{transition:width .35s ease}}
+
+/* ---- standalone app additions ---- */
+[hidden]{display:none!important}
+html,body{margin:0}
+body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-text-size-adjust:100%}
+.btn.ghost{background:transparent;color:var(--accent)}
+@media print{
+  :root,:root:not([data-theme="light"]),:root[data-theme="dark"]{
+    --bg:#FFFFFF; --surface:#FFFFFF; --surface-2:#F1F4F2; --ink:#111111; --muted:#555555; --line:#C9D3CC;
+    --accent:#0E4A36; --accent-ink:#FFFFFF; --accent-soft:#E1EDE6; --hi:#C9A227; --hi-soft:#F8EFD2; --on-hi:#2E2406; color-scheme:light;
+  }
+  @page{size:A4 landscape;margin:10mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{padding:0;font-size:12px}
+  .app{max-width:none;padding:0}
+  .tabs,.top .actions,.inputs,.copy-row,#copy-fallback,.reset-box{display:none!important}
+  .calc-grid{display:block}
+  .card{break-inside:avoid}
+  .tablewrap{overflow:visible}
+}
+
+/* ---- sign-in gate and users tab ---- */
+.gate{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:24px 16px}
+.gate-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 20px;display:grid;gap:16px}
+.gate-head{display:flex;gap:12px;align-items:center}
+.gate .mark,.top .mark{flex:none}
+.g-view{display:grid;gap:12px}
+.g-view h2{font-size:1.05rem}
+.g-wait{color:var(--muted);text-align:center;padding:18px 0}
+.g-msg{margin:0;min-height:1.2em;color:var(--warn);font-size:.86rem}
+.g-msg.ok{color:var(--ok)}
+.gate input,.u-form input,.u-invite textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%;min-width:0;font-size:16px}
+.gate input:focus,.u-form input:focus,.u-form select:focus{outline:2px solid var(--accent);outline-offset:1px}
+.code-in{letter-spacing:.18em;text-transform:uppercase;font-variant-numeric:tabular-nums}
+.linkbtn{appearance:none;background:none;border:0;color:var(--accent);font:inherit;font-size:.88rem;cursor:pointer;padding:4px 0;text-align:center;text-decoration:underline;text-underline-offset:3px}
+.gate .btn{padding:11px 14px;font-size:.95rem}
+.who{color:var(--muted);font-size:.82rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who.off{color:var(--warn)}
+.users-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:16px;align-items:start}
+.u-form,.u-invite{display:grid;gap:12px}
+.code-big{font-size:1.7rem;font-weight:700;letter-spacing:.22em;text-align:center;background:var(--hi-soft);color:var(--ink);border:1px dashed var(--hi);border-radius:10px;padding:10px;font-variant-numeric:tabular-nums}
+.u-invite textarea{resize:vertical;font-size:.85rem;line-height:1.7}
+.u-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.u-head{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.u-head .btn{margin-inline-start:auto}
+.u-table td{vertical-align:middle}
+.u-table .em{direction:ltr;unicode-bidi:isolate;color:var(--muted);font-size:.8rem;display:block}
+.u-table .acts{display:flex;gap:6px;flex-wrap:wrap}
+.u-table .btn{padding:5px 10px;font-size:.8rem}
+.btn.warn-ghost{background:transparent;color:var(--warn);border-color:var(--warn)}
+.pill.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent;font-weight:600}
+.pill.wait{background:var(--hi-soft);color:var(--ink);border-color:transparent}
+@media (max-width:640px){
+  .u-table thead{display:none}
+  .u-table tr{display:grid;gap:4px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .u-table td{border:0;padding:2px 10px}
+}
+@media print{ .gate,#p-users,#btn-logout,.who{display:none!important} }
+</style>
+</head>
+<body>
+<div id="gate" class="gate" dir="rtl" lang="ar">
+  <div class="gate-card">
+    <div class="gate-head">
+      <div class="mark" aria-hidden="true">
+        <svg width="30" height="30" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v15M3 17h22v5"/><rect x="13" y="10.5" width="12" height="6.5" rx="3"/><circle cx="8" cy="13" r="2.4" fill="currentColor" stroke="none"/><path d="M19.5 2.5v6M16.5 5.5h6" style="stroke:var(--hi)"/></svg>
+      </div>
+      <div><h1>مسعّر المنشآت الصحية</h1><p class="hint">للمستخدمين المصرّح لهم فقط</p></div>
+    </div>
+    <div id="g-loading" class="g-view"><p class="g-wait">جارٍ التحقق من الصلاحية…</p></div>
+    <form id="g-login" class="g-view" hidden>
+      <h2>تسجيل الدخول</h2>
+      <label class="field"><span>البريد الإلكتروني</span><input id="g-email" type="email" autocomplete="username" required dir="ltr" inputmode="email" autocapitalize="none" spellcheck="false"></label>
+      <label class="field"><span>كلمة المرور</span><input id="g-pass" type="password" autocomplete="current-password" required dir="ltr"></label>
+      <button class="btn" type="submit">دخول</button>
+      <button class="linkbtn" type="button" data-go="g-act">لديّ رمز تفعيل (حساب جديد أو نسيت كلمة المرور)</button>
+    </form>
+    <form id="g-act" class="g-view" hidden>
+      <h2>تفعيل الحساب</h2>
+      <p class="hint">أدخل بريدك ورمز التفعيل الذي وصلك من مدير التطبيق، ثم اختر كلمة مرور خاصة بك.</p>
+      <label class="field"><span>البريد الإلكتروني</span><input id="a-email" type="email" autocomplete="username" required dir="ltr" inputmode="email" autocapitalize="none" spellcheck="false"></label>
+      <label class="field"><span>رمز التفعيل</span><input id="a-code" type="text" required dir="ltr" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" maxlength="12" class="code-in"></label>
+      <label class="field"><span>كلمة المرور الجديدة (8 أحرف على الأقل)</span><input id="a-pass" type="password" autocomplete="new-password" required minlength="8" dir="ltr"></label>
+      <label class="field"><span>تأكيد كلمة المرور</span><input id="a-pass2" type="password" autocomplete="new-password" required minlength="8" dir="ltr"></label>
+      <button class="btn" type="submit">تفعيل والدخول</button>
+      <button class="linkbtn" type="button" data-go="g-login">رجوع إلى تسجيل الدخول</button>
+    </form>
+    <div id="g-blocked" class="g-view" hidden>
+      <h2>لا توجد صلاحية</h2>
+      <p>هذا الحساب غير مصرّح له باستخدام التطبيق، أو أُوقفت صلاحيته. تواصل مع مدير التطبيق.</p>
+      <button class="btn ghost" type="button" data-go="g-login">الدخول بحساب آخر</button>
+    </div>
+    <p id="g-msg" class="g-msg" role="alert"></p>
+  </div>
+</div>
+<div class="app" dir="rtl" lang="ar" hidden>
+  <header class="top">
+    <div class="mark" aria-hidden="true">
+      <svg width="30" height="30" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v15M3 17h22v5"/><rect x="13" y="10.5" width="12" height="6.5" rx="3"/><circle cx="8" cy="13" r="2.4" fill="currentColor" stroke="none"/><path d="M19.5 2.5v6M16.5 5.5h6" style="stroke:var(--hi)"/></svg>
+    </div>
+    <div>
+      <h1>مسعّر المنشآت الصحية</h1>
+      <p>تقدير تكلفة الإنشاء والتأهيل والتجهيز والتأثيث — الجمهورية اليمنية — بالريال السعودي — أسعار الربع الرابع 2026</p>
+    </div>
+    <div class="actions" id="export-box">
+      <span class="hint" id="export-status" role="status"></span>
+      <span class="who" id="who"></span>
+      <button type="button" class="btn ghost" id="btn-logout">خروج</button>
+      <button type="button" class="btn ghost" id="btn-print">طباعة</button>
+      <button type="button" class="btn" id="btn-export">تصدير إلى Excel</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="أقسام البرنامج">
+    <button class="tab" role="tab" id="t-calc" data-tab="calc" aria-selected="true">الحاسبة</button>
+    <button class="tab" role="tab" id="t-ref" data-tab="ref" aria-selected="false">جدول سعر السرير</button>
+    <button class="tab" role="tab" id="t-brk" data-tab="brk" aria-selected="false">تفصيل التكلفة</button>
+    <button class="tab" role="tab" id="t-as" data-tab="as" aria-selected="false">الافتراضات</button>
+    <button class="tab" role="tab" id="t-meth" data-tab="meth" aria-selected="false">المنهجية والمصادر</button>
+    <button class="tab" role="tab" id="t-users" data-tab="users" aria-selected="false">المستخدمون</button>
+  </nav>
+
+  <main>
+    <!-- ================= CALCULATOR ================= -->
+    <section id="p-calc" role="tabpanel" aria-labelledby="t-calc">
+      <div class="calc-grid">
+        <form class="card inputs" id="calcForm" autocomplete="off">
+          <h2>المدخلات</h2>
+          <label class="field"><span>نوع المنشأة</span><select id="in-type"></select></label>
+          <div class="field">
+            <span id="units-label">عدد الأسرّة / الوحدات</span>
+            <div class="num-unit"><input id="in-units" type="number" min="0" step="1" inputmode="numeric" aria-labelledby="units-label"><span class="unit" id="unit-name"></span></div>
+          </div>
+          <fieldset class="field"><legend>نطاق العمل</legend><div class="chips" id="in-pkg"></div></fieldset>
+          <fieldset class="field"><legend>نوع المشروع المعتمد</legend><div class="seg" id="in-scope" style="grid-template-columns:repeat(2,minmax(0,1fr))"></div></fieldset>
+          <fieldset class="field"><legend>مستوى التسعير</legend><div class="seg" id="in-level"></div></fieldset>
+          <label class="field"><span>موقع المشروع</span><select id="in-loc"></select></label>
+          <div class="row2">
+            <label class="field"><span>المساحة الفعلية (م²)</span><input id="in-area" type="number" min="0" step="10" placeholder="القياسية"></label>
+            <label class="field"><span>سنة التنفيذ</span><input id="in-year" type="number" min="2026" max="2045" step="1"></label>
+          </div>
+          <p class="hint">اترك المساحة فارغة لاستخدام المساحة القياسية. أدخلها عند تأهيل مبنى قائم معروف المساحة، أو لتحديد مساحة المختبر المركزي (تتغير معها تكلفة المبنى والأجهزة).</p>
+          <details id="addons-box">
+            <summary>أجهزة كبرى إضافية (اختياري)</summary>
+            <div class="addons-list" id="in-addons"></div>
+            <p class="hint" style="margin-top:8px">تُضاف فوق التجهيز القياسي، وتُحتسب فقط عندما يشمل نطاق العمل التجهيز الطبي.</p>
+          </details>
+          <div><button type="button" class="btn ghost" id="btn-example">إعادة المثال الافتراضي</button></div>
+        </form>
+
+        <div class="results">
+          <div class="card summary" aria-live="polite">
+            <div class="eyebrow">الخيار المعتمد</div>
+            <p class="sum-desc" id="sum-desc"></p>
+            <div class="kpis">
+              <div class="kpi main"><div class="label">الإجمالي التقديري</div><div class="value"><span class="num" id="k-total"></span><span class="cur">ر.س</span></div></div>
+              <div class="kpi"><div class="label" id="k-unit-label">سعر الوحدة</div><div class="value"><span class="num" id="k-unit"></span><span class="cur">ر.س</span></div></div>
+              <div class="kpi"><div class="label">ما يعادل بالدولار</div><div class="value"><span class="num" id="k-usd"></span><span class="cur">$</span></div></div>
+            </div>
+            <p class="hint" id="k-range" style="margin-top:8px"></p>
+            <div class="warn" id="sum-warn" hidden></div>
+            <div class="sum-foot">
+              <div class="includes" id="sum-inc"></div>
+              <div class="copy-row"><button type="button" class="btn ghost" id="btn-copy">نسخ الملخص</button><span id="copy-status" role="status"></span></div>
+            </div>
+            <textarea id="copy-fallback" readonly hidden aria-label="نص الملخص للنسخ"></textarea>
+          </div>
+
+          <div class="card">
+            <h2>البناء الجديد وإعادة التأهيل بنفس نطاق العمل</h2>
+            <p class="hint">اضغط على أي عمود أو شريط لاعتماده.</p>
+            <div class="bars" id="bars"></div>
+            <div class="tablewrap"><table class="cmp" id="cmp"></table></div>
+          </div>
+
+          <details class="card params">
+            <summary>المعايير المستخدمة في الحساب</summary>
+            <dl id="params"></dl>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= REFERENCE TABLE ================= -->
+    <section id="p-ref" role="tabpanel" aria-labelledby="t-ref" hidden>
+      <div class="page-head">
+        <div>
+          <h2>جدول استرشادي لتكلفة السرير</h2>
+          <p>سعر الوحدة بالريال السعودي لنطاق متكامل (إنشاء وتجهيز وتأثيث) في المدن الرئيسية. اضغط على أي صف لفتحه في الحاسبة.</p>
+        </div>
+      </div>
+      <div class="tablewrap"><table class="ref" id="ref"></table></div>
+      <div class="notes">
+        <div class="note"><b>طريقة الاستخدام</b><span>التكلفة التقديرية = سعر الوحدة × عدد الأسرّة (أو كراسي الغسيل، أو عدد المراكز والمختبرات). لأسعار «إنشاء فقط» أو «تجهيز طبي فقط» أو «تأثيث فقط»، أو لموقع خارج المدن الرئيسية، استخدم الحاسبة.</span></div>
+        <div class="note"><b>ما يشمله السعر</b><span>أعمال المبنى بكامل أنظمته الإنشائية والمعمارية والكهروميكانيكية والغازات الطبية، أعمال الموقع والبنية التحتية (بما فيها الطاقة الاحتياطية والمياه والصرف)، الأجهزة الطبية، التأثيث وتقنية المعلومات، التصميم والإشراف، والاحتياطي.</span></div>
+        <div class="note"><b>ما لا يشمله</b><span>قيمة الأرض، تكاليف التشغيل والصيانة، الأدوية والمستهلكات، سكن الكوادر، إزالة مخلفات الحرب ونزع الألغام، والتعويضات.</span></div>
+        <div class="note"><b>أسعار التأهيل</b><span>محسوبة بالمستوى المتوسط للتسعير وعلى المساحة القياسية للوحدة.</span></div>
+        <div class="note"><b>درجة الدقة</b><span>تقدير من الفئة الخامسة وفق AACE (مرحلة المفهوم)، والمدى المتوقع للانحراف −30% إلى +50%.</span></div>
+      </div>
+    </section>
+
+    <!-- ================= BREAKDOWN ================= -->
+    <section id="p-brk" role="tabpanel" aria-labelledby="t-brk" hidden>
+      <div class="page-head">
+        <div>
+          <h2>تفصيل مكونات سعر الوحدة</h2>
+          <p>بناء جديد، نطاق متكامل، المستوى المتوسط، المدن الرئيسية — بالريال السعودي لكل وحدة تسعير.</p>
+        </div>
+      </div>
+      <div class="tablewrap"><table id="brk"></table></div>
+    </section>
+
+    <!-- ================= ASSUMPTIONS ================= -->
+    <section id="p-as" role="tabpanel" aria-labelledby="t-as" hidden>
+      <div class="page-head">
+        <div>
+          <h2>الافتراضات القابلة للتعديل</h2>
+          <p>أي تعديل هنا ينعكس فوراً على الحاسبة والجداول. تُحفظ التعديلات في هذا المتصفح على هذا الجهاز فقط.</p>
+        </div>
+        <div class="reset-box">
+          <span class="saved" id="as-state"></span>
+          <button type="button" class="btn ghost" id="btn-reset-as">استعادة القيم الافتراضية</button>
+          <span id="reset-confirm" hidden>
+            <button type="button" class="btn danger" id="btn-reset-yes">تأكيد الاستعادة</button>
+            <button type="button" class="btn ghost" id="btn-reset-no">إلغاء</button>
+          </span>
+        </div>
+      </div>
+      <div class="as-grid" id="as-grid"></div>
+    </section>
+
+    <!-- ================= METHODOLOGY ================= -->
+    <section id="p-meth" role="tabpanel" aria-labelledby="t-meth" hidden>
+    </section>
+    <section id="p-users" role="tabpanel" aria-labelledby="t-users" hidden>
+      <div class="users-grid">
+        <form class="card u-form" id="u-form" autocomplete="off">
+          <h2>إضافة مستخدم</h2>
+          <label class="field"><span>الاسم</span><input id="u-name" type="text" maxlength="80"></label>
+          <label class="field"><span>البريد الإلكتروني</span><input id="u-email" type="email" required dir="ltr" inputmode="email" autocapitalize="none" spellcheck="false"></label>
+          <label class="field"><span>الصلاحية</span><select id="u-role"><option value="user">مستخدم</option><option value="admin">مدير (يضيف المستخدمين ويوقفهم)</option></select></label>
+          <button class="btn" type="submit">إضافة وإصدار رمز التفعيل</button>
+          <p class="hint">يصدر رمز تفعيل من 8 أحرف صالح 7 أيام. يدخله المستخدم مع بريده ويختار كلمة المرور بنفسه، فلا تعرف أنت كلمة مروره.</p>
+        </form>
+        <div class="card u-invite" id="u-invite" hidden>
+          <h2>رسالة الدعوة</h2>
+          <p class="hint">أرسلها للمستخدم الآن؛ الرمز لا يظهر مرة أخرى، ويمكنك إصدار رمز جديد في أي وقت.</p>
+          <div class="code-big" id="u-code" dir="ltr"></div>
+          <textarea id="u-msg" readonly rows="9"></textarea>
+          <div class="u-actions"><button class="btn" id="u-share" type="button">إرسال</button><button class="btn ghost" id="u-copy" type="button">نسخ الرسالة</button><span class="hint" id="u-copied" role="status"></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="u-head"><h2>المستخدمون</h2><span class="hint" id="u-status" role="status"></span><button class="btn ghost" id="u-refresh" type="button">تحديث</button></div>
+        <div class="tablewrap"><table class="u-table"><thead><tr><th>المستخدم</th><th>الصلاحية</th><th>الحالة</th><th>آخر استخدام</th><th>إجراءات</th></tr></thead><tbody id="u-rows"></tbody></table></div>
+        <p class="hint" style="margin-top:10px">الإيقاف يسري فور فتح المستخدم للتطبيق وهو متصل بالإنترنت، وتُمسح البيانات من جهازه. إذا بقي بدون إنترنت يتوقف التطبيق عنده بعد 3 أيام من آخر تحقق.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+window.__startApp = function (DEFAULTS) {
+// ENGINE START
+/* pricing data (DEFAULTS) is loaded from the server after sign-in */
+const CATS = ["المدن الطبية والمستشفيات العامة", "المستشفيات التخصصية", "المراكز التخصصية", "الطوارئ والأوبئة والإغاثة", "الرعاية الصحية الأولية والخدمات الطرفية", "الخدمات الصحية المساندة"];
+
+// Full project estimate: returns the four columns (new + 3 rehab levels) for the chosen work package.
+function computeProject(inp, A) {
+  const t = A.types[inp.type], lvl = A.levels[inp.level], loc = A.locations[inp.loc], pk = A.packages[inp.pkg], S = A.scope;
+  const n = Math.max(0, Number(inp.units) || 0);
+  const area = (Number(inp.area) > 0) ? Number(inp.area) : n * t.gfa;
+  const eqUnits = (t.eqByArea && t.gfa > 0) ? area / t.gfa : n;   // labs: equipment follows the floor area
+  const Bn = area * lvl.rate * t.cf;
+  const escF = Math.pow(1 + A.esc, Math.max(0, (Number(inp.year) || A.baseYear) - A.baseYear));
+  const addTotal = A.addons.reduce((s, a, i) => s + (Number(inp.addons[i]) || 0) * a.price, 0);
+  const cols = [0, 1, 2, 3].map(k => {
+    const b = Bn * S.bld[k] * loc.f * pk.w;
+    const x = Bn * A.ext * S.ext[k] * loc.f * pk.w;
+    const e = eqUnits * t.eq * lvl.eq * S.eq[k] * pk.e;
+    const ad = addTotal * pk.e;
+    const ff = Bn * A.ffe * S.ffe[k] * pk.f;
+    const s = (b + x) * S.soft[k];
+    const c = (b + x + s) * S.cont[k] + (e + ad + ff) * S.cont[0];
+    const base = b + x + e + ad + ff + s + c;
+    const escv = base * (escF - 1);
+    const total = base + escv;
+    return { b, x, e, ad, ff, s, c, base, escv, total, perUnit: n > 0 ? total / n : 0, usd: total / A.fx };
+  });
+  cols.forEach(cl => { cl.ratio = cols[0].total > 0 ? cl.total / cols[0].total : 0; });
+  return { t, lvl, loc, pk, n, area, Bn, escF, addTotal, cols };
+}
+
+// Reference unit price (integrated package, main cities, base year) — matches the Excel reference table.
+function unitPrice(t, k, j, A) {
+  const S = A.scope, lvl = A.levels[j];
+  const Bn = t.gfa * lvl.rate * t.cf;
+  const b = Bn * S.bld[k], x = Bn * A.ext * S.ext[k];
+  const e = t.eq * lvl.eq * S.eq[k], ff = Bn * A.ffe * S.ffe[k];
+  const s = (b + x) * S.soft[k];
+  const c = (b + x + s) * S.cont[k] + (e + ff) * S.cont[0];
+  return { b, x, e, ff, s, c, total: b + x + e + ff + s + c, Bn };
+}
+const round3 = v => Math.round(v / 1000) * 1000;
+const roundRef = (t, v) => { const q = t.rnd || 1000; return Math.round(v / q) * q; };
+// ENGINE END
+
+/* ---------------- state ---------------- */
+const KEY_A = "hcp-yemen-assumptions-v1", KEY_I = "hcp-yemen-inputs-v1";
+const clone = o => JSON.parse(JSON.stringify(o));
+function load(key) { try { const s = localStorage.getItem(key); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+function save(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); return true; } catch (e) { return false; } }
+
+function validA(a) {
+  try {
+    return a && a.version === 1 && a.types.length === DEFAULTS.types.length && a.levels.length === 3 &&
+      a.packages.length === 5 && a.locations.length === 3 && a.addons.length === 4 && a.scope && a.scope.cont.length === 4;
+  } catch (e) { return false; }
+}
+// adds facility types introduced after the user saved their own assumptions
+function migrateA(a) {
+  try {
+    if (!a || a.version !== 1 || !Array.isArray(a.types)) return null;
+    a.types = DEFAULTS.types.map(t => { const o = a.types.find(x => x && x.en === t.en);
+      return o ? Object.assign(clone(t), { gfa: Number(o.gfa), cf: Number(o.cf), eq: Number(o.eq) }) : clone(t); });
+    return validA(a) ? a : null;
+  } catch (e) { return null; }
+}
+let A = (() => { const s = load(KEY_A); return migrateA(s) || clone(DEFAULTS); })();
+// labs were briefly priced per m²: a saved lab "count" in the hundreds is really its area
+function fixLabUnits(o) {
+  const t = A.types[o.type];
+  if (t && t.eqByArea && Number(o.units) > 100 && !(Number(o.area) > 0)) { o.area = Number(o.units); o.units = 1; }
+  return o;
+}
+// display order: by category, then as defined
+const typeOrder = () => CATS.flatMap((c, ci) => A.types.map((t, i) => i).filter(i => A.types[i].cat === ci));
+const EXAMPLE = { type: 3, units: 100, pkg: 2, scope: 0, level: 1, loc: 0, area: "", year: 2026, addons: [0, 0, 0, 0] };
+let inp = (() => {
+  const s = load(KEY_I);
+  if (s && Number.isInteger(s.type) && s.type < A.types.length && Array.isArray(s.addons)) return fixLabUnits(Object.assign(clone(EXAMPLE), s));
+  return clone(EXAMPLE);
+})();
+
+/* ---------------- helpers ---------------- */
+const $ = id => document.getElementById(id);
+const nf0 = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+const fmt = v => nf0.format(Math.round(v));
+const pct = v => Math.round(v * 100) + "%";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const numSpan = v => `<span class="num">${fmt(v)}</span>`;
+
+/* ---------------- tabs ---------------- */
+document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
+function showTab(name) {
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
+  ["calc", "ref", "brk", "as", "meth", "users"].forEach(p => { const el = $("p-" + p); if (el) el.hidden = p !== name; });
+  try { localStorage.setItem("hcp-yemen-tab", name); } catch (e) {}
+}
+
+/* ---------------- inputs ---------------- */
+function buildInputs() {
+  const sel = $("in-type");
+  sel.innerHTML = CATS.map((c, ci) =>
+    `<optgroup label="${esc(c)}">` +
+    A.types.map((t, i) => t.cat === ci ? `<option value="${i}">${esc(t.ar)}</option>` : "").join("") +
+    `</optgroup>`).join("");
+  $("in-loc").innerHTML = A.locations.map((l, i) => `<option value="${i}">${esc(l.name)} (${esc(l.ex)})</option>`).join("");
+  const chips = (id, name, arr) => {
+    $(id).innerHTML = arr.map((lab, i) =>
+      `<label class="chip"><input type="radio" name="${name}" id="${name}-${i}" value="${i}"><span>${esc(lab)}</span></label>`).join("");
+  };
+  chips("in-pkg", "pkg", A.packages.map(p => p.name));
+  chips("in-scope", "scope", A.scopes);
+  chips("in-level", "level", A.levels.map(l => l.name));
+  $("in-addons").innerHTML = A.addons.map((a, i) =>
+    `<label class="addon" for="addon-${i}"><span>${esc(a.name)}<small><span class="num">${fmt(a.price)}</span> ر.س للوحدة</small></span>` +
+    `<input type="number" id="addon-${i}" min="0" step="1" inputmode="numeric"></label>`).join("");
+
+  $("in-type").addEventListener("change", e => { inp.type = +e.target.value; changed(); });
+  $("in-loc").addEventListener("change", e => { inp.loc = +e.target.value; changed(); });
+  $("in-units").addEventListener("input", e => { inp.units = e.target.value === "" ? 0 : Math.max(0, +e.target.value); changed(); });
+  $("in-area").addEventListener("input", e => { inp.area = e.target.value === "" ? "" : Math.max(0, +e.target.value); changed(); });
+  $("in-year").addEventListener("input", e => { const v = +e.target.value; if (v >= 2000 && v <= 2100) { inp.year = v; changed(); } });
+  ["pkg", "scope", "level"].forEach(name => {
+    document.querySelectorAll(`input[name=${name}]`).forEach(r => r.addEventListener("change", e => { inp[name] = +e.target.value; changed(); }));
+  });
+  A.addons.forEach((a, i) => $("addon-" + i).addEventListener("input", e => { inp.addons[i] = Math.max(0, +e.target.value || 0); changed(); }));
+  $("btn-example").addEventListener("click", () => { inp = clone(EXAMPLE); syncInputs(); changed(); });
+  $("calcForm").addEventListener("submit", e => e.preventDefault());
+}
+function syncInputs() {
+  $("in-type").value = inp.type;
+  $("in-loc").value = inp.loc;
+  $("in-units").value = inp.units;
+  $("in-area").value = inp.area === 0 ? "" : inp.area;
+  $("in-year").value = inp.year;
+  ["pkg", "scope", "level"].forEach(name => { const r = $(`${name}-${inp[name]}`); if (r) r.checked = true; });
+  A.addons.forEach((a, i) => { $("addon-" + i).value = inp.addons[i] || 0; });
+  if (inp.addons.some(v => v > 0)) $("addons-box").open = true;
+}
+function changed() { save(KEY_I, inp); renderCalc(); }
+
+/* ---------------- calculator render ---------------- */
+const ROWS = [
+  ["أعمال المبنى (إنشائي ومعماري وكهروميكانيكي)", "b"],
+  ["أعمال الموقع والبنية التحتية الخارجية", "x"],
+  ["الأجهزة الطبية القياسية", "e"],
+  ["أجهزة كبرى إضافية", "ad"],
+  ["التأثيث وتقنية المعلومات (FF&E)", "ff"],
+  ["التصميم والإشراف", "s"],
+  ["الاحتياطي", "c"],
+  ["الإجمالي بأسعار سنة الأساس", "base", "subtotal"],
+  ["التصعيد حتى سنة التنفيذ", "escv"],
+  ["الإجمالي التقديري (ر.س)", "total", "total"],
+  ["سعر الوحدة (ر.س)", "perUnit", "total"],
+  ["ما يعادل بالدولار", "usd"],
+  ["النسبة من البناء الجديد", "ratio", "pct"]
+];
+let lastR = null;
+function renderCalc() {
+  const R = computeProject(inp, A); lastR = R;
+  const k = inp.scope, col = R.cols[k], unit = R.t.unit;
+  $("unit-name").textContent = unit;
+  $("units-label").textContent = `عدد الوحدات (${unit})`;
+  $("sum-desc").textContent = `${R.t.ar} — ${fmt(R.n)} ${unit} — ${A.scopes[k]} — ${R.pk.name} — مستوى ${R.lvl.name} — ${R.loc.name}` + (inp.year > A.baseYear ? ` — تنفيذ ${inp.year}` : "");
+  $("k-total").textContent = fmt(col.total);
+  $("k-unit-label").textContent = `سعر الوحدة (${unit})`;
+  $("k-unit").textContent = fmt(col.perUnit);
+  $("k-usd").textContent = fmt(col.usd);
+  $("k-range").innerHTML = `المدى المتوقع للتقدير (−30% / +50%): ${numSpan(col.total * 0.7)} – ${numSpan(col.total * 1.5)} ر.س`;
+  $("sum-inc").innerHTML = [["الأعمال الإنشائية", R.pk.w], ["الأجهزة الطبية", R.pk.e], ["التأثيث وتقنية المعلومات", R.pk.f]]
+    .map(([l, on]) => `<span class="pill ${on ? "on" : "off"}">${on ? "يشمل" : "لا يشمل"} ${l}</span>`).join("");
+  const warns = [];
+  if (R.n <= 0) warns.push("أدخل عدد الوحدات لحساب التكلفة.");
+  if (R.addTotal > 0 && !R.pk.e) warns.push("الأجهزة الكبرى الإضافية غير محتسبة لأن نطاق العمل لا يشمل التجهيز الطبي.");
+  if (!R.pk.w && !R.pk.e && !R.pk.f) warns.push("نطاق العمل المختار لا يشمل أي بند. راجع إعدادات «نطاق العمل» في الافتراضات.");
+  $("sum-warn").hidden = warns.length === 0;
+  $("sum-warn").textContent = warns.join(" ");
+
+  // bars
+  const max = Math.max(...R.cols.map(c => c.total), 1);
+  $("bars").innerHTML = R.cols.map((c, i) =>
+    `<div class="bar-row ${i === k ? "sel" : ""}" data-col="${i}" role="button" tabindex="0" aria-pressed="${i === k}">
+      <span>${esc(A.scopes[i])}</span>
+      <span class="bar-track"><span class="bar-fill" style="width:${(c.total / max * 100).toFixed(1)}%;display:block"></span></span>
+      <span class="bar-val num">${fmt(c.total)}</span>
+    </div>`).join("");
+
+  // comparison table
+  let h = `<thead><tr><th scope="col">البند</th>` + A.scopes.map((s, i) =>
+    `<th scope="col" class="colbtn ${i === k ? "sel" : ""}" data-col="${i}" tabindex="0" aria-pressed="${i === k}">${esc(s)}</th>`).join("") + `</tr></thead><tbody>`;
+  ROWS.forEach(([lab, key, cls]) => {
+    const label = key === "perUnit" ? `سعر الوحدة — ${unit} (ر.س)` : lab;
+    h += `<tr class="${cls && cls !== "pct" ? cls : ""}"><td>${esc(label)}</td>` + R.cols.map((c, i) =>
+      `<td class="n ${i === k ? "sel" : ""}">${cls === "pct" ? pct(c[key]) : fmt(c[key])}</td>`).join("") + `</tr>`;
+  });
+  $("cmp").innerHTML = h + "</tbody>";
+  document.querySelectorAll("#cmp [data-col], #bars [data-col]").forEach(el => {
+    const pick = () => { inp.scope = +el.dataset.col; syncInputs(); changed(); };
+    el.addEventListener("click", pick);
+    el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+  });
+
+  // params
+  const yes = v => v ? "نعم" : "لا";
+  const P = [
+    ["وحدة التسعير", R.t.unit],
+    ["المساحة القياسية لكل وحدة (م²)", fmt(R.t.gfa)],
+    ["المساحة المعتمدة في الحساب (م²)", fmt(R.area)],
+    ["معامل التعقيد", R.t.cf.toFixed(2)],
+    ["سعر البناء (ر.س / م²)", fmt(R.lvl.rate)],
+    ["معامل الأجهزة الطبية", R.lvl.eq.toFixed(2)],
+    ["الأجهزة الطبية القياسية لكل وحدة (ر.س)", fmt(R.t.eq)],
+    ["معامل الموقع", R.loc.f.toFixed(2)],
+    ["معامل التصعيد", R.escF.toFixed(3)],
+    ["تكلفة المبنى الجديد المرجعية (ر.س)", fmt(R.Bn)],
+    ["يشمل الأعمال الإنشائية / الأجهزة / التأثيث", `${yes(R.pk.w)} / ${yes(R.pk.e)} / ${yes(R.pk.f)}`],
+    ["قيمة الأجهزة الكبرى الإضافية (ر.س)", fmt(R.addTotal)]
+  ];
+  $("params").innerHTML = P.map(([a, b]) => `<dt>${esc(a)}</dt><dd class="num">${esc(b)}</dd>`).join("");
+  $("copy-status").textContent = "";
+}
+
+/* ---------------- copy summary ---------------- */
+function summaryText() {
+  const R = lastR, k = inp.scope, c = R.cols[k];
+  const lines = [
+    "تقدير تكلفة منشأة صحية — الجمهورية اليمنية",
+    $("sum-desc").textContent,
+    `الإجمالي التقديري: ${fmt(c.total)} ر.س`,
+    `سعر الوحدة (${R.t.unit}): ${fmt(c.perUnit)} ر.س`,
+    `ما يعادل: ${fmt(c.usd)} دولار أمريكي`,
+    `المدى المتوقع (−30% / +50%): ${fmt(c.total * 0.7)} – ${fmt(c.total * 1.5)} ر.س`,
+    "",
+    `المقارنة بنفس نطاق العمل (${R.pk.name}):`,
+    ...R.cols.map((cl, i) => `- ${A.scopes[i]}: ${fmt(cl.total)} ر.س (${fmt(cl.perUnit)} ر.س لكل ${R.t.unit})`),
+    "",
+    "تقدير من الفئة الخامسة (Class 5) لمرحلة الاحتياج والجدوى."
+  ];
+  return lines.join("\n");
+}
+$("btn-copy").addEventListener("click", () => {
+  const text = summaryText();
+  const fb = $("copy-fallback");
+  const fallback = () => { fb.hidden = false; fb.value = text; fb.focus(); fb.select(); $("copy-status").textContent = "حدّد النص وانسخه يدوياً"; };
+  try {
+    navigator.clipboard.writeText(text).then(() => { fb.hidden = true; $("copy-status").textContent = "تم نسخ الملخص"; }, fallback);
+  } catch (e) { fallback(); }
+});
+
+/* ---------------- reference & breakdown ---------------- */
+function renderRef() {
+  let h = `<thead><tr><th rowspan="2">م</th><th rowspan="2">نوع المنشأة</th><th rowspan="2">الوحدة</th><th rowspan="2">السعة النموذجية</th><th rowspan="2" class="n">م²/وحدة</th>
+    <th colspan="3" style="text-align:center">بناء جديد — سعر الوحدة (ر.س)</th><th colspan="3" style="text-align:center">إعادة تأهيل — المستوى المتوسط (ر.س)</th></tr>
+    <tr class="sub"><th class="n">أدنى</th><th class="n">متوسط</th><th class="n">أعلى</th><th class="n">خفيف</th><th class="n">متوسط</th><th class="n">شامل</th></tr></thead><tbody>`;
+  let no = 0;
+  CATS.forEach((c, ci) => {
+    h += `<tr class="cat"><td colspan="11">${esc(c)}</td></tr>`;
+    A.types.forEach((t, i) => {
+      if (t.cat !== ci) return;
+      const v = [unitPrice(t, 0, 0, A), unitPrice(t, 0, 1, A), unitPrice(t, 0, 2, A), unitPrice(t, 1, 1, A), unitPrice(t, 2, 1, A), unitPrice(t, 3, 1, A)].map(x => roundRef(t, x.total));
+      h += `<tr class="row" data-type="${i}" tabindex="0" title="فتح في الحاسبة"><td>${++no}</td><td>${esc(t.ar)}<span class="en">${esc(t.en)}</span></td><td>${esc(t.unit)}</td><td>${esc(t.cap)}</td><td class="n">${fmt(t.gfa)}</td>` +
+        v.map((x, j) => `<td class="n ${j === 1 ? "ref-mid" : ""}">${fmt(x)}</td>`).join("") + `</tr>`;
+    });
+  });
+  $("ref").innerHTML = h + "</tbody>";
+  document.querySelectorAll("#ref tr.row").forEach(tr => {
+    const open = () => { inp.type = +tr.dataset.type; inp.pkg = 2; syncInputs(); changed(); showTab("calc"); window.scrollTo({ top: 0 }); };
+    tr.addEventListener("click", open);
+    tr.addEventListener("keydown", e => { if (e.key === "Enter") open(); });
+  });
+  const teach = A.types.findIndex(t => t.en === "University / Teaching Hospital");
+  $("m-teach").textContent = teach >= 0 ? fmt(round3(unitPrice(A.types[teach], 0, 2, A).total)) : "—";
+}
+function renderBrk() {
+  let h = `<thead><tr><th>م</th><th>نوع المنشأة</th><th>الوحدة</th><th class="n">م²/وحدة</th><th class="n">أعمال المبنى</th><th class="n">أعمال الموقع</th><th class="n">الأجهزة الطبية</th><th class="n">التأثيث وتقنية المعلومات</th><th class="n">التصميم والإشراف</th><th class="n">الاحتياطي</th><th class="n">إجمالي سعر الوحدة</th><th class="n">نسبة الأجهزة</th><th class="n">ر.س / م²</th></tr></thead><tbody>`;
+  typeOrder().forEach((i, pos) => {
+    const t = A.types[i], u = unitPrice(t, 0, 1, A);
+    h += `<tr><td>${pos + 1}</td><td>${esc(t.ar)}</td><td>${esc(t.unit)}</td><td class="n">${fmt(t.gfa)}</td><td class="n">${fmt(u.b)}</td><td class="n">${fmt(u.x)}</td><td class="n">${fmt(u.e)}</td><td class="n">${fmt(u.ff)}</td><td class="n">${fmt(u.s)}</td><td class="n">${fmt(u.c)}</td><td class="n ref-mid" style="background:var(--hi-soft);font-weight:700">${fmt(u.total)}</td><td class="n">${pct(u.e / u.total)}</td><td class="n">${t.gfa > 0 ? fmt(u.total / t.gfa) : "—"}</td></tr>`;
+  });
+  $("brk").innerHTML = h + "</tbody>";
+}
+
+/* ---------------- assumptions editor ---------------- */
+function getPath(o, p) { return p.split(".").reduce((a, k) => a[k], o); }
+function setPath(o, p, v) { const ks = p.split("."); const last = ks.pop(); ks.reduce((a, k) => a[k], o)[last] = v; }
+function numInput(path, opts = {}) {
+  const v = getPath(A, path);
+  const shown = opts.pct ? +(v * 100).toFixed(2) : v;
+  const id = "as-" + path.replace(/\./g, "-");
+  const inputHtml = `<input type="number" id="${id}" data-path="${path}" data-pct="${opts.pct ? 1 : 0}" value="${shown}" step="${opts.step || "any"}" min="0" aria-label="${esc(opts.label || path)}">`;
+  return opts.pct ? `<span class="pct-wrap">${inputHtml}<span>%</span></span>` : inputHtml;
+}
+function renderAssumptions() {
+  const S = A.scope;
+  const scopeRows = [["أعمال المبنى (% من تكلفة المبنى الجديد)", "bld"], ["أعمال الموقع الخارجية", "ext"], ["الأجهزة الطبية", "eq"], ["التأثيث وتقنية المعلومات", "ffe"], ["التصميم والإشراف (% من الأعمال)", "soft"], ["الاحتياطي", "cont"]];
+  let h = "";
+  h += `<div class="card as-sec"><h2>افتراضات عامة</h2><div class="tablewrap"><table><tbody>
+    <tr><td>سعر صرف الدولار (ر.س / دولار)</td><td>${numInput("fx", { step: 0.01, label: "سعر الصرف" })}</td></tr>
+    <tr><td>أعمال الموقع والبنية التحتية (% من تكلفة المبنى)</td><td>${numInput("ext", { pct: 1, label: "أعمال الموقع" })}</td></tr>
+    <tr><td>التأثيث وتقنية المعلومات (% من تكلفة المبنى)<span class="en" style="direction:rtl">أسرّة المرضى الكهربائية والنقالات ضمن الأجهزة الطبية</span></td><td>${numInput("ffe", { pct: 1, label: "التأثيث" })}</td></tr>
+    <tr><td>نسبة التصعيد السنوي</td><td>${numInput("esc", { pct: 1, label: "التصعيد" })}</td></tr>
+    <tr><td>سنة أساس الأسعار</td><td>${numInput("baseYear", { step: 1, label: "سنة الأساس" })}</td></tr>
+  </tbody></table></div></div>`;
+  h += `<div class="card as-sec"><h2>مستويات التسعير</h2><div class="tablewrap"><table><thead><tr><th>المستوى</th><th>سعر البناء (ر.س / م²)</th><th>معامل الأجهزة الطبية</th><th>الوصف</th></tr></thead><tbody>` +
+    A.levels.map((l, i) => `<tr><td><b>${esc(l.name)}</b></td><td>${numInput(`levels.${i}.rate`, { step: 50, label: "سعر البناء " + l.name })}</td><td>${numInput(`levels.${i}.eq`, { step: 0.05, label: "معامل الأجهزة " + l.name })}</td><td class="hint">${esc(l.desc)}</td></tr>`).join("") +
+    `</tbody></table></div></div>`;
+  h += `<div class="card as-sec"><h2>معاملات نطاق العمل (بناء جديد / إعادة تأهيل)</h2><div class="tablewrap"><table><thead><tr><th>البند</th>${A.scopes.map(s => `<th>${esc(s)}</th>`).join("")}</tr></thead><tbody>` +
+    scopeRows.map(([lab, key]) => `<tr><td>${esc(lab)}</td>${S[key].map((v, k) => `<td>${numInput(`scope.${key}.${k}`, { pct: 1, label: lab + " " + A.scopes[k] })}</td>`).join("")}</tr>`).join("") +
+    `</tbody></table></div><p class="hint" style="margin-top:8px">الاحتياطي الأعلى في التأهيل يُطبق على الأعمال الإنشائية فقط، وتأخذ الأجهزة والأثاث نسبة البناء الجديد.</p></div>`;
+  h += `<div class="card as-sec"><h2>معاملات الموقع</h2><div class="tablewrap"><table><thead><tr><th>الموقع</th><th>المعامل</th><th>أمثلة</th></tr></thead><tbody>` +
+    A.locations.map((l, i) => `<tr><td>${esc(l.name)}</td><td>${numInput(`locations.${i}.f`, { step: 0.05, label: "معامل " + l.name })}</td><td class="hint">${esc(l.ex)}</td></tr>`).join("") +
+    `</tbody></table></div></div>`;
+  h += `<div class="card as-sec"><h2>الأجهزة الكبرى الإضافية</h2><div class="tablewrap"><table><thead><tr><th>البند</th><th>سعر الوحدة (ر.س)</th></tr></thead><tbody>` +
+    A.addons.map((a, i) => `<tr><td>${esc(a.name)}<span class="en">${esc(a.en)}</span></td><td>${numInput(`addons.${i}.price`, { step: 100000, label: a.name })}</td></tr>`).join("") +
+    `</tbody></table></div></div>`;
+  h += `<div class="card as-sec"><h2>نطاق العمل — البنود المشمولة</h2><div class="tablewrap"><table><thead><tr><th>نطاق العمل</th><th>الأعمال الإنشائية</th><th>الأجهزة الطبية</th><th>التأثيث وتقنية المعلومات</th></tr></thead><tbody>` +
+    A.packages.map((p, i) => `<tr><td>${esc(p.name)}</td>` + ["w", "e", "f"].map(f =>
+      `<td><input type="checkbox" id="as-pk-${i}-${f}" data-pk="${i}" data-f="${f}" ${p[f] ? "checked" : ""} aria-label="${esc(p.name)}"></td>`).join("") + `</tr>`).join("") +
+    `</tbody></table></div></div>`;
+  h += `<div class="card as-sec"><h2>معايير المنشآت</h2><div class="tablewrap"><table><thead><tr><th>م</th><th>نوع المنشأة</th><th>الوحدة</th><th>المساحة لكل وحدة (م²)</th><th>معامل التعقيد</th><th>الأجهزة الطبية لكل وحدة (ر.س)</th></tr></thead><tbody>` +
+    typeOrder().map((i, pos) => { const t = A.types[i]; return `<tr><td>${pos + 1}</td><td>${esc(t.ar)}</td><td>${esc(t.unit)}</td><td>${numInput(`types.${i}.gfa`, { step: 5, label: "المساحة " + t.ar })}</td><td>${numInput(`types.${i}.cf`, { step: 0.05, label: "معامل التعقيد " + t.ar })}</td><td>${numInput(`types.${i}.eq`, { step: 10000, label: "الأجهزة " + t.ar })}</td></tr>`; }).join("") +
+    `</tbody></table></div></div>`;
+  $("as-grid").innerHTML = h;
+  $("as-grid").querySelectorAll("input[type=number]").forEach(el => el.addEventListener("input", () => {
+    if (el.value === "" || isNaN(+el.value) || +el.value < 0) return;
+    const v = el.dataset.pct === "1" ? +el.value / 100 : +el.value;
+    setPath(A, el.dataset.path, v); assumptionsChanged();
+  }));
+  $("as-grid").querySelectorAll("input[type=checkbox]").forEach(el => el.addEventListener("change", () => {
+    A.packages[+el.dataset.pk][el.dataset.f] = el.checked ? 1 : 0; assumptionsChanged();
+  }));
+  updateAsState();
+}
+function updateAsState() {
+  const same = JSON.stringify(A) === JSON.stringify(DEFAULTS);
+  $("as-state").textContent = same ? "القيم الافتراضية" : "تم تعديل القيم الافتراضية";
+}
+function assumptionsChanged() { save(KEY_A, A); renderCalc(); renderRef(); renderBrk(); updateAsState(); }
+$("btn-reset-as").addEventListener("click", () => { $("reset-confirm").hidden = false; $("btn-reset-as").hidden = true; });
+$("btn-reset-no").addEventListener("click", () => { $("reset-confirm").hidden = true; $("btn-reset-as").hidden = false; });
+$("btn-reset-yes").addEventListener("click", () => {
+  A = clone(DEFAULTS); save(KEY_A, A);
+  $("reset-confirm").hidden = true; $("btn-reset-as").hidden = false;
+  renderAssumptions(); renderCalc(); renderRef(); renderBrk();
+});
+
+function todayISO() {
+  const d = new Date(), p = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+/* ---- Excel export ---- */
+function sheetBuilder(name, cols) {
+  const sh = { name, rtl: true, landscape: true, cols, rows: [], merges: [] };
+  const lastCol = String.fromCharCode(64 + cols.length);
+  sh.add = (cells, h) => { sh.rows.push(h ? { h, c: cells } : { c: cells }); return sh.rows.length; };
+  sh.blank = () => sh.add([]);
+  sh.full = (text, style, h) => {
+    const r = sh.add([[text, style]].concat(Array(cols.length - 1).fill([null, style])), h);
+    sh.merges.push(`A${r}:${lastCol}${r}`); return r;
+  };
+  sh.kv = (label, value, ls, vs, h) => {
+    const r = sh.add([[label, ls], [value, vs]].concat(Array(cols.length - 2).fill([null, vs])), h);
+    sh.merges.push(`B${r}:${lastCol}${r}`); return r;
+  };
+  return sh;
+}
+function buildReport() {
+  const R = computeProject(inp, A), k = inp.scope, unit = R.t.unit, c = R.cols[k], date = todayISO();
+  const yes = v => (v ? "نعم" : "لا");
+
+  // ---- sheet 1: the estimate
+  const s1 = sheetBuilder("التقدير", [46, 21, 21, 21, 21]);
+  s1.full("تقدير تكلفة منشأة صحية — الجمهورية اليمنية", "title", 28);
+  s1.full(`تاريخ التقدير: ${date} — المبالغ بالريال السعودي — أسعار سنة الأساس ${A.baseYear} — تقدير من الفئة الخامسة (Class 5) بدقة −30% / +50%`, "subtitle", 30);
+  s1.blank();
+  s1.full("أولاً: بيانات المشروع", "section", 22);
+  s1.kv("نوع المنشأة", `${R.t.ar} — ${R.t.en}`, "lbl_b", "txt");
+  s1.kv(`عدد الوحدات (${unit})`, R.n, "lbl_b", "num");
+  s1.kv("نطاق العمل", R.pk.name, "lbl_b", "txt");
+  s1.kv("البنود المشمولة", `الأعمال الإنشائية: ${yes(R.pk.w)} — الأجهزة الطبية: ${yes(R.pk.e)} — التأثيث وتقنية المعلومات: ${yes(R.pk.f)}`, "lbl_b", "txt");
+  s1.kv("نوع المشروع المعتمد", A.scopes[k], "lbl_b", "txt");
+  s1.kv("مستوى التسعير", `${R.lvl.name} — ${R.lvl.desc}`, "lbl_b", "txt", 30);
+  s1.kv("موقع المشروع", `${R.loc.name} (${R.loc.ex}) — معامل الموقع ${R.loc.f.toFixed(2)}`, "lbl_b", "txt");
+  s1.kv(Number(inp.area) > 0 ? "المساحة الفعلية للمبنى (م²)" : "المساحة القياسية المعتمدة (م²)", R.area, "lbl_b", "num");
+  s1.kv("سنة التنفيذ المتوقعة", Number(inp.year) || A.baseYear, "lbl_b", "int");
+  const adds = A.addons.map((a, i) => (Number(inp.addons[i]) > 0 ? `${a.name} × ${inp.addons[i]}` : null)).filter(Boolean);
+  s1.kv("أجهزة كبرى إضافية", adds.length ? adds.join("، ") + (R.pk.e ? "" : " (غير محتسبة لأن نطاق العمل لا يشمل التجهيز الطبي)") : "لا يوجد", "lbl_b", "txt");
+  s1.blank();
+  s1.full("ثانياً: الخيار المعتمد", "section", 22);
+  s1.kv("الإجمالي التقديري (ر.س)", c.total, "kpi_lbl", "kpi", 24);
+  s1.kv(`سعر الوحدة — ${unit} (ر.س)`, c.perUnit, "kpi_lbl", "kpi", 24);
+  s1.kv("ما يعادل بالدولار الأمريكي", c.usd, "kpi_lbl", "kpi", 24);
+  s1.kv("المدى المتوقع للتقدير (−30% / +50%)", `${fmt(c.total * 0.7)} – ${fmt(c.total * 1.5)} ر.س`, "kpi_lbl", "kpi_txt", 24);
+  s1.blank();
+  s1.full(`ثالثاً: البناء الجديد وإعادة التأهيل بنفس نطاق العمل (${R.pk.name})`, "section", 22);
+  s1.add([["البند", "hdr"]].concat(A.scopes.map((sc, i) => [sc, i === k ? "hdr_sel" : "hdr"])), 30);
+  ROWS.forEach(([lab, key, cls]) => {
+    const label = key === "perUnit" ? `سعر الوحدة — ${unit} (ر.س)` : lab;
+    const ls = cls === "total" ? "lbl_tot" : (cls === "subtotal" ? "lbl_b" : "lbl");
+    const vs = i => {
+      const sel = i === k;
+      if (cls === "pct") return sel ? "pct_sel" : "pct";
+      if (cls === "total") return sel ? "num_tot_sel" : "num_tot";
+      if (cls === "subtotal") return sel ? "num_sel_b" : "num_b";
+      return sel ? "num_sel" : "num";
+    };
+    s1.add([[label, ls]].concat(R.cols.map((cl, i) => [cl[key], vs(i)])));
+  });
+  s1.blank();
+  s1.full("رابعاً: المعايير المستخدمة في الحساب", "section", 22);
+  [
+    ["وحدة التسعير", unit, "txt"],
+    ["المساحة القياسية لكل وحدة (م²)", R.t.gfa, "num"],
+    ["المساحة المعتمدة في الحساب (م²)", R.area, "num"],
+    ["معامل التعقيد", R.t.cf, "dec2"],
+    ["سعر البناء (ر.س / م²)", R.lvl.rate, "num"],
+    ["معامل الأجهزة الطبية", R.lvl.eq, "dec2"],
+    ["الأجهزة الطبية القياسية لكل وحدة (ر.س)", R.t.eq, "num"],
+    ["معامل الموقع", R.loc.f, "dec2"],
+    ["معامل التصعيد", R.escF, "dec3"],
+    ["تكلفة المبنى الجديد المرجعية (ر.س)", R.Bn, "num"],
+    ["قيمة الأجهزة الكبرى الإضافية (ر.س)", R.addTotal, "num"]
+  ].forEach(([l, v, st]) => s1.kv(l, v, "lbl", st));
+  s1.blank();
+  s1.full("أُعدّ هذا التقدير ببرنامج «مسعّر المنشآت الصحية». الأسعار استرشادية لمرحلة دراسة الاحتياج والجدوى، ولا تشمل قيمة الأرض وتكاليف التشغيل، ولا تغني عن التقدير التفصيلي بجداول الكميات بعد اكتمال التصميم.", "note", 34);
+
+  // ---- sheet 2: reference table with the current assumptions
+  const s2 = sheetBuilder("جدول سعر السرير", [5, 40, 11, 24, 11, 14, 15, 14, 13, 13, 13]);
+  s2.full("جدول استرشادي لتكلفة السرير للمنشآت الصحية — الجمهورية اليمنية", "title", 28);
+  s2.full(`سعر الوحدة بالريال السعودي — نطاق متكامل (إنشاء وتجهيز وتأثيث) — المدن الرئيسية — وفق الافتراضات الحالية في البرنامج بتاريخ ${date}`, "subtitle", 30);
+  s2.blank();
+  const h1 = s2.add([["م", "hdr"], ["نوع المنشأة", "hdr"], ["الوحدة", "hdr"], ["السعة النموذجية", "hdr"], ["م²/وحدة", "hdr"],
+    ["بناء جديد — سعر الوحدة (ر.س)", "hdr"], [null, "hdr"], [null, "hdr"],
+    ["إعادة تأهيل — المستوى المتوسط (ر.س)", "hdr"], [null, "hdr"], [null, "hdr"]], 28);
+  const h2 = s2.add([[null, "hdr"], [null, "hdr"], [null, "hdr"], [null, "hdr"], [null, "hdr"],
+    ["أدنى", "hdr2"], ["متوسط", "hdr2"], ["أعلى", "hdr2"], ["خفيف", "hdr2"], ["متوسط", "hdr2"], ["شامل", "hdr2"]], 22);
+  ["A", "B", "C", "D", "E"].forEach(col => s2.merges.push(`${col}${h1}:${col}${h2}`));
+  s2.merges.push(`F${h1}:H${h1}`, `I${h1}:K${h1}`);
+  let no = 0;
+  CATS.forEach((cat, ci) => {
+    s2.full(cat, "cat", 22);
+    A.types.forEach((t, i) => {
+      if (t.cat !== ci) return;
+      const v = [[0, 0], [0, 1], [0, 2], [1, 1], [2, 1], [3, 1]].map(([kk, j]) => roundRef(t, unitPrice(t, kk, j, A).total));
+      s2.add([[++no, "int"], [t.ar, "lbl"], [t.unit, "txt_c"], [t.cap, "txt_c"], [t.gfa, "num"]]
+        .concat(v.map((x, j) => [x, j === 1 ? "num_mid" : "num"])), 22);
+    });
+  });
+  s2.blank();
+  s2.full("التكلفة التقديرية = سعر الوحدة × عدد الأسرّة (أو كراسي الغسيل، أو عدد المراكز والمختبرات). لا تشمل الأسعار قيمة الأرض وتكاليف التشغيل. تقدير من الفئة الخامسة بدقة −30% / +50%.", "note", 30);
+
+  // ---- sheet 3: assumptions snapshot
+  const s3 = sheetBuilder("الافتراضات", [46, 18, 18, 18, 22]);
+  s3.full("الافتراضات المستخدمة في هذا التقدير", "title", 28);
+  s3.full(`القيم المعتمدة في البرنامج بتاريخ ${date}`, "subtitle", 20);
+  s3.blank();
+  s3.full("افتراضات عامة", "section", 22);
+  s3.kv("سعر صرف الدولار (ر.س / دولار)", A.fx, "lbl", "dec2");
+  s3.kv("أعمال الموقع والبنية التحتية (% من تكلفة المبنى)", A.ext, "lbl", "pct1");
+  s3.kv("التأثيث وتقنية المعلومات (% من تكلفة المبنى)", A.ffe, "lbl", "pct1");
+  s3.kv("نسبة التصعيد السنوي", A.esc, "lbl", "pct1");
+  s3.kv("سنة أساس الأسعار", A.baseYear, "lbl", "int");
+  s3.blank();
+  s3.full("مستويات التسعير", "section", 22);
+  s3.add([["المستوى", "hdr"], ["سعر البناء (ر.س / م²)", "hdr"], ["معامل الأجهزة الطبية", "hdr"]], 30);
+  A.levels.forEach(l => s3.add([[l.name, "lbl_b"], [l.rate, "num"], [l.eq, "dec2"]]));
+  s3.blank();
+  s3.full("معاملات نطاق العمل (بناء جديد / إعادة تأهيل)", "section", 22);
+  s3.add([["البند", "hdr"]].concat(A.scopes.map(sc => [sc, "hdr"])), 30);
+  [["أعمال المبنى (% من تكلفة المبنى الجديد)", "bld"], ["أعمال الموقع الخارجية", "ext"], ["الأجهزة الطبية", "eq"],
+   ["التأثيث وتقنية المعلومات", "ffe"], ["التصميم والإشراف (% من الأعمال)", "soft"], ["الاحتياطي", "cont"]]
+    .forEach(([l, key]) => s3.add([[l, "lbl"]].concat(A.scope[key].map(v => [v, "pct"]))));
+  s3.blank();
+  s3.full("معاملات الموقع", "section", 22);
+  s3.add([["الموقع", "hdr"], ["المعامل", "hdr"], ["أمثلة", "hdr"], [null, "hdr"], [null, "hdr"]], 22);
+  s3.merges.push(`C${s3.rows.length}:E${s3.rows.length}`);
+  A.locations.forEach(l => {
+    const r = s3.add([[l.name, "lbl"], [l.f, "dec2"], [l.ex, "txt"], [null, "txt"], [null, "txt"]]);
+    s3.merges.push(`C${r}:E${r}`);
+  });
+  s3.blank();
+  s3.full("نطاق العمل — البنود المشمولة", "section", 22);
+  s3.add([["نطاق العمل", "hdr"], ["الأعمال الإنشائية", "hdr"], ["الأجهزة الطبية", "hdr"], ["التأثيث وتقنية المعلومات", "hdr"]], 30);
+  A.packages.forEach(p => s3.add([[p.name, "lbl"], [yes(p.w), "txt_c"], [yes(p.e), "txt_c"], [yes(p.f), "txt_c"]]));
+  s3.blank();
+  s3.full("الأجهزة الكبرى الإضافية", "section", 22);
+  s3.add([["البند", "hdr"], ["سعر الوحدة (ر.س)", "hdr"]], 22);
+  A.addons.forEach(a => s3.add([[`${a.name} (${a.en})`, "lbl"], [a.price, "num"]]));
+  s3.blank();
+  s3.full("معايير المنشآت", "section", 22);
+  s3.add([["نوع المنشأة", "hdr"], ["الوحدة", "hdr"], ["المساحة لكل وحدة (م²)", "hdr"], ["معامل التعقيد", "hdr"], ["الأجهزة الطبية لكل وحدة (ر.س)", "hdr"]], 30);
+  typeOrder().forEach(i => { const t = A.types[i]; s3.add([[t.ar, "lbl"], [t.unit, "txt_c"], [t.gfa, "num"], [t.cf, "dec2"], [t.eq, "num"]]); });
+
+  return {
+    filename: `تقدير ${R.t.ar} - ${R.n} ${unit} - ${A.scopes[k]} - ${date}.xlsx`,
+    title: `تقدير ${R.t.ar} — ${A.scopes[k]}`,
+    sheets: [s1, s2, s3]
+  };
+}
+
+/* ---- Excel writer (same formatting as the Windows program; no library) ---- */
+const XL = (() => {
+  const font = (b, i, sz, color) => `<font>${b ? "<b/>" : ""}${i ? "<i/>" : ""}<sz val="${sz}"/>${color ? `<color rgb="${color}"/>` : ""}<name val="Arial"/><family val="2"/></font>`;
+  const fonts = [font(0, 0, 10), font(1, 0, 14, "FF0E4A36"), font(0, 1, 10, "FF595959"), font(1, 0, 11, "FFFFFFFF"), font(1, 0, 10, "FFFFFFFF"),
+    font(1, 0, 10, "FF2E2406"), font(1, 0, 10, "FF10251C"), font(1, 0, 10), font(1, 0, 10, "FF0E4A36"), font(1, 0, 11), font(1, 0, 12, "FF0E4A36"), font(0, 1, 9, "FF595959")];
+  const solid = c => `<fill><patternFill patternType="solid"><fgColor rgb="${c}"/><bgColor indexed="64"/></patternFill></fill>`;
+  const fills = ['<fill><patternFill patternType="none"/></fill>', '<fill><patternFill patternType="gray125"/></fill>',
+    solid("FF0E4A36"), solid("FFC9A227"), solid("FFE1EDE6"), solid("FFF2F2F2"), solid("FFF8EFD2"), solid("FFEBD48A"), solid("FFE8F0EB")];
+  const side = s => `<${s} style="thin"><color rgb="FFA6A6A6"/></${s}>`;
+  const borders = ["<border><left/><right/><top/><bottom/><diagonal/></border>", `<border>${side("left")}${side("right")}${side("top")}${side("bottom")}<diagonal/></border>`];
+  // name: [font, fill, border, numFmt, align, wrap]
+  const defs = {
+    default: [0, 0, 0, 0, "general", 0], title: [1, 0, 0, 0, "right", 0], subtitle: [2, 0, 0, 0, "right", 1], section: [3, 2, 0, 0, "right", 0],
+    hdr: [4, 2, 1, 0, "center", 1], hdr_sel: [5, 3, 1, 0, "center", 1], hdr2: [6, 4, 1, 0, "center", 1], lbl: [0, 0, 1, 0, "right", 1],
+    lbl_b: [7, 5, 1, 0, "right", 1], txt: [0, 0, 1, 0, "right", 1], txt_c: [0, 0, 1, 0, "center", 1], num: [0, 0, 1, 3, "center", 0],
+    num_b: [7, 5, 1, 3, "center", 0], num_sel: [0, 6, 1, 3, "center", 0], num_sel_b: [5, 7, 1, 3, "center", 0], num_tot: [8, 8, 1, 3, "center", 0],
+    lbl_tot: [8, 8, 1, 0, "right", 1], num_tot_sel: [5, 3, 1, 3, "center", 0], pct: [0, 0, 1, 9, "center", 0], pct_sel: [0, 6, 1, 9, "center", 0],
+    pct1: [0, 0, 1, 165, "center", 0], dec2: [0, 0, 1, 2, "center", 0], dec3: [0, 0, 1, 164, "center", 0], int: [0, 0, 1, 1, "center", 0],
+    cat: [8, 8, 1, 0, "right", 0], kpi_lbl: [9, 6, 1, 0, "right", 1], kpi: [10, 6, 1, 3, "center", 0], kpi_txt: [9, 6, 1, 0, "center", 0],
+    note: [11, 0, 0, 0, "right", 1], num_mid: [7, 6, 1, 3, "center", 0]
+  };
+  const order = Object.keys(defs), idx = Object.fromEntries(order.map((n, i) => [n, i]));
+  const x = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "");
+  const col = i => { let s = ""; i++; while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+  const head = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+  const NS = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
+  function styles() {
+    const xfs = order.map(n => { const [f, fl, b, nf, al, w] = defs[n];
+      return `<xf numFmtId="${nf}" fontId="${f}" fillId="${fl}" borderId="${b}" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="${al}" vertical="center"${w ? ' wrapText="1"' : ""}${al === "right" ? ' readingOrder="2"' : ""}/></xf>`; }).join("");
+    return `${head}<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="0.000"/><numFmt numFmtId="165" formatCode="0.0%"/></numFmts>` +
+      `<fonts count="${fonts.length}">${fonts.join("")}</fonts><fills count="${fills.length}">${fills.join("")}</fills><borders count="2">${borders.join("")}</borders>` +
+      `<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="${order.length}">${xfs}</cellXfs>` +
+      `<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles><dxfs count="0"/><tableStyles count="0"/></styleSheet>`;
+  }
+  function sheet(sh, first) {
+    let s = `${head}<worksheet ${NS}><sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0"${sh.rtl ? ' rightToLeft="1"' : ""}${first ? ' tabSelected="1"' : ""}/></sheetViews><sheetFormatPr defaultRowHeight="18"/>`;
+    s += "<cols>" + sh.cols.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("") + "</cols><sheetData>";
+    sh.rows.forEach((row, ri) => {
+      if (!row.c || !row.c.length) return;
+      const r = ri + 1;
+      s += `<row r="${r}" ht="${row.h || 20}" customHeight="1">`;
+      row.c.forEach((cell, ci) => {
+        if (!cell) return;
+        const [v, st] = cell, si = idx[st] || 0, ref = col(ci) + r;
+        if (typeof v === "number" && isFinite(v)) s += `<c r="${ref}" s="${si}"><v>${v}</v></c>`;
+        else if (typeof v === "string") s += `<c r="${ref}" s="${si}" t="inlineStr"><is><t xml:space="preserve">${x(v)}</t></is></c>`;
+        else if (si) s += `<c r="${ref}" s="${si}"/>`;
+      });
+      s += "</row>";
+    });
+    s += "</sheetData>";
+    if (sh.merges.length) s += `<mergeCells count="${sh.merges.length}">${sh.merges.map(m => `<mergeCell ref="${m}"/>`).join("")}</mergeCells>`;
+    return s + `<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="${sh.landscape ? "landscape" : "portrait"}" fitToWidth="1" fitToHeight="0"/></worksheet>`;
+  }
+  const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  const crc32 = u => { let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = CRC[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  function zip(files) {
+    const enc = new TextEncoder(), parts = [], central = [];
+    const d = new Date(), time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1), date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    let off = 0;
+    files.forEach(f => {
+      const name = enc.encode(f.name), data = enc.encode(f.body), crc = crc32(data);
+      const h = new DataView(new ArrayBuffer(30));
+      [[0, 0x04034b50, 4], [4, 20, 2], [6, 0x0800, 2], [8, 0, 2], [10, time, 2], [12, date, 2], [14, crc, 4], [18, data.length, 4], [22, data.length, 4], [26, name.length, 2], [28, 0, 2]]
+        .forEach(([o, v, n]) => n === 4 ? h.setUint32(o, v, true) : h.setUint16(o, v, true));
+      parts.push(new Uint8Array(h.buffer), name, data);
+      const c = new DataView(new ArrayBuffer(46));
+      [[0, 0x02014b50, 4], [4, 20, 2], [6, 20, 2], [8, 0x0800, 2], [10, 0, 2], [12, time, 2], [14, date, 2], [16, crc, 4], [20, data.length, 4], [24, data.length, 4],
+       [28, name.length, 2], [30, 0, 2], [32, 0, 2], [34, 0, 2], [36, 0, 2], [38, 0, 4], [42, off, 4]]
+        .forEach(([o, v, n]) => n === 4 ? c.setUint32(o, v, true) : c.setUint16(o, v, true));
+      central.push(new Uint8Array(c.buffer), name);
+      off += 30 + name.length + data.length;
+    });
+    const cdSize = central.reduce((s, p) => s + p.length, 0);
+    const e = new DataView(new ArrayBuffer(22));
+    [[0, 0x06054b50, 4], [4, 0, 2], [6, 0, 2], [8, files.length, 2], [10, files.length, 2], [12, cdSize, 4], [16, off, 4], [20, 0, 2]]
+      .forEach(([o, v, n]) => n === 4 ? e.setUint32(o, v, true) : e.setUint16(o, v, true));
+    return new Blob([...parts, ...central, new Uint8Array(e.buffer)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  }
+  function build(rep) {
+    const sh = rep.sheets, rel = "http://schemas.openxmlformats.org/officeDocument/2006/relationships", pkg = "http://schemas.openxmlformats.org/package/2006/relationships";
+    const stamp = new Date().toISOString().replace(/\.\d+Z$/, "Z");
+    const files = [
+      { name: "[Content_Types].xml", body: `${head}<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>` +
+        sh.map((s, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("") +
+        `<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>` },
+      { name: "_rels/.rels", body: `${head}<Relationships xmlns="${pkg}"><Relationship Id="rId1" Type="${rel}/officeDocument" Target="xl/workbook.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/></Relationships>` },
+      { name: "docProps/core.xml", body: `${head}<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${x(rep.title || "")}</dc:title><dc:creator>مسعّر المنشآت الصحية</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">${stamp}</dcterms:created></cp:coreProperties>` },
+      { name: "xl/workbook.xml", body: `${head}<workbook ${NS}><bookViews><workbookView activeTab="0"/></bookViews><sheets>${sh.map((s, i) => `<sheet name="${x(s.name.slice(0, 31))}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets></workbook>` },
+      { name: "xl/_rels/workbook.xml.rels", body: `${head}<Relationships xmlns="${pkg}">${sh.map((s, i) => `<Relationship Id="rId${i + 1}" Type="${rel}/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join("")}<Relationship Id="rId${sh.length + 1}" Type="${rel}/styles" Target="styles.xml"/></Relationships>` },
+      { name: "xl/styles.xml", body: styles() },
+      ...sh.map((s, i) => ({ name: `xl/worksheets/sheet${i + 1}.xml`, body: sheet(s, i === 0) }))
+    ];
+    return zip(files);
+  }
+  return { build };
+})();
+
+/* ---- export: share sheet on iPhone/Android, download elsewhere ---- */
+$("btn-export").addEventListener("click", async () => {
+  const btn = $("btn-export"), st = $("export-status");
+  btn.disabled = true; st.textContent = "جارٍ إعداد الملف…";
+  try {
+    const rep = buildReport();
+    const name = rep.filename.replace(/[<>:"/\\|?*]/g, "-");
+    const blob = XL.build(rep);
+    const file = new File([blob], name, { type: blob.type });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: rep.title });
+      st.textContent = "";
+    } else {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+      st.textContent = "تم حفظ ملف Excel";
+    }
+  } catch (e) {
+    st.textContent = (e && e.name === "AbortError") ? "" : "تعذّر إنشاء الملف";
+  } finally { btn.disabled = false; }
+});
+$("btn-print").addEventListener("click", () => {
+  const d = document.querySelector("details.params"); const was = d.open; d.open = true;
+  window.print(); d.open = was;
+});
+
+/* ---------------- boot ---------------- */
+document.documentElement.setAttribute("dir", "rtl");
+buildInputs(); syncInputs(); renderCalc(); renderRef(); renderBrk(); renderAssumptions();
+try { const t = localStorage.getItem("hcp-yemen-tab"); if (t && $("p-" + t)) showTab(t); } catch (e) {}
+}
+</script>
+<script>
+(() => {
+"use strict";
+const SB_URL = "https://yregpsppdlqdtictwofo.supabase.co", SB_KEY = "sb_publishable_RJgjIlr9zRyNZBpuBLjG6w_e4B5zoKp", APP_URL = "https://jwmvw5tmk2-oss.github.io/facility-pricer/";
+const K_SES = "hcp-auth-v1", K_CFG = "hcp-cfg-v1";
+const WIPE = [K_SES, K_CFG, "hcp-yemen-assumptions-v1", "hcp-yemen-inputs-v1"];
+const GRACE_MS = 3 * 24 * 3600 * 1000;      // offline use allowed this long after the last successful check
+const RECHECK_MS = 6 * 3600 * 1000;         // re-verify an open app after this long
+const g = id => document.getElementById(id);
+const ld = k => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } };
+const sv = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const wipe = () => WIPE.forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+const escH = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+
+/* ---------- network ---------- */
+class ApiError extends Error { constructor(msg, status, code) { super(msg); this.status = status; this.code = code; } }
+async function call(url, opts, ms = 10000) {
+  const ac = new AbortController(); const t = setTimeout(() => ac.abort(), ms);
+  let r;
+  try { r = await fetch(url, Object.assign({ signal: ac.signal }, opts)); }
+  catch (e) { throw new ApiError("network", 0, "network"); }
+  finally { clearTimeout(t); }
+  let j = null; try { j = await r.json(); } catch (e) {}
+  if (!r.ok) throw new ApiError((j && (j.error_description || j.msg || j.message || j.error)) || ("http " + r.status), r.status,
+                               (j && (j.error_code || j.code || j.error)) || "");
+  return j;
+}
+const isNet = e => e && (e.code === "network" || e.status === 0 || e.status >= 500);
+
+let ses = ld(K_SES);
+async function token(body, grant) {
+  const j = await call(`${SB_URL}/auth/v1/token?grant_type=${grant}`, {
+    method: "POST", headers: { apikey: SB_KEY, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  ses = { access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (Number(j.expires_in || 3600) - 90) * 1000,
+          email: (j.user && j.user.email) || (ses && ses.email) || "" };
+  sv(K_SES, ses);
+  return ses;
+}
+async function accessToken() {
+  if (!ses || !ses.refresh) throw new ApiError("no session", 401, "no_session");
+  if (Date.now() < ses.exp) return ses.access;
+  await token({ refresh_token: ses.refresh }, "refresh_token");
+  return ses.access;
+}
+async function rpc(fn, args) {
+  const tok = await accessToken();
+  return call(`${SB_URL}/rest/v1/rpc/${fn}`, {
+    method: "POST", headers: { apikey: SB_KEY, Authorization: "Bearer " + tok, "Content-Type": "application/json" },
+    body: JSON.stringify(args || {}) });
+}
+
+/* ---------- gate views ---------- */
+function view(id, msg, ok) {
+  ["g-loading", "g-login", "g-act", "g-blocked"].forEach(v => { g(v).hidden = v !== id; });
+  const m = g("g-msg"); m.textContent = msg || ""; m.classList.toggle("ok", !!ok);
+  g("gate").hidden = false; document.querySelector(".app").hidden = true;
+  const f = { "g-login": "g-email", "g-act": "a-email" }[id];
+  if (f && !g(f).value && ses && ses.email) g(f).value = ses.email;
+}
+document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => view(b.dataset.go)));
+
+function authMsg(e) {
+  if (isNet(e)) return "تعذّر الاتصال بالخادم. تحقق من الإنترنت ثم حاول مرة أخرى.";
+  if (e.status === 429) return "محاولات كثيرة. انتظر دقائق ثم حاول مرة أخرى.";
+  if (e.code === "invalid_credentials" || e.status === 400) return "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+  return "تعذّر تسجيل الدخول. حاول مرة أخرى.";
+}
+
+g("g-login").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const btn = ev.submitter || g("g-login").querySelector("button[type=submit]");
+  btn.disabled = true; g("g-msg").textContent = "";
+  try {
+    await token({ email: g("g-email").value.trim().toLowerCase(), password: g("g-pass").value }, "password");
+    g("g-pass").value = "";
+    await boot();
+  } catch (e) { view("g-login", authMsg(e)); }
+  finally { btn.disabled = false; }
+});
+
+g("g-act").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const email = g("a-email").value.trim().toLowerCase(), code = g("a-code").value.replace(/[\s-]/g, "").toUpperCase();
+  const p1 = g("a-pass").value, p2 = g("a-pass2").value;
+  if (p1.length < 8) return view("g-act", "كلمة المرور يجب أن تكون 8 أحرف على الأقل.");
+  if (p1 !== p2) return view("g-act", "كلمتا المرور غير متطابقتين.");
+  const btn = g("g-act").querySelector("button[type=submit]"); btn.disabled = true; g("g-msg").textContent = "";
+  try {
+    await call(`${SB_URL}/functions/v1/activate`, { method: "POST",
+      headers: { apikey: SB_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ email, code, password: p1 }) }, 20000);
+    await token({ email, password: p1 }, "password");
+    ["a-code", "a-pass", "a-pass2"].forEach(i => { g(i).value = ""; });
+    await boot();
+  } catch (e) {
+    if (isNet(e)) view("g-act", "تعذّر الاتصال بالخادم. تحقق من الإنترنت ثم حاول مرة أخرى.");
+    else if (e.code === "weak_password" || /weak_password/.test(e.message)) view("g-act", "كلمة المرور ضعيفة. استخدم 8 أحرف على الأقل تجمع حروفاً وأرقاماً.");
+    else view("g-act", "الرمز غير صحيح أو منتهي الصلاحية، أو البريد لا يطابق الدعوة. يبطل الرمز بعد 5 محاولات خاطئة؛ اطلب رمزاً جديداً من المدير.");
+  } finally { btn.disabled = false; }
+});
+
+/* ---------- start ---------- */
+let started = false, lastOk = 0, me = null;
+function launch(cfg, offlineSince) {
+  if (started) return;
+  if (!cfg || !cfg.data || !Array.isArray(cfg.data.types)) throw new Error("bad config");
+  started = true; me = cfg.me || {};
+  g("p-meth").innerHTML = cfg.meth || "";
+  const admin = me.role === "admin";
+  if (!admin) { g("t-users").remove(); g("p-users").remove(); }
+  const who = g("who");
+  who.textContent = offlineSince ? "بدون إنترنت — آخر تحقق " + fmtDate(offlineSince) : (me.name || me.email || "");
+  who.title = me.email || ""; who.classList.toggle("off", !!offlineSince);
+  g("gate").hidden = true; document.querySelector(".app").hidden = false;
+  window.__startApp(cfg.data);
+  if (admin) initAdmin();
+}
+
+async function boot() {
+  view("g-loading");
+  if (!ses || !ses.refresh) return view("g-login");
+  try {
+    const cfg = await rpc("get_config");
+    lastOk = Date.now();
+    sv(K_CFG, { cfg, okAt: lastOk, email: ses.email });
+    launch(cfg, 0);
+  } catch (e) {
+    if (isNet(e)) {
+      const c = ld(K_CFG);
+      if (c && c.cfg && c.email === ses.email && Date.now() - c.okAt < GRACE_MS) { lastOk = c.okAt; return launch(c.cfg, c.okAt); }
+      return view("g-login", "يلزم الاتصال بالإنترنت للتحقق من صلاحيتك (مرة كل 3 أيام على الأقل).");
+    }
+    if (e.code === "42501" || /not_allowed/.test(e.message)) { const em = ses && ses.email; wipe(); ses = em ? { email: em } : null; return view("g-blocked"); }
+    const em = ses && ses.email; wipe(); ses = em ? { email: em } : null;      // refresh token rejected: sign in again
+    view("g-login", "انتهت الجلسة. سجّل الدخول مرة أخرى.");
+  }
+}
+
+// an app left open is re-verified when it comes back to the foreground
+document.addEventListener("visibilitychange", async () => {
+  if (document.visibilityState !== "visible" || !started || Date.now() - lastOk < RECHECK_MS) return;
+  try { const cfg = await rpc("get_config"); lastOk = Date.now(); sv(K_CFG, { cfg, okAt: lastOk, email: ses.email }); }
+  catch (e) {
+    if (!isNet(e)) { wipe(); location.reload(); }
+    else if (Date.now() - lastOk > GRACE_MS) location.reload();
+  }
+});
+
+g("btn-logout").addEventListener("click", () => {
+  if (!confirm("تسجيل الخروج من هذا الجهاز؟ ستُمسح البيانات والتعديلات المحفوظة عليه.")) return;
+  const tok = ses && ses.access;
+  if (tok) fetch(`${SB_URL}/auth/v1/logout`, { method: "POST", headers: { apikey: SB_KEY, Authorization: "Bearer " + tok } }).catch(() => {});
+  wipe(); location.reload();
+});
+
+/* ---------- users tab (admins) ---------- */
+const DF = new Intl.DateTimeFormat("ar-u-ca-gregory-nu-latn", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+function fmtDate(v) { try { return v ? DF.format(new Date(v)) : "—"; } catch (e) { return "—"; } }
+function adminMsg(e) {
+  if (isNet(e)) return "تعذّر الاتصال بالخادم.";
+  const m = String(e.message || "");
+  if (/bad_email/.test(m)) return "البريد الإلكتروني غير صحيح.";
+  if (/cannot_change_self/.test(m)) return "لا يمكنك تعديل حسابك أنت.";
+  if (/not_admin/.test(m)) return "هذه الصفحة للمدير فقط.";
+  return "تعذّر تنفيذ العملية.";
+}
+let users = [];
+async function loadUsers() {
+  const st = g("u-status"); st.textContent = "جارٍ التحميل…";
+  try { users = await rpc("admin_list_users"); st.textContent = users.length + " مستخدم"; renderUsers(); }
+  catch (e) { st.textContent = adminMsg(e); }
+}
+function renderUsers() {
+  g("u-rows").innerHTML = users.map(u => {
+    const self = u.email === me.email;
+    const status = !u.active ? '<span class="pill warn">موقوف</span>'
+      : u.activated ? '<span class="pill on">مفعّل</span>'
+      : u.code_pending ? '<span class="pill wait">بانتظار التفعيل</span>'
+      : '<span class="pill">انتهى الرمز</span>';
+    const acts = self ? '<span class="hint">حسابك</span>'
+      : u.active ? `<button class="btn ghost" data-act="code" data-em="${escH(u.email)}">رمز جديد</button><button class="btn warn-ghost" data-act="off" data-em="${escH(u.email)}">إيقاف</button>`
+      : `<button class="btn" data-act="on" data-em="${escH(u.email)}">إعادة تفعيل</button>`;
+    return `<tr><td><b>${escH(u.name || "—")}</b><span class="em">${escH(u.email)}</span></td>
+      <td>${u.role === "admin" ? "مدير" : "مستخدم"}</td><td>${status}</td><td>${fmtDate(u.last_seen)}</td>
+      <td><div class="acts">${acts}</div></td></tr>`;
+  }).join("");
+}
+function showInvite(email, name, code, isNew) {
+  g("u-code").textContent = code;
+  const hi = name ? "مرحباً " + name + "،" : "مرحباً،";
+  g("u-msg").value = [hi,
+    isNew ? "تم منحك صلاحية استخدام تطبيق «مسعّر المنشآت الصحية»." : "هذا رمز جديد لتفعيل حسابك أو تعيين كلمة مرور جديدة في تطبيق «مسعّر المنشآت الصحية».",
+    "", "1. افتح الرابط: " + APP_URL,
+    "2. اضغط «لديّ رمز تفعيل».",
+    "3. البريد الإلكتروني: " + email,
+    "4. رمز التفعيل: " + code + " (صالح 7 أيام)",
+    "5. اختر كلمة مرور خاصة بك واضغط «تفعيل والدخول».",
+    "", "على الآيفون: افتح الرابط في Safari ثم مشاركة ← «إضافة إلى الشاشة الرئيسية»."].join("\n");
+  g("u-copied").textContent = "";
+  g("u-invite").hidden = false;
+  g("u-invite").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+async function issue(email, name, role, isNew) {
+  const code = await rpc("admin_issue_code", { p_email: email, p_name: name || null, p_role: role || null });
+  showInvite(email, name, code, isNew);
+  await loadUsers();
+}
+function initAdmin() {
+  g("t-users").addEventListener("click", loadUsers);
+  g("u-refresh").addEventListener("click", loadUsers);
+  g("u-form").addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const email = g("u-email").value.trim().toLowerCase(), name = g("u-name").value.trim(), role = g("u-role").value;
+    const exists = users.find(u => u.email === email);
+    if (exists && !confirm("هذا البريد موجود. إصدار رمز جديد له (وتعديل صلاحيته إن غيّرتها)؟")) return;
+    const btn = g("u-form").querySelector("button[type=submit]"); btn.disabled = true;
+    try { await issue(email, name, role, !exists); g("u-form").reset(); }
+    catch (e) { g("u-status").textContent = adminMsg(e); alertMsg(adminMsg(e)); }
+    finally { btn.disabled = false; }
+  });
+  g("u-rows").addEventListener("click", async ev => {
+    const b = ev.target.closest("button[data-act]"); if (!b) return;
+    const email = b.dataset.em, u = users.find(x => x.email === email) || {};
+    try {
+      if (b.dataset.act === "off") {
+        if (!confirm("إيقاف صلاحية " + (u.name || email) + "؟ لن يستطيع فتح التطبيق، ويمكنك إعادة تفعيله لاحقاً.")) return;
+        b.disabled = true; await rpc("admin_set_active", { p_email: email, p_active: false }); await loadUsers();
+      } else if (b.dataset.act === "on") {
+        b.disabled = true; await rpc("admin_set_active", { p_email: email, p_active: true });
+        if (!u.activated) await issue(email, u.name, null, true); else await loadUsers();
+      } else if (b.dataset.act === "code") {
+        if (!confirm("إصدار رمز جديد لـ " + (u.name || email) + "؟ يستخدمه لتعيين كلمة مرور جديدة.")) return;
+        b.disabled = true; await issue(email, u.name, null, false);
+      }
+    } catch (e) { g("u-status").textContent = adminMsg(e); b.disabled = false; }
+  });
+  g("u-copy").addEventListener("click", async () => {
+    const t = g("u-msg").value;
+    try { await navigator.clipboard.writeText(t); } catch (e) { g("u-msg").select(); try { document.execCommand("copy"); } catch (x) {} }
+    g("u-copied").textContent = "تم النسخ";
+  });
+  g("u-share").addEventListener("click", async () => {
+    const t = g("u-msg").value;
+    if (navigator.share) { try { await navigator.share({ text: t }); } catch (e) {} }
+    else g("u-copy").click();
+  });
+}
+function alertMsg(t) { g("u-status").textContent = t; }
+
+boot();
+})();
+</script>
+
+
+</body>
+</html>
