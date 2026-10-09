@@ -284,7 +284,7 @@ body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
     </div>
     <div>
       <h1>مسعّر المنشآت الصحية</h1>
-      <p>تقدير تكلفة الإنشاء والتأهيل والتجهيز والتأثيث — <span id="hdr-country">الجمهورية اليمنية</span> — بالريال السعودي — أسعار الربع الرابع 2026</p>
+      <p>تقدير تكلفة الإنشاء والتأهيل والتجهيز والتأثيث</p>
     </div>
     <div class="actions" id="export-box">
       <span class="hint" id="export-status" role="status"></span>
@@ -652,7 +652,6 @@ function renderCalc() {
   const k = inp.scope, col = R.cols[k], unit = R.t.unit;
   $("unit-name").textContent = unit;
   $("units-label").textContent = `عدد الوحدات (${unit})`;
-  $("hdr-country").textContent = R.C.full;
   $("sum-desc").textContent = `${R.C.name} — ${R.t.ar} — ${fmt(R.n)} ${unit} — ${A.scopes[k]} — ${R.pk.name} — مستوى ${R.lvl.name} — ${R.loc.name}` + (inp.year > A.baseYear ? ` — تنفيذ ${inp.year}` : "");
   $("k-total").textContent = fmt(col.total);
   $("k-unit-label").textContent = `سعر الوحدة (${unit})`;
