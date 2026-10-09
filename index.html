@@ -314,6 +314,10 @@ select,input[type=number],.gate input,.u-form input,.u-form select,.u-invite tex
   background:var(--glass-field);border:1px solid var(--glass-border);border-radius:14px;
   box-shadow:inset 0 1px 2px rgba(14,74,54,.06);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 select,input[type=number]{padding:9px 12px}
+/* native drop-down lists: solid colours (a translucent field background makes the Windows list white with pale text) */
+select option,select optgroup{background-color:var(--surface);color:var(--ink)}
+select optgroup{font-weight:700;color:var(--accent)}
+select option:checked{background-color:var(--accent-soft);color:var(--ink)}
 .chip span{border-radius:999px;padding:7px 12px;background:var(--glass-field);border:1px solid var(--glass-border);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
 .chip input:checked+span{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 82%,#fff),var(--accent));
