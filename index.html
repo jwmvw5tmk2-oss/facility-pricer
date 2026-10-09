@@ -240,6 +240,113 @@ body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
   .u-table td{border:0;padding:2px 10px}
 }
 @media print{ .gate,#p-users,#btn-logout,.who{display:none!important} }
+
+/* ================= Liquid Glass ================= */
+:root{
+  --glass:linear-gradient(135deg,rgba(255,255,255,.74),rgba(255,255,255,.46));
+  --glass-solid:rgba(255,255,255,.82);
+  --glass-field:rgba(255,255,255,.62);
+  --glass-border:rgba(255,255,255,.7);
+  --glass-edge:rgba(14,74,54,.10);
+  --glass-hi:inset 0 1px 0 rgba(255,255,255,.85), inset 0 -1px 0 rgba(14,74,54,.05);
+  --glass-shadow:0 10px 30px rgba(14,74,54,.10), 0 2px 6px rgba(14,74,54,.06);
+  --blur:blur(22px) saturate(175%);
+  --bg-glow-1:rgba(14,74,54,.30); --bg-glow-2:rgba(201,162,39,.24); --bg-glow-3:rgba(93,187,142,.26); --bg-base:#E9F0EB;
+  --r:20px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --glass:linear-gradient(135deg,rgba(30,58,46,.62),rgba(14,30,23,.46));
+    --glass-solid:rgba(20,40,32,.86);
+    --glass-field:rgba(255,255,255,.06);
+    --glass-border:rgba(255,255,255,.11);
+    --glass-edge:rgba(0,0,0,.25);
+    --glass-hi:inset 0 1px 0 rgba(255,255,255,.10), inset 0 -1px 0 rgba(0,0,0,.25);
+    --glass-shadow:0 12px 34px rgba(0,0,0,.40), 0 2px 6px rgba(0,0,0,.25);
+    --bg-glow-1:rgba(93,187,142,.20); --bg-glow-2:rgba(216,180,68,.16); --bg-glow-3:rgba(14,74,54,.55); --bg-base:#06110C;
+  }
+}
+body{background:var(--bg-base)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(900px 520px at 105% -8%,var(--bg-glow-2),transparent 62%),
+    radial-gradient(820px 620px at -12% 8%,var(--bg-glow-1),transparent 60%),
+    radial-gradient(900px 760px at 55% 118%,var(--bg-glow-3),transparent 62%),
+    var(--bg-base)}
+.card,.gate-card,.tabs,.tablewrap{
+  background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid var(--glass-border);box-shadow:var(--glass-hi),var(--glass-shadow)}
+.card{border-radius:var(--r);padding:20px}
+.gate-card{border-radius:28px;padding:26px 22px}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .card,.gate-card,.tabs,.tablewrap{background:var(--glass-solid)}
+}
+/* header */
+.mark{border-radius:14px;background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 78%,#fff),var(--accent));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 6px 16px rgba(14,74,54,.28)}
+h1 .abbr{display:inline-block;vertical-align:middle;margin-inline-start:8px;font-size:.56em;font-weight:800;letter-spacing:.1em;
+  padding:3px 10px;border-radius:999px;color:var(--on-hi);background:linear-gradient(135deg,#E9CD6A,var(--hi));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 3px 10px rgba(201,162,39,.35);font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.lang-btn{flex:none;white-space:nowrap;appearance:none;font:inherit;font-weight:700;font-size:.82rem;min-width:46px;height:36px;padding:0 12px;border-radius:999px;cursor:pointer;
+  color:var(--accent);background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid var(--glass-border);box-shadow:var(--glass-hi),0 4px 12px rgba(14,74,54,.10)}
+.lang-btn:hover{filter:brightness(1.04)}
+.gate-head .lang-btn{margin-inline-start:auto;align-self:flex-start}
+/* floating capsule tab bar */
+.tabs{position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:30;display:flex;width:fit-content;max-width:100%;
+  gap:4px;padding:5px;border-radius:999px;margin:4px 0 20px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--glass-border)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{border:0;border-radius:999px;padding:8px 16px;color:var(--muted);transition:background .2s,color .2s}
+.tab[aria-selected="true"]{color:var(--accent-ink);background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 82%,#fff),var(--accent));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 12px rgba(14,74,54,.25)}
+/* buttons */
+.btn{border-radius:999px;padding:9px 18px;border:1px solid rgba(255,255,255,.22);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 82%,#fff),var(--accent));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 16px rgba(14,74,54,.22);transition:transform .15s,filter .15s}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:scale(.98)}
+.btn.ghost{color:var(--accent);background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid var(--glass-border);box-shadow:var(--glass-hi),0 4px 12px rgba(14,74,54,.08)}
+.btn.danger{background:linear-gradient(180deg,color-mix(in srgb,var(--warn) 80%,#fff),var(--warn));border-color:rgba(255,255,255,.2)}
+.btn.warn-ghost{border-radius:999px}
+/* fields */
+select,input[type=number],.gate input,.u-form input,.u-form select,.u-invite textarea{
+  background:var(--glass-field);border:1px solid var(--glass-border);border-radius:14px;
+  box-shadow:inset 0 1px 2px rgba(14,74,54,.06);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+select,input[type=number]{padding:9px 12px}
+.chip span{border-radius:999px;padding:7px 12px;background:var(--glass-field);border:1px solid var(--glass-border);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.chip input:checked+span{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 82%,#fff),var(--accent));
+  border-color:rgba(255,255,255,.25);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 10px rgba(14,74,54,.22)}
+/* summary */
+.summary{position:relative;overflow:hidden;border-top:1px solid var(--glass-border)}
+.summary::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,var(--hi),#EBD27A,var(--hi))}
+.kpi.main .value{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 70%,#fff),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.warn{border-radius:14px}
+.pill{background:var(--glass-field);border-color:var(--glass-border)}
+/* bars */
+.bar-track{height:14px;border-radius:999px;background:var(--glass-field);box-shadow:inset 0 1px 2px rgba(14,74,54,.10)}
+.bar-fill{border-radius:999px;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 70%,#fff),var(--accent))}
+.bar-row.sel .bar-fill{background:linear-gradient(90deg,#EBD27A,var(--hi))}
+.bar-row{border-radius:12px}
+/* tables */
+.tablewrap{border-radius:18px;overflow:auto}
+thead th{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 88%,#fff),var(--accent))}
+th,td{border-bottom-color:var(--glass-edge)}
+.formula{border-radius:14px;background:var(--glass-field);border:1px solid var(--glass-border)}
+.code-big{border-radius:16px}
+/* left-to-right (English) */
+[dir="ltr"] th,[dir="ltr"] td{text-align:left}
+[dir="ltr"] td.n,[dir="ltr"] th.n{text-align:right}
+[dir="ltr"] .bar-val,[dir="ltr"] .params dd{text-align:right}
+[dir="ltr"] .en{display:none}
+@media (max-width:560px){[dir="ltr"] .bar-val{text-align:left}}
+@media print{
+  body::before{display:none}
+  .card,.gate-card,.tabs,.tablewrap{background:#fff!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border-color:#C9D3CC!important}
+  .kpi.main .value{color:#0E4A36;background:none}
+  .lang-btn{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -249,7 +356,8 @@ body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
       <div class="mark" aria-hidden="true">
         <svg width="30" height="30" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v15M3 17h22v5"/><rect x="13" y="10.5" width="12" height="6.5" rx="3"/><circle cx="8" cy="13" r="2.4" fill="currentColor" stroke="none"/><path d="M19.5 2.5v6M16.5 5.5h6" style="stroke:var(--hi)"/></svg>
       </div>
-      <div><h1>مسعّر المنشآت الصحية</h1><p class="hint">للمستخدمين المصرّح لهم فقط</p></div>
+      <div><h1>مسعّر المنشآت الصحية <span class="abbr" lang="en" dir="ltr">HFCE</span></h1><p class="hint">للمستخدمين المصرّح لهم فقط</p></div>
+      <button type="button" class="lang-btn" data-lang-toggle aria-label="English / عربي">EN</button>
     </div>
     <div id="g-loading" class="g-view"><p class="g-wait">جارٍ التحقق من الصلاحية…</p></div>
     <form id="g-login" class="g-view" hidden>
@@ -283,12 +391,13 @@ body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
       <svg width="30" height="30" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v15M3 17h22v5"/><rect x="13" y="10.5" width="12" height="6.5" rx="3"/><circle cx="8" cy="13" r="2.4" fill="currentColor" stroke="none"/><path d="M19.5 2.5v6M16.5 5.5h6" style="stroke:var(--hi)"/></svg>
     </div>
     <div>
-      <h1>مسعّر المنشآت الصحية</h1>
+      <h1>مسعّر المنشآت الصحية <span class="abbr" lang="en" dir="ltr">HFCE</span></h1>
       <p>تقدير تكلفة الإنشاء والتأهيل والتجهيز والتأثيث</p>
     </div>
     <div class="actions" id="export-box">
       <span class="hint" id="export-status" role="status"></span>
       <span class="who" id="who"></span>
+      <button type="button" class="lang-btn" data-lang-toggle aria-label="English / عربي">EN</button>
       <button type="button" class="btn ghost" id="btn-logout">خروج</button>
       <button type="button" class="btn ghost" id="btn-print">طباعة</button>
       <button type="button" class="btn" id="btn-export">تصدير إلى Excel</button>
@@ -735,7 +844,7 @@ function summaryText() {
   return lines.join("\n");
 }
 $("btn-copy").addEventListener("click", () => {
-  const text = summaryText();
+  const text = (window.__trText || (x => x))(summaryText());
   const fb = $("copy-fallback");
   const fallback = () => { fb.hidden = false; fb.value = text; fb.focus(); fb.select(); $("copy-status").textContent = "حدّد النص وانسخه يدوياً"; };
   try {
@@ -769,7 +878,25 @@ function renderRef() {
   });
   const teach = A.types.findIndex(t => t.en === "University / Teaching Hospital");
   const mt = $("m-teach"); if (mt) mt.textContent = teach >= 0 ? fmt(round3(unitPrice(A.types[teach], 0, 2, A, A.countries[0]).total)) : "—";
+  fillMethValues();
   renderCountries();
+}
+function fillMethValues() {
+  const els = document.querySelectorAll("[data-mv]");
+  if (!els.length) return;
+  const Y = A.countries[0], pc = v => Math.round(v * 100) + "%", f2 = v => (+v).toFixed(2);
+  const labs = A.types.filter(t => t.eqByArea);
+  const l1 = labs[0], l2 = labs[1] || labs[0];
+  const all = t => t ? fmt(Math.round(unitPrice(t, 0, 1, A, Y).total / t.gfa / 100) * 100) : "—";
+  const V = {
+    ext: pc(A.ext), ffe: pc(A.ffe), rate: fmt(Y.rates[1]), rateUsd: fmt(Y.rates[1] / A.fx),
+    r1: pc(A.scope.bld[1]), r2: pc(A.scope.bld[2]), r3: pc(A.scope.bld[3]),
+    lab1Area: l1 ? fmt(l1.gfa) : "—", lab2Area: l2 ? fmt(l2.gfa) : "—",
+    lab1Cf: l1 ? f2(l1.cf) : "—", lab2Cf: l2 ? f2(l2.cf) : "—",
+    lab1Eq: l1 ? fmt(l1.eq / l1.gfa) : "—", lab2Eq: l2 ? fmt(l2.eq / l2.gfa) : "—",
+    lab1All: all(l1), lab2All: all(l2)
+  };
+  els.forEach(e => { const v = V[e.dataset.mv]; if (v !== undefined) e.textContent = v; });
 }
 function renderCountries() {
   const g = A.types[GEN()];
@@ -1145,7 +1272,7 @@ $("btn-export").addEventListener("click", async () => {
   const btn = $("btn-export"), st = $("export-status");
   btn.disabled = true; st.textContent = "جارٍ إعداد الملف…";
   try {
-    const rep = buildReport();
+    const rep = (window.__trReport || (x => x))(buildReport());
     const name = rep.filename.replace(/[<>:"/\\|?*]/g, "-");
     const blob = XL.build(rep);
     const file = new File([blob], name, { type: blob.type });
@@ -1173,6 +1300,110 @@ document.documentElement.setAttribute("dir", "rtl");
 buildInputs(); syncInputs(); renderCalc(); renderRef(); renderBrk(); renderAssumptions();
 try { const t = localStorage.getItem("hcp-yemen-tab"); if (t && $("p-" + t)) showTab(t); } catch (e) {}
 }
+</script>
+<script>
+(() => {
+"use strict";
+let EN = false;
+try { EN = localStorage.getItem("hcp-lang") === "en"; } catch (e) {}
+const UI = {"أعمال المبنى بكامل أنظمته الإنشائية والمعمارية والكهروميكانيكية والغازات الطبية، أعمال الموقع والبنية التحتية (بما فيها الطاقة الاحتياطية والمياه والصرف)، الأجهزة الطبية، التأثيث وتقنية المعلومات، التصميم والإشراف، والاحتياطي":"Building works with all structural, architectural, MEP and medical gas systems; site works and infrastructure (including standby power, water and drainage); medical equipment; FF&E and IT; design and supervision; and contingency","أُعدّ هذا التقدير ببرنامج «مسعّر المنشآت الصحية». الأسعار استرشادية لمرحلة دراسة الاحتياج والجدوى، ولا تشمل قيمة الأرض وتكاليف التشغيل، ولا تغني عن التقدير التفصيلي بجداول الكميات بعد اكتمال التصميم":"Prepared with the Healthcare Facility Cost Estimator (HFCE). Prices are indicative for needs-assessment and feasibility stages, exclude land and operating costs, and do not replace a detailed BOQ estimate once design is complete","سعر الوحدة × عدد الأسرّة (أو كراسي الغسيل، أو عدد المراكز والمختبرات). لأسعار «إنشاء فقط» أو «تجهيز طبي فقط» أو «تأثيث فقط»، أو لموقع خارج المدن الرئيسية، استخدم الحاسبة":"unit price × number of beds (or dialysis chairs, centres or laboratories). For “construction only”, “medical equipment only” or “furniture only”, or for a site outside the main cities, use the calculator","اترك المساحة فارغة لاستخدام المساحة القياسية. أدخلها عند تأهيل مبنى قائم معروف المساحة، أو لتحديد مساحة المختبر المركزي (تتغير معها تكلفة المبنى والأجهزة)":"Leave the area blank to use the standard area. Enter it when rehabilitating an existing building of known size, or to set a central laboratory's area (building and equipment costs change with it)","الإيقاف يسري فور فتح المستخدم للتطبيق وهو متصل بالإنترنت، وتُمسح البيانات من جهازه. إذا بقي بدون إنترنت يتوقف التطبيق عنده بعد 3 أيام من آخر تحقق":"Deactivation takes effect as soon as the user opens the app online, and the data is wiped from their device. If they stay offline, the app stops working 3 days after the last check","سعر الوحدة × عدد الأسرّة (أو كراسي الغسيل، أو عدد المراكز والمختبرات). لا تشمل الأسعار قيمة الأرض وتكاليف التشغيل. تقدير من الفئة الخامسة بدقة":"unit price × number of beds (or dialysis chairs, centres or laboratories). Prices exclude land and operating costs. Class 5 estimate, accuracy","قيمة الأرض، تكاليف التشغيل والصيانة، الأدوية والمستهلكات، سكن الكوادر، إزالة مخلفات الحرب ونزع الألغام في مناطق النزاع، والتعويضات":"Land, operation and maintenance costs, drugs and consumables, staff housing, war-debris removal and demining in conflict areas, and compensation","سعر الوحدة بالريال السعودي — نطاق متكامل (إنشاء وتجهيز وتأثيث) — المدن الرئيسية — وفق الافتراضات الحالية في البرنامج بتاريخ":"Unit price in SAR — integrated scope (construction, equipment and furniture) — main cities — per the current assumptions as of","الرمز غير صحيح أو منتهي الصلاحية، أو البريد لا يطابق الدعوة. يبطل الرمز بعد 5 محاولات خاطئة؛ اطلب رمزاً جديداً من المدير":"The code is wrong or expired, or the email does not match the invitation. A code is voided after 5 wrong attempts; ask the administrator for a new one","يصدر رمز تفعيل من 8 أحرف صالح 7 أيام. يدخله المستخدم مع بريده ويختار كلمة المرور بنفسه، فلا تعرف أنت كلمة مروره":"Issues an 8-character activation code valid for 7 days. The user enters it with their email and chooses their own password, so you never know it","الاحتياطي الأعلى في التأهيل يُطبق على الأعمال الإنشائية فقط، وتأخذ الأجهزة والأثاث نسبة البناء الجديد":"The higher rehabilitation contingency applies to construction works only; equipment and furniture take the new-build rate","مستشفى عام — بناء جديد بنطاق متكامل — المستوى المتوسط — المدن الرئيسية. اضغط على أي دولة لاعتمادها":"General hospital — new build, integrated scope — mid level — main cities. Tap a country to select it","أي تعديل هنا ينعكس فوراً على الحاسبة والجداول. تُحفظ التعديلات في هذا المتصفح على هذا الجهاز فقط":"Any change here applies immediately to the calculator and tables. Changes are saved in this browser on this device only","تتغير الدولة من الحاسبة أو من جدول مقارنة الدول أسفل الصفحة. اضغط على أي صف لفتحه في الحاسبة":"Change the country in the calculator or in the country comparison below. Tap any row to open it in the calculator","هذا الحساب غير مصرّح له باستخدام التطبيق، أو أُوقفت صلاحيته. تواصل مع مدير التطبيق":"This account is not authorised to use the app, or its access was suspended. Contact the app administrator","هذا رمز جديد لتفعيل حسابك أو تعيين كلمة مرور جديدة في تطبيق «مسعّر المنشآت الصحية»":"Here is a new code to activate your account or set a new password in the Healthcare Facility Cost Estimator (HFCE)","سعر الوحدة بالريال السعودي لنطاق متكامل (إنشاء وتجهيز وتأثيث) في المدن الرئيسية":"Unit price in SAR for an integrated scope (construction, equipment and furniture) in the main cities","أرسلها للمستخدم الآن؛ الرمز لا يظهر مرة أخرى، ويمكنك إصدار رمز جديد في أي وقت":"Send it to the user now; the code is not shown again, and you can issue a new one at any time","أدخل بريدك ورمز التفعيل الذي وصلك من مدير التطبيق، ثم اختر كلمة مرور خاصة بك":"Enter your email and the activation code from the app administrator, then choose your own password","تُضاف فوق التجهيز القياسي، وتُحتسب فقط عندما يشمل نطاق العمل التجهيز الطبي":"Added on top of standard equipment, and counted only when the scope includes medical equipment","نطاق العمل المختار لا يشمل أي بند. راجع إعدادات «نطاق العمل» في الافتراضات":"The selected scope includes no items. Check the “Scope of work” settings under Assumptions","يُنصح بالتسعير في السودان بالريال أو الدولار لتقلب سعر صرف الجنيه السوداني":"For Sudan, price in SAR or USD because the Sudanese pound is highly volatile","الأجهزة الكبرى الإضافية غير محتسبة لأن نطاق العمل لا يشمل التجهيز الطبي":"Major add-on equipment is not counted because the scope does not include medical equipment","تسجيل الخروج من هذا الجهاز؟ ستُمسح البيانات والتعديلات المحفوظة عليه":"Sign out of this device? Saved data and changes on it will be wiped","يلزم الاتصال بالإنترنت للتحقق من صلاحيتك (مرة كل 3 أيام على الأقل)":"An internet connection is needed to verify your access (at least once every 3 days)","هذا البريد موجود. إصدار رمز جديد له (وتعديل صلاحيته إن غيّرتها)؟":"This email already exists. Issue a new code for it (and update its role if you changed it)?","كلمة المرور ضعيفة. استخدم 8 أحرف على الأقل تجمع حروفاً وأرقاماً":"Weak password. Use at least 8 characters mixing letters and numbers","محسوبة بالمستوى المتوسط للتسعير وعلى المساحة القياسية للوحدة":"Calculated at the mid pricing level and the standard unit area","تعذّر الاتصال بالخادم. تحقق من الإنترنت ثم حاول مرة أخرى":"Could not reach the server. Check your internet connection and try again","بناء جديد، نطاق متكامل، المستوى المتوسط، المدن الرئيسية":"New build, integrated scope, mid level, main cities","أسرّة المرضى الكهربائية والنقالات ضمن الأجهزة الطبية":"Electric patient beds and stretchers are included in medical equipment","ثالثاً: البناء الجديد وإعادة التأهيل بنفس نطاق العمل":"3. New build vs. rehabilitation with the same scope","؟ لن يستطيع فتح التطبيق، ويمكنك إعادة تفعيله لاحقاً":"? They will not be able to open the app; you can reactivate them later","تم منحك صلاحية استخدام تطبيق «مسعّر المنشآت الصحية»":"You have been given access to the Healthcare Facility Cost Estimator (HFCE)","معامل المساحات (نسبةً إلى المعايير المعتمدة لليمن)":"Space factor (relative to the Yemen standards)","أعمال الموقع والبنية التحتية (% من تكلفة المبنى)":"Site works and infrastructure (% of building cost)","غير محتسبة لأن نطاق العمل لا يشمل التجهيز الطبي)":"not counted because the scope does not include medical equipment)","الأجهزة الطبية لكل وحدة (ر.س) — المعيار الأساسي":"Medical equipment per unit (SAR) — base standard","معامل الأجهزة الطبية (فرق السعر وكثافة التجهيز)":"Medical equipment factor (price difference and equipment density)","تقدير تكلفة الإنشاء والتأهيل والتجهيز والتأثيث":"Cost estimates for construction, rehabilitation, equipment and furniture","لديّ رمز تفعيل (حساب جديد أو نسيت كلمة المرور)":"I have an activation code (new account or forgotten password)","اختر كلمة مرور خاصة بك واضغط «تفعيل والدخول»":"Choose your own password and tap “Activate and sign in”","البناء الجديد وإعادة التأهيل بنفس نطاق العمل":"New build vs. rehabilitation with the same scope","التأثيث وتقنية المعلومات (% من تكلفة المبنى)":"FF&E and IT (% of building cost)","معاملات نطاق العمل (بناء جديد / إعادة تأهيل)":"Scope factors (new build / rehabilitation)","أعمال المبنى (إنشائي ومعماري وكهروميكانيكي)":"Building works (structural, architectural and MEP)","محاولات كثيرة. انتظر دقائق ثم حاول مرة أخرى":"Too many attempts. Wait a few minutes and try again","البريد الإلكتروني أو كلمة المرور غير صحيحة":"Incorrect email or password","المبالغ بالريال السعودي — أسعار سنة الأساس":"Amounts in SAR — base-year prices","جدول استرشادي لتكلفة السرير للمنشآت الصحية":"Indicative cost-per-bed table for healthcare facilities","يشمل الأعمال الإنشائية / الأجهزة / التأثيث":"Includes construction / equipment / furniture","كلمة المرور يجب أن تكون 8 أحرف على الأقل":"The password must be at least 8 characters","أعمال المبنى (% من تكلفة المبنى الجديد)":"Building works (% of new-build cost)","الرعاية الصحية الأولية والخدمات الطرفية":"Primary healthcare and outreach services","المساحة لكل وحدة (م²) — المعيار الأساسي":"Area per unit (m²) — base standard","سعر البناء ر.س/م² (أدنى / متوسط / أعلى)":"Building rate SAR/m² (low / mid / high)","مرحلة المفهوم)، والمدى المتوقع للانحراف":"concept stage); expected accuracy range","الأجهزة الطبية القياسية لكل وحدة (ر.س)":"Standard medical equipment per unit (SAR)","كلمة المرور الجديدة (8 أحرف على الأقل)":"New password (at least 8 characters)","أعمال الموقع والبنية التحتية الخارجية":"Site works and external infrastructure","رابعاً: المعايير المستخدمة في الحساب":"4. Parameters used in the calculation","إعادة تأهيل — المستوى المتوسط (ر.س)":"Rehabilitation — mid level (SAR)","الافتراضات المستخدمة في هذا التقدير":"Assumptions used in this estimate","انتهت الجلسة. سجّل الدخول مرة أخرى":"Session expired. Please sign in again","تكلفة المبنى الجديد المرجعية (ر.س)":"Reference new-building cost (SAR)","قيمة الأجهزة الكبرى الإضافية (ر.س)":"Major add-on equipment value (SAR)","لتعديل دولة أخرى اخترها من الحاسبة":"To edit another country, select it in the calculator","اضغط على أي عمود أو شريط لاعتماده":"Tap any column or bar to select it","القيم المعتمدة في البرنامج بتاريخ":"Values in the app as of","تعذّر تسجيل الدخول. حاول مرة أخرى":"Sign-in failed. Please try again","؟ يستخدمه لتعيين كلمة مرور جديدة":"? They use it to set a new password","التصميم والإشراف (% من الأعمال)":"Design and supervision (% of works)","المدن الطبية والمستشفيات العامة":"Medical cities and general hospitals","المساحة المعتمدة في الحساب (م²)":"Area used in the calculation (m²)","أدخل عدد الوحدات لحساب التكلفة":"Enter the number of units to calculate the cost","المساحة القياسية المعتمدة (م²)":"Standard area used (m²)","المساحة القياسية لكل وحدة (م²)":"Standard area per unit (m²)","بالريال السعودي لكل وحدة تسعير":"in SAR per pricing unit","مدير (يضيف المستخدمين ويوقفهم)":"Administrator (adds and suspends users)","معامل الأجهزة الطبية (المستوى)":"Medical equipment factor (level)","الأجهزة الطبية لكل وحدة (ر.س)":"Medical equipment per unit (SAR)","سعر صرف الدولار (ر.س / دولار)":"USD exchange rate (SAR / USD)","معامل الأجهزة الطبية (الدولة)":"Medical equipment factor (country)","المعايير المستخدمة في الحساب":"Parameters used in the calculation","بناء جديد — سعر الوحدة (ر.س)":"New build — unit price (SAR)","نطاق العمل — البنود المشمولة":"Scope of work — included items","أجهزة كبرى إضافية (اختياري)":"Major add-on equipment (optional)","المساحة الفعلية للمبنى (م²)":"Actual building area (m²)","جدول استرشادي لتكلفة السرير":"Indicative cost-per-bed table","على الآيفون: افتح الرابط في":"On iPhone: open the link in","إضافة إلى الشاشة الرئيسية»":"Add to Home Screen”","الإجمالي بأسعار سنة الأساس":"Total at base-year prices","الافتراضات القابلة للتعديل":"Editable assumptions","البريد الإلكتروني غير صحيح":"Invalid email address","تقدير من الفئة الخامسة وفق":"Class 5 estimate per","كلمتا المرور غير متطابقتين":"The passwords do not match","للمستخدمين المصرّح لهم فقط":"Authorised users only","ما يعادل بالدولار الأمريكي":"Equivalent in US dollars","الطوارئ والأوبئة والإغاثة":"Emergency, epidemics and relief","تم تعديل القيم الافتراضية":"Defaults modified","سعر البناء ر.س/م² (متوسط)":"Building rate SAR/m² (mid)","إضافة وإصدار رمز التفعيل":"Add and issue activation code","استعادة القيم الافتراضية":"Restore defaults","التأثيث وتقنية المعلومات":"FF&E and IT","المقارنة بنفس نطاق العمل":"Comparison with the same scope","لا يمكنك تعديل حسابك أنت":"You cannot change your own account","ما يعادل بالعملة المحلية":"Equivalent in local currency","الأجهزة الطبية القياسية":"Standard medical equipment","الأجهزة الكبرى الإضافية":"Major add-on equipment","الإجمالي التقديري (ر.س)":"Estimated total (SAR)","التصعيد حتى سنة التنفيذ":"Escalation to execution year","الخدمات الصحية المساندة":"Health support services","النسبة من البناء الجديد":"Ratio to new build","تفصيل مكونات سعر الوحدة":"Unit price breakdown","جارٍ التحقق من الصلاحية":"Verifying access…","حدّد النص وانسخه يدوياً":"Select the text and copy it manually","لمرحلة الاحتياج والجدوى":"for needs and feasibility stages","معامل المساحات (الدولة)":"Space factor (country)","إعادة المثال الافتراضي":"Reset to default example","بدون إنترنت — آخر تحقق":"Offline — last checked","تقدير تكلفة منشأة صحية":"Healthcare facility cost estimate","تقدير من الفئة الخامسة":"Class 5 estimate","ثانياً: الخيار المعتمد":"2. Selected option","أعمال الموقع الخارجية":"External site works","أولاً: بيانات المشروع":"1. Project data","اضغط «لديّ رمز تفعيل»":"Tap “I have an activation code”","المدى المتوقع للتقدير":"Expected estimate range","المساحة لكل وحدة (م²)":"Area per unit (m²)","تعذّر الاتصال بالخادم":"Could not reach the server","رجوع إلى تسجيل الدخول":"Back to sign in","سعر البناء (ر.س / م²)":"Building rate (SAR / m²)","عدد الأسرّة / الوحدات":"Number of beds / units","هذه الصفحة للمدير فقط":"This page is for administrators only","المساحة الفعلية (م²)":"Actual area (m²)","سنة التنفيذ المتوقعة":"Expected execution year","مسعّر المنشآت الصحية":"Healthcare Facility Cost Estimator","معامل الأجهزة الطبية":"Medical equipment factor","معامل الأجهزة للدولة":"Country equipment factor","المستشفيات التخصصية":"Specialised hospitals","تعذّر تنفيذ العملية":"The operation could not be completed","نسبة التصعيد السنوي":"Annual escalation rate","نوع المشروع المعتمد":"Selected project type","أجهزة كبرى إضافية":"Major add-on equipment","إجمالي سعر الوحدة":"Total unit price","إصدار رمز جديد لـ":"Issue a new code for","الأعمال الإنشائية":"Construction works","الإجمالي التقديري":"Estimated total","البريد الإلكتروني":"Email","التكلفة التقديرية":"Estimated cost","المنهجية والمصادر":"Methodology & sources","تأكيد كلمة المرور":"Confirm password","تعذّر إنشاء الملف":"Could not create the file","ما يعادل بالدولار":"Equivalent in USD","التصميم والإشراف":"Design and supervision","الدخول بحساب آخر":"Sign in with another account","القيم الافتراضية":"Default values","المراكز التخصصية":"Specialised centres","جارٍ إعداد الملف":"Preparing the file…","درجة ثقة التقدير":"Estimate confidence","سعر السرير (ر.س)":"Price per bed (SAR)","سعر الوحدة (ر.س)":"Unit price (SAR)","سنة أساس الأسعار":"Price base year","البنود المشمولة":"Included items","السعة النموذجية":"Typical capacity","بالعملة المحلية":"In local currency","بانتظار التفعيل":"Awaiting activation","تأكيد الاستعادة":"Confirm restore","جدول سعر السرير":"Price per bed","طريقة الاستخدام":"How to use","لكل ريال سعودي)":"per SAR)","مستويات التسعير":"Pricing levels","معاملات المواقع":"Location factors","نص الملخص للنسخ":"Summary text to copy","أقسام البرنامج":"App sections","الأجهزة الطبية":"Medical equipment","الخيار المعتمد":"Selected option","فتح في الحاسبة":"Open in calculator","لا توجد صلاحية":"No access","ما يشمله السعر":"What the price includes","معامل المساحات":"Space factor","معاملات الدولة":"Country factors","معاملات الموقع":"Location factors","معايير المنشآت":"Facility standards","أسعار التأهيل":"Rehabilitation prices","افتراضات عامة":"General assumptions","المدى المتوقع":"Expected range","تاريخ التقدير":"Estimate date","تعريف مستويات":"Definition of levels","تفصيل التكلفة":"Cost breakdown","تفعيل والدخول":"Activate and sign in","تم نسخ الملخص":"Summary copied","مستوى التسعير":"Pricing level","مسعّر المنشآت":"HFCE","معامل الأجهزة":"Equipment factor","معامل التصعيد":"Escalation factor","معامل التعقيد":"Complexity factor","أساس التقدير":"Basis of estimate","أعمال المبنى":"Building works","أعمال الموقع":"Site works","إضافة مستخدم":"Add user","إيقاف صلاحية":"Suspend access for","تسجيل الدخول":"Sign in","تفعيل الحساب":"Activate account","جارٍ التحميل":"Loading…","دولار أمريكي":"US dollars","رسالة الدعوة":"Invitation message","صالح 7 أيام)":"valid for 7 days)","معامل الموقع":"Location factor","مقارنة الدول":"Country comparison","موقع المشروع":"Project location","نسبة الأجهزة":"Equipment share","وحدة التسعير":"Pricing unit","آخر استخدام":"Last used","إعادة تفعيل":"Reactivate","افتح الرابط":"Open the link","انتهى الرمز":"Code expired","رمز التفعيل":"Activation code","سنة التنفيذ":"Execution year","عدد الوحدات":"Number of units","كلمة المرور":"Password","ما لا يشمله":"What it excludes","نسخ الرسالة":"Copy message","نوع المنشأة":"Facility type","الافتراضات":"Assumptions","المستخدمون":"Users","تم حفظ ملف":"Saved file","درجة الثقة":"Confidence","درجة الدقة":"Accuracy","ر.س للوحدة":"SAR per unit","سعر البناء":"Building rate","سعر الوحدة":"Unit price","سنة الأساس":"base year","نسخ الملخص":"Copy summary","نطاق العمل":"Scope of work","الاحتياطي":"Contingency","تصدير إلى":"Export to","ثم مشاركة":"then Share","سعر الصرف":"Exchange rate","إلى +50%":"to +50%","الصلاحية":"Role","القياسية":"Standard","المدخلات":"Inputs","المستخدم":"User","تم النسخ":"Copied","ر.س / م²":"SAR / m²","رمز جديد":"New code","ما يعادل":"Equivalent","إجراءات":"Actions","الأجهزة":"Equipment","التأثيث":"Furniture","التصعيد":"Escalation","التقدير":"Estimate","الحاسبة":"Calculator","المساحة":"Area","المستوى":"Level","المصادر":"Sources","المعامل":"Factor","ر.س لكل":"SAR per","لا يشمل":"Excludes","لا يوجد":"None","م²/سرير":"m²/bed","م²/وحدة":"m²/unit","اعتماد":"Select","الحالة":"Status","الدولة":"Country","الموقع":"Location","الوحدة":"Unit","مرحباً":"Hello","مستخدم":"User","أمثلة":"Examples","إرسال":"Send","إلغاء":"Cancel","إيقاف":"Suspend","الاسم":"Name","البند":"Item","الثقة":"Confidence","الوصف":"Description","تحديث":"Refresh","تقدير":"Estimate","تنفيذ":"execution","حسابك":"Your account","طباعة":"Print","متوسط":"Mid","مستوى":"level","معامل":"factor","مفعّل":"Active","موقوف":"Suspended","أدنى":"Low","أعلى":"High","بدقة":"accuracy","خروج":"Sign out","خفيف":"Light","دخول":"Sign in","شامل":"Comprehensive","مدير":"Admin","يشمل":"Includes","نعم":"Yes","لا":"No","م":"No.","ر.س/م²":"SAR/m²","ر.س)":"SAR)","ر.س":"SAR","م²":"m²","سعر الوحدة —":"Unit price —","عدد الوحدات (":"Number of units (","ما يعادل:":"Equivalent:","المقارنة بنفس نطاق العمل (":"Comparison with the same scope (","تقدير من الفئة الخامسة (Class 5) لمرحلة الاحتياج والجدوى.":"Class 5 estimate for the needs and feasibility stage.","تقدير من الفئة الخامسة (Class 5) بدقة":"Class 5 estimate, accuracy","لكل":"per","دولار":"USD","عدد المستخدمين":"Users","تم حفظ ملف Excel":"Excel file saved","تصدير إلى Excel":"Export to Excel","مستوى متوسط":"Mid level","مستوى أدنى":"Low level","مستوى أعلى":"High level","لكل سرير":"per bed","(سرير)":"(bed)","لكل سرير طوارئ":"per emergency bed","(سرير طوارئ)":"(emergency bed)","لكل سرير نهاري":"per day bed","(سرير نهاري)":"(day bed)","لكل عيادة":"per clinic","(عيادة)":"(clinic)","لكل عيادة متنقلة":"per mobile clinic","(عيادة متنقلة)":"(mobile clinic)","لكل غرفة عمليات":"per operating room","(غرفة عمليات)":"(operating room)","لكل كرسي أسنان":"per dental chair","(كرسي أسنان)":"(dental chair)","لكل كرسي غسيل":"per dialysis chair","(كرسي غسيل)":"(dialysis chair)","لكل محطة":"per station","(محطة)":"(station)","لكل مختبر":"per laboratory","(مختبر)":"(laboratory)","لكل مركز":"per centre","(مركز)":"(centre)","لكل مستودع":"per store","(مستودع)":"(store)","لكل معهد":"per institute","(معهد)":"(institute)","لكل وحدة":"per unit","(وحدة)":"(unit)","لكل وحدة سكنية":"per housing unit","(وحدة سكنية)":"(housing unit)"};
+const NAME = { ar: "مسعّر المنشآت الصحية", en: "Healthcare Facility Cost Estimator", abbr: "HFCE" };
+const LET = "ؠ-ٟٮ-ۓۺ-ۿ";           // Arabic letters (word boundaries)
+const HAS_AR = /[؀-ۿ]/;
+const PUNCT = { "،": ",", "؛": ";", "؟": "?", "«": "“", "»": "”", "←": "→" };
+const ATTRS = ["placeholder", "title", "aria-label", "label"];
+let DICT = Object.assign({}, UI), RX = null;
+// unit names are plural after a number ("100 beds") and singular after "per", "—" or "(" ("per bed")
+const SG = { "beds": "bed", "emergency beds": "emergency bed", "day beds": "day bed", "clinics": "clinic", "mobile clinics": "mobile clinic",
+  "operating rooms": "operating room", "dental chairs": "dental chair", "dialysis chairs": "dialysis chair", "stations": "station",
+  "laboratories": "laboratory", "centres": "centre", "stores": "store", "institutes": "institute", "units": "unit", "housing units": "housing unit", "chairs": "chair" };
+const SGRX = new RegExp("(per |— |\\()(" + Object.keys(SG).sort((a, b) => b.length - a.length).join("|") + ")(?![A-Za-z])", "g");
+
+function build() {
+  const keys = Object.keys(DICT).filter(Boolean).sort((a, b) => b.length - a.length)
+    .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  RX = new RegExp("(?<![" + LET + "])(?:" + keys.join("|") + ")(?![" + LET + "])", "g");
+}
+function tr(s) {
+  if (!EN || typeof s !== "string" || !HAS_AR.test(s)) return s;
+  if (!RX) build();
+  return s.replace(RX, m => DICT[m]).replace(/[،؛؟«»←]/g, c => PUNCT[c]).replace(SGRX, (m, a, p) => a + SG[p]).replace(/FF&E and IT \(FF&E\)/g, "FF&E and IT");
+}
+const skip = el => !el || !!el.closest("[data-no-tr],script,style,textarea");
+function trAttrs(el) {
+  if (skip(el)) return;
+  for (const a of ATTRS) { const v = el.getAttribute(a); if (v && HAS_AR.test(v)) { const t = tr(v); if (t !== v) el.setAttribute(a, t); } }
+}
+function trTree(root) {
+  if (!EN || !root) return;
+  if (root.nodeType === 3) {
+    if (HAS_AR.test(root.nodeValue) && !skip(root.parentElement)) { const t = tr(root.nodeValue); if (t !== root.nodeValue) root.nodeValue = t; }
+    return;
+  }
+  if (root.nodeType !== 1) return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let n;
+  while ((n = w.nextNode())) {
+    if (HAS_AR.test(n.nodeValue) && !skip(n.parentElement)) { const t = tr(n.nodeValue); if (t !== n.nodeValue) n.nodeValue = t; }
+  }
+  trAttrs(root);
+  root.querySelectorAll("[placeholder],[title],[aria-label],[label]").forEach(trAttrs);
+}
+let obs = null;
+function observe() {
+  if (!EN || obs) return;
+  obs = new MutationObserver(ms => {
+    for (const m of ms) {
+      if (m.type === "characterData") trTree(m.target);
+      else if (m.type === "attributes") trAttrs(m.target);
+      else m.addedNodes.forEach(trTree);
+    }
+  });
+  obs.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+}
+function applyDir() {
+  const d = EN ? "ltr" : "rtl", l = EN ? "en" : "ar";
+  document.documentElement.lang = l; document.documentElement.dir = d;
+  document.querySelectorAll("#gate, .app").forEach(e => { e.setAttribute("dir", d); e.setAttribute("lang", l); });
+  document.title = EN ? NAME.abbr + " — " + NAME.en : NAME.ar + " — " + NAME.abbr;
+  document.querySelectorAll("[data-lang-toggle]").forEach(b => {
+    b.setAttribute("data-no-tr", "");
+    b.textContent = EN ? "عربي" : "EN";
+    b.title = EN ? "التبديل إلى العربية" : "Switch to English";
+  });
+}
+function addData(data) {
+  if (!data) return;
+  (data.types || []).forEach(t => { if (t && t.ar && t.en) DICT[t.ar] = t.en; });
+  Object.assign(DICT, {"تقدير مشتق من مستشفى كليوباترا سكاي بالقاهرة الجديدة (2026) ومستشفى التأمين الصحي الشامل بالعاصمة الإدارية (2025). سعر الجنيه متقلب، فيُراجع سعر الصرف دورياً.": "Derived from Cleopatra Sky Hospital, New Cairo (2026) and the Universal Health Insurance hospital in the New Administrative Capital (2025). The pound is volatile; review the exchange rate regularly."} || {}, (data.i18n && data.i18n.en) || {});
+  RX = null;
+  trTree(document.body);
+}
+function afterStart() { applyDir(); trTree(document.body); observe(); }
+function trReport(rep) {
+  if (!EN || !rep) return rep;
+  rep.filename = tr(rep.filename).replace(/[\\/:*?"<>|]/g, "-");
+  rep.title = tr(rep.title);
+  (rep.sheets || []).forEach(sh => {
+    sh.name = tr(sh.name).slice(0, 31);
+    sh.rtl = false;
+    (sh.rows || []).forEach(r => (r.c || []).forEach(cell => { if (cell && typeof cell[0] === "string") cell[0] = tr(cell[0]).replace(/^(.+) — \1$/, "$1"); }));
+  });
+  return rep;
+}
+if (EN) { const c0 = window.confirm.bind(window); window.confirm = m => c0(tr(m)); }
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-lang-toggle]");
+  if (!b) return;
+  try { localStorage.setItem("hcp-lang", EN ? "ar" : "en"); } catch (x) {}
+  location.reload();
+});
+window.__i18n = { EN, tr, addData, afterStart, applyDir };
+window.__trText = tr;
+window.__trReport = trReport;
+applyDir();
+if (EN) { trTree(document.body); observe(); }
+})();
 </script>
 <script>
 (() => {
@@ -1281,22 +1512,28 @@ g("g-act").addEventListener("submit", async ev => {
 /* ---------- start ---------- */
 const METH_CARD = "        <div class=\"card\">\n          <h2>التسعير حسب الدولة</h2>\n          <ul>\n            <li><b>ما يتغير بين الدول:</b> سعر البناء للمتر المربع لكل مستوى تسعير؛ ومعامل المساحات، لأن المعايير الخليجية تخصص للسرير نحو 130–140 م² في المستشفى العام مقابل 100 م² في المعايير المعتمدة لليمن؛ ومعامل الأجهزة الطبية، ويجمع فرق السعر (الرسوم الجمركية والنقل وفروق الصرف) وكثافة التجهيز المعتادة؛ وفئات المواقع داخل كل دولة. بقية المعادلة ونسبها واحدة لجميع الدول.</li>\n            <li><b>اليمن:</b> بقيت معايرته الأصلية دون تغيير، فنتائجه مطابقة للإصدارات السابقة.</li>\n            <li><b>العملة:</b> جميع المبالغ بالريال السعودي، ويظهر ما يعادلها بالعملة المحلية بأسعار صرف أكتوبر 2026 (لكل ريال سعودي): الدرهم 0.9793، الريال القطري 0.9707، الدينار الكويتي 0.08291، الدينار البحريني 0.10027، الريال العماني 0.10253، الجنيه المصري 13.97. ويمكن تعديلها من «الافتراضات».</li>\n            <li><b>مصدر الأرقام:</b> السعودية والإمارات من معدلات منشورة لتكلفة المستشفيات (Turner &amp; Townsend)، وبقية الدول تقديرات مشتقة من عقود مستشفيات حقيقية بقيمتها وسعتها ومساحتها، ودرجة الثقة مبيّنة لكل دولة في الجدول أدناه.</li>\n            <li><b>التحقق:</b> التكلفة الشاملة للسرير في مشاريع خليجية منفذة بين 2.6 و4.3 مليون ر.س (تصل إلى 6.8 مليون في المستشفيات الخاصة الفاخرة)، والأداة تعطي للمستشفى العام في الرياض بالمستوى المتوسط نحو <span class=\"num\" id=\"m-sa-bed\"></span> ر.س للسرير. وفي مصر بين 0.4 و0.9 مليون ر.س للسرير بين القطاعين الحكومي والخاص، والأداة تعطي نحو <span class=\"num\" id=\"m-eg-bed\"></span> ر.س.</li>\n            <li><b>تنبيه 2026 — مضيق هرمز:</b> رفعت الأزمة أسعار حديد التسليح (+9%) والألمنيوم (+14%) في الخليج. الكويت وقطر والبحرين الأكثر تعرضاً، وعُمان الأقل لأن موانئها خارج المضيق. لم تُضمَّن في الأسعار الأساسية؛ يُنصح بزيادة الاحتياطي 5–10% في الدول الأكثر تعرضاً.</li>\n            <li><b>السودان:</b> لا تتوفر عقود منشورة، والتقدير منخفض الثقة جداً. سعر الجنيه السوداني شديد التقلب (من نحو 565 للدولار قبل الحرب إلى أكثر من 7,000 في السوق الموازية 2026)، فيُسعّر بالريال أو الدولار. التنفيذ في كردفان ودارفور والنيل الأزرق غير متاح حالياً.</li>\n            <li><b>مصر:</b> تقدير منخفض الثقة مبني على عقدين حديثين؛ تراجعت ضريبة القيمة المضافة على الأجهزة الطبية من 14% إلى 5% (يونيو 2026)، وتقلّب سعر الجنيه في حدود ±8% خلال 2026.</li>\n          </ul>\n          <div class=\"tablewrap\" style=\"margin-top:10px\"><table id=\"meth-countries\"></table></div>\n        </div>\n";
 const METH_SOURCES = "            <li><a href=\"https://www.agbi.com/analysis/construction/2024/06/building-construction-costs-dubai-riyadh-doha-abu-dhabi/\" target=\"_blank\" rel=\"noopener\">AGBI — Turner &amp; Townsend ICMS 2024: Riyadh, Dubai, Doha, Abu Dhabi</a></li>\n            <li><a href=\"https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance\" target=\"_blank\" rel=\"noopener\">Turner &amp; Townsend — UAE Market Intelligence 2025</a></li>\n            <li><a href=\"https://marketintelligence.turnerandtownsend.com/qatar-mi-2025/construction-cost-performance\" target=\"_blank\" rel=\"noopener\">Turner &amp; Townsend — Qatar Market Intelligence 2025</a></li>\n            <li><a href=\"https://www.arcadis.com/contentassets/9c69333169054e2ba8bb8fabf1a80df9/international-construction-costs-2025.pdf\" target=\"_blank\" rel=\"noopener\">Arcadis — International Construction Costs 2025</a></li>\n            <li><a href=\"https://aaqs.org/wp-content/uploads/2025/05/AECOM-Africa-Cost-Guide-2024-25.pdf\" target=\"_blank\" rel=\"noopener\">AECOM — Africa Property &amp; Construction Cost Guide 2024/25</a></li>\n            <li><a href=\"https://www.argaam.com/en/article/articledetail/id/1737618\" target=\"_blank\" rel=\"noopener\">أرقام — عقد مستشفى دلة العارض بالرياض</a></li>\n            <li><a href=\"https://www.meed.com/local-contractor-wins-dubai-hospital-construction-deal/\" target=\"_blank\" rel=\"noopener\">MEED — Mediclinic Park View, Dubai</a></li>\n            <li><a href=\"https://www.gtai.de/de/trade/kuwait/branchen/kuwait-baut-den-gesundheitssektor-weiter-aus-1781116\" target=\"_blank\" rel=\"noopener\">GTAI — مشاريع المستشفيات في الكويت</a></li>\n            <li><a href=\"https://www.zawya.com/en/business/healthcare/bahrain-260mln-medical-city-a-step-closer-to-operation-sitlsv13\" target=\"_blank\" rel=\"noopener\">Zawya — مدينة الملك عبدالله الطبية، البحرين</a></li>\n            <li><a href=\"https://timesofoman.com/article/146605-foundation-stone-laid-for-omr-45-milion-hospital-project-in-al-dakhiliyah\" target=\"_blank\" rel=\"noopener\">Times of Oman — مستشفى سمائل الجديد</a></li>\n            <li><a href=\"https://www.dailynewsegypt.com/2026/01/27/egypt-opens-egp-3-5bn-cleopatra-sky-hospital-under-private-public-partnership-model/\" target=\"_blank\" rel=\"noopener\">Daily News Egypt — مستشفى كليوباترا سكاي</a></li>\n            <li><a href=\"https://www.masrawy.com/news/news_egypt/details/2025/12/13/2906994/\" target=\"_blank\" rel=\"noopener\">مصراوي — مستشفى التأمين الصحي الشامل بالعاصمة الإدارية</a></li>\n            <li><a href=\"https://logcluster.org/sites/default/files/public/2024-07/factsheet-sudan-importation-and-customsjune-2024.pdf\" target=\"_blank\" rel=\"noopener\">Logistics Cluster — الاستيراد والجمارك في السودان</a></li>\n            <li><a href=\"https://enterpriseam.com/menaplus/2026/07/06/how-the-hormuz-crisis-is-dividing-the-mena-infrastructure-markets-fortunes/\" target=\"_blank\" rel=\"noopener\">Enterprise — أثر أزمة هرمز على أسواق البناء 2026</a></li>\n";
+const METH_CARD_EN = "        <div class=\"card\">\n          <h2>Pricing by country</h2>\n          <ul>\n            <li><b>What changes between countries:</b> the building rate per m² for each pricing level; the space factor, because GCC standards allow about 130–140 m² per bed in a general hospital versus 100 m² in the standards used for Yemen; the medical equipment factor, which combines the price difference (customs duties, logistics and currency) and the usual equipment density; and the location tiers within each country. The rest of the formula and its ratios are the same for every country.</li>\n            <li><b>Yemen:</b> keeps its original calibration unchanged, so its results match earlier versions.</li>\n            <li><b>Currency:</b> all amounts are in Saudi riyals, with the local-currency equivalent at October 2026 rates (per SAR): AED 0.9793, QAR 0.9707, KWD 0.08291, BHD 0.10027, OMR 0.10253, EGP 13.97. They can be edited under “Assumptions”.</li>\n            <li><b>Source of the figures:</b> Saudi Arabia and the UAE use published hospital cost rates (Turner &amp; Townsend); the other countries are estimates derived from real hospital contracts with their value, capacity and area. The confidence level of each country is shown in the table below.</li>\n            <li><b>Cross-check:</b> the all-in cost per bed of executed GCC projects is SAR 2.6–4.3 million (up to 6.8 million for premium private hospitals); the tool gives about <span class=\"num\" id=\"m-sa-bed\"></span> SAR per bed for a mid-level general hospital in Riyadh. In Egypt it ranges from SAR 0.4 to 0.9 million per bed between the public and private sectors, and the tool gives about <span class=\"num\" id=\"m-eg-bed\"></span> SAR.</li>\n            <li><b>2026 alert — Strait of Hormuz:</b> the crisis raised rebar (+9%) and aluminium (+14%) prices in the Gulf. Kuwait, Qatar and Bahrain are the most exposed; Oman the least, because its ports lie outside the strait. Not included in the base rates; consider adding 5–10% contingency in the most exposed countries.</li>\n            <li><b>Sudan:</b> no published contracts are available and confidence is very low. The Sudanese pound is extremely volatile (from about 565 per USD before the war to more than 7,000 on the parallel market in 2026), so price in SAR or USD. Execution in Kordofan, Darfur and Blue Nile is not currently feasible.</li>\n            <li><b>Egypt:</b> a low-confidence estimate based on two recent contracts; VAT on medical equipment fell from 14% to 5% (June 2026), and the pound moved within about ±8% during 2026.</li>\n          </ul>\n          <div class=\"tablewrap\" style=\"margin-top:10px\"><table id=\"meth-countries\"></table></div>\n        </div>\n";
+const METH_SOURCES_EN = "            <li><a href=\"https://www.agbi.com/analysis/construction/2024/06/building-construction-costs-dubai-riyadh-doha-abu-dhabi/\" target=\"_blank\" rel=\"noopener\">AGBI — Turner &amp; Townsend ICMS 2024: Riyadh, Dubai, Doha, Abu Dhabi</a></li>\n            <li><a href=\"https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance\" target=\"_blank\" rel=\"noopener\">Turner &amp; Townsend — UAE Market Intelligence 2025</a></li>\n            <li><a href=\"https://marketintelligence.turnerandtownsend.com/qatar-mi-2025/construction-cost-performance\" target=\"_blank\" rel=\"noopener\">Turner &amp; Townsend — Qatar Market Intelligence 2025</a></li>\n            <li><a href=\"https://www.arcadis.com/contentassets/9c69333169054e2ba8bb8fabf1a80df9/international-construction-costs-2025.pdf\" target=\"_blank\" rel=\"noopener\">Arcadis — International Construction Costs 2025</a></li>\n            <li><a href=\"https://aaqs.org/wp-content/uploads/2025/05/AECOM-Africa-Cost-Guide-2024-25.pdf\" target=\"_blank\" rel=\"noopener\">AECOM — Africa Property &amp; Construction Cost Guide 2024/25</a></li>\n            <li><a href=\"https://www.argaam.com/en/article/articledetail/id/1737618\" target=\"_blank\" rel=\"noopener\">Argaam — Dallah Al-Arid Hospital contract, Riyadh</a></li>\n            <li><a href=\"https://www.meed.com/local-contractor-wins-dubai-hospital-construction-deal/\" target=\"_blank\" rel=\"noopener\">MEED — Mediclinic Park View, Dubai</a></li>\n            <li><a href=\"https://www.gtai.de/de/trade/kuwait/branchen/kuwait-baut-den-gesundheitssektor-weiter-aus-1781116\" target=\"_blank\" rel=\"noopener\">GTAI — hospital projects in Kuwait</a></li>\n            <li><a href=\"https://www.zawya.com/en/business/healthcare/bahrain-260mln-medical-city-a-step-closer-to-operation-sitlsv13\" target=\"_blank\" rel=\"noopener\">Zawya — King Abdullah Medical City, Bahrain</a></li>\n            <li><a href=\"https://timesofoman.com/article/146605-foundation-stone-laid-for-omr-45-milion-hospital-project-in-al-dakhiliyah\" target=\"_blank\" rel=\"noopener\">Times of Oman — New Samail Hospital</a></li>\n            <li><a href=\"https://www.dailynewsegypt.com/2026/01/27/egypt-opens-egp-3-5bn-cleopatra-sky-hospital-under-private-public-partnership-model/\" target=\"_blank\" rel=\"noopener\">Daily News Egypt — Cleopatra Sky Hospital</a></li>\n            <li><a href=\"https://www.masrawy.com/news/news_egypt/details/2025/12/13/2906994/\" target=\"_blank\" rel=\"noopener\">Masrawy — Universal Health Insurance hospital, New Administrative Capital</a></li>\n            <li><a href=\"https://logcluster.org/sites/default/files/public/2024-07/factsheet-sudan-importation-and-customsjune-2024.pdf\" target=\"_blank\" rel=\"noopener\">Logistics Cluster — imports and customs in Sudan</a></li>\n            <li><a href=\"https://enterpriseam.com/menaplus/2026/07/06/how-the-hormuz-crisis-is-dividing-the-mena-infrastructure-markets-fortunes/\" target=\"_blank\" rel=\"noopener\">Enterprise — impact of the Hormuz crisis on construction markets 2026</a></li>\n";
+const METH_EN_TPL = "<div class=\"method\">\n        <div class=\"card\">\n          <h2>Purpose</h2>\n          <p style=\"margin-top:6px\">An indicative tool for estimating the cost of building, rehabilitating, equipping or furnishing healthcare facilities on a unit-price basis (per bed, dialysis chair or centre), for needs assessments, feasibility studies, preliminary budgets and owner-side review of price offers. It covers Yemen, Saudi Arabia, the five other GCC countries, Egypt and Sudan.</p>\n        </div>\n        <div class=\"card\">\n          <h2>Formula</h2>\n          <div class=\"formula\" style=\"margin-top:8px\">\n            <div>Reference building cost = gross floor area × building rate per m² × complexity factor</div>\n            <div>Building works = reference building cost × scope ratio × location factor</div>\n            <div>Site works = reference building cost × <span class=\"num\" data-mv=\"ext\"></span> × scope ratio × location factor</div>\n            <div>Medical equipment = number of units × equipment per unit × pricing-level factor × scope ratio</div>\n            <div>FF&amp;E and IT = reference building cost × <span class=\"num\" data-mv=\"ffe\"></span> × scope ratio</div>\n            <div>Design and supervision = a percentage of building and site works</div>\n            <div>Contingency = a percentage of works (higher for rehabilitation) + the new-build rate on equipment and furniture</div>\n          </div>\n        </div>\n        <div class=\"card\">\n          <h2>Basis of assumptions</h2>\n          <ul>\n            <li><b>Areas:</b> gross floor area per bed taken from internationally used hospital planning indicators and the space requirements of the FGI Guidelines, Health Building Notes and the Saudi MOH design guides, using mid values that suit functional programmes in Yemen.</li>\n            <li><b>Building rate:</b> SAR <span class=\"num\" data-mv=\"rate\"></span>/m² (≈ USD <span class=\"num\" data-mv=\"rateUsd\"></span>) for a general hospital at mid level, compared with the Riyadh average building cost for all building types of USD 3,112/m² (Turner &amp; Townsend 2025), allowing for lower labour costs in Yemen and higher transport, import and risk costs. Calibrate against the latest executed contracts.</li>\n            <li><b>Rehabilitation:</b> Ankura benchmarks indicate that radical rehabilitation costs about 55% of new build and medium rehabilitation about 35%. <span class=\"num\" data-mv=\"r1\"></span>, <span class=\"num\" data-mv=\"r2\"></span> and <span class=\"num\" data-mv=\"r3\"></span> were adopted for the three levels.</li>\n            <li><b>Facility coverage:</b> 44 types in six planning categories: general hospitals, specialised hospitals, specialised centres, emergency, epidemics and relief, primary care and outreach, and support services (laboratories, blood bank, medical store, training, housing, medical waste, oxygen). The unit area, complexity factor and equipment for each type are planning assumptions editable under “Assumptions”. The mobile clinic is an equipped vehicle with no building, so its cost is equipment and contingency only.</li>\n            <li><b>Central laboratory:</b> priced per laboratory with a typical area of <span class=\"num\" data-mv=\"lab1Area\"></span> m² for a governorate laboratory (BSL-2) and <span class=\"num\" data-mv=\"lab2Area\"></span> m² for the reference laboratory with a BSL-3 suite; entering the actual area changes the building and equipment cost with it. Complexity factors <span class=\"num\" data-mv=\"lab1Cf\"></span> and <span class=\"num\" data-mv=\"lab2Cf\"></span>, and laboratory equipment SAR <span class=\"num\" data-mv=\"lab1Eq\"></span> and <span class=\"num\" data-mv=\"lab2Eq\"></span>/m² at mid level. The result is about SAR <span class=\"num\" data-mv=\"lab1All\"></span> and <span class=\"num\" data-mv=\"lab2All\"></span>/m² all-in, close to the cost per m² of referral and teaching hospitals, which is the same ratio between laboratories and hospitals found in international references.</li>\n            <li><b>Accuracy:</b> a Class 5 estimate per AACE International, with an expected range of −30% to +50%.</li>\n          </ul>\n        </div>\n        <div class=\"card\">\n          <h2>Definition of rehabilitation levels</h2>\n          <ul>\n            <li><b>Light:</b> renewing finishes, repairing sanitary fittings and services, servicing air conditioning, and limited equipment replacement, with no change to the functional layout.</li>\n            <li><b>Medium:</b> the above plus partial replacement of MEP systems, medical gases, fire alarm and nurse call, limited layout changes, and re-equipping about half of the equipment.</li>\n            <li><b>Comprehensive:</b> keeping the structure with repair and strengthening, full replacement of systems and finishes, re-planning to current standards, and full equipping and furnishing.</li>\n          </ul>\n        </div>\n        <div class=\"card\">\n          <h2>Reference benchmarks</h2>\n          <ul>\n            <li><b>King Salman Medical and Educational City — Al-Mahra:</b> SAR 225.6 million for phase one (110-bed teaching hospital) ≈ SAR 2.05 million per bed, 2021 contract. The table's teaching hospital at the high level gives ≈ <span class=\"num\" id=\"m-teach\"></span> SAR/bed before the location factor.</li>\n            <li><b>Aden General Hospital:</b> about USD 43 million to rehabilitate a 270-bed, 20,000 m² hospital and build a 50-bed cardiac centre, at 2019–2022 prices; lower than the tool's output because of the price year and the sound structure.</li>\n            <li><b>Saudi Arabia (private hospitals):</b> SAR 2–3 million per bed construction cost.</li>\n            <li><b>Central Public Health Laboratory — Sultanate of Oman (opened January 2026):</b> 19,480 m² with BSL-2 and BSL-3 levels; OMR 18.2 million construction and OMR 11 million equipment ≈ SAR 14,600/m² all-in at Gulf prices. The tool's reference laboratory gives about SAR <span class=\"num\" data-mv=\"lab2All\"></span>/m² after the difference in Yemeni building costs.</li>\n            <li><b>United States 2025:</b> average cost per bed about USD 2 million — an upper bound for comparison only.</li>\n          </ul>\n        </div>\n        <div class=\"card\">\n          <h2>Sources</h2>\n          <ul>\n            <li><a href=\"https://marketintelligence.turnerandtownsend.com/ksami-2025/construction-cost-performance\" target=\"_blank\" rel=\"noopener\">Turner &amp; Townsend — KSA Market Intelligence 2025</a></li>\n            <li><a href=\"https://ankura.com/insights/healthcare-renovation-construction-cost-benchmarks\" target=\"_blank\" rel=\"noopener\">Ankura — Healthcare Renovation Construction Cost Benchmarks</a></li>\n            <li><a href=\"https://www.buildwcg.com/blog-posts/hospital-construction-boom-2025-2026\" target=\"_blank\" rel=\"noopener\">Westside Construction Group — Hospital construction 2025–2026</a></li>\n            <li><a href=\"https://argaamplus.s3.amazonaws.com/64fe4807-4e9f-413c-a813-ebb2d4606430.pdf\" target=\"_blank\" rel=\"noopener\">Argaam / U Capital — Saudi Healthcare Market 2024</a></li>\n            <li><a href=\"https://www.alriyadh.com/1923075\" target=\"_blank\" rel=\"noopener\">Al Riyadh newspaper — King Salman Medical and Educational City, Al-Mahra</a></li>\n            <li><a href=\"https://www.alayyam.info/news/8CHBTS9V-T8QF2B-46D6\" target=\"_blank\" rel=\"noopener\">Al-Ayyam — Aden Hospital rehabilitation and cardiac centre</a></li>\n            <li><a href=\"https://www.spa.gov.sa/2384231\" target=\"_blank\" rel=\"noopener\">Saudi Press Agency — Aden General Hospital</a></li>\n            <li><a href=\"https://alroya.om/post/380125\" target=\"_blank\" rel=\"noopener\">Al Roya — opening of Oman's Central Public Health Laboratory</a></li>\n            <li><a href=\"https://www.dmagazine.com/healthcare-business/2026/03/dallas-county-opens-52-million-bsl-3-public-health-lab/\" target=\"_blank\" rel=\"noopener\">D CEO — Dallas County BSL-3 Public Health Laboratory</a></li>\n            <li><a href=\"https://digitalprairie.ok.gov/digital/api/collection/stgovpub/id/1053/download\" target=\"_blank\" rel=\"noopener\">A Systems Development Guide for a Kidney Dialysis Center</a></li>\n          </ul>\n        </div>\n      </div>\n";
 function addMethExtras() {
   const pm = g("p-meth");
   if (pm.querySelector("#meth-countries")) return;
   const hs = [...pm.querySelectorAll(".card > h2")];
-  const rehab = hs.find(h => h.textContent.indexOf("تعريف مستويات") >= 0);
-  if (rehab) rehab.parentElement.insertAdjacentHTML("beforebegin", METH_CARD); else pm.insertAdjacentHTML("beforeend", METH_CARD);
-  const src = hs.find(h => h.textContent.trim() === "المصادر");
+  const EN = window.__i18n.EN;
+  const rehab = hs.find(h => /تعريف مستويات|Definition of rehabilitation/.test(h.textContent));
+  const card = EN ? METH_CARD_EN : METH_CARD;
+  if (rehab) rehab.parentElement.insertAdjacentHTML("beforebegin", card); else pm.insertAdjacentHTML("beforeend", card);
+  const src = hs.find(h => /^(المصادر|Sources)$/.test(h.textContent.trim()));
   const ul = src && src.parentElement.querySelector("ul");
-  if (ul) ul.insertAdjacentHTML("beforeend", METH_SOURCES);
+  if (ul) ul.insertAdjacentHTML("beforeend", EN ? METH_SOURCES_EN : METH_SOURCES);
 }
 let started = false, lastOk = 0, me = null;
 function launch(cfg, offlineSince) {
   if (started) return;
   if (!cfg || !cfg.data || !Array.isArray(cfg.data.types)) throw new Error("bad config");
   started = true; me = cfg.me || {};
-  g("p-meth").innerHTML = cfg.meth || "";
+  window.__i18n.addData(cfg.data);
+  g("p-meth").innerHTML = (window.__i18n.EN ? METH_EN_TPL : cfg.meth) || "";
   addMethExtras();
   const admin = me.role === "admin";
   if (!admin) { g("t-users").remove(); g("p-users").remove(); }
@@ -1305,6 +1542,7 @@ function launch(cfg, offlineSince) {
   who.title = me.email || ""; who.classList.toggle("off", !!offlineSince);
   g("gate").hidden = true; document.querySelector(".app").hidden = false;
   window.__startApp(cfg.data);
+  window.__i18n.afterStart();
   if (admin) initAdmin();
 }
 
@@ -1346,7 +1584,7 @@ g("btn-logout").addEventListener("click", () => {
 });
 
 /* ---------- users tab (admins) ---------- */
-const DF = new Intl.DateTimeFormat("ar-u-ca-gregory-nu-latn", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+const DF = new Intl.DateTimeFormat(window.__i18n.EN ? "en-GB" : "ar-u-ca-gregory-nu-latn", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 function fmtDate(v) { try { return v ? DF.format(new Date(v)) : "—"; } catch (e) { return "—"; } }
 function adminMsg(e) {
   if (isNet(e)) return "تعذّر الاتصال بالخادم.";
@@ -1359,7 +1597,7 @@ function adminMsg(e) {
 let users = [];
 async function loadUsers() {
   const st = g("u-status"); st.textContent = "جارٍ التحميل…";
-  try { users = await rpc("admin_list_users"); st.textContent = users.length + " مستخدم"; renderUsers(); }
+  try { users = await rpc("admin_list_users"); st.textContent = "عدد المستخدمين: " + users.length; renderUsers(); }
   catch (e) { st.textContent = adminMsg(e); }
 }
 function renderUsers() {
@@ -1380,14 +1618,14 @@ function renderUsers() {
 function showInvite(email, name, code, isNew) {
   g("u-code").textContent = code;
   const hi = name ? "مرحباً " + name + "،" : "مرحباً،";
-  g("u-msg").value = [hi,
+  g("u-msg").value = window.__i18n.tr([hi,
     isNew ? "تم منحك صلاحية استخدام تطبيق «مسعّر المنشآت الصحية»." : "هذا رمز جديد لتفعيل حسابك أو تعيين كلمة مرور جديدة في تطبيق «مسعّر المنشآت الصحية».",
     "", "1. افتح الرابط: " + APP_URL,
     "2. اضغط «لديّ رمز تفعيل».",
     "3. البريد الإلكتروني: " + email,
     "4. رمز التفعيل: " + code + " (صالح 7 أيام)",
     "5. اختر كلمة مرور خاصة بك واضغط «تفعيل والدخول».",
-    "", "على الآيفون: افتح الرابط في Safari ثم مشاركة ← «إضافة إلى الشاشة الرئيسية»."].join("\n");
+    "", "على الآيفون: افتح الرابط في Safari ثم مشاركة ← «إضافة إلى الشاشة الرئيسية»."].join("\n"));
   g("u-copied").textContent = "";
   g("u-invite").hidden = false;
   g("u-invite").scrollIntoView({ behavior: "smooth", block: "nearest" });
