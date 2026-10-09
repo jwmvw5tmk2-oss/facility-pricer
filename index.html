@@ -149,6 +149,11 @@ tbody tr:last-child td{border-bottom:0}
 .ref tbody tr.row{cursor:pointer}
 .ref tbody tr.row:hover td{background:var(--surface-2)}
 .ref td.ref-mid{background:var(--hi-soft);font-weight:700}
+#cmp-countries tbody tr.row{cursor:pointer}
+#cmp-countries tbody tr.row:hover td{background:var(--surface-2)}
+#cmp-countries tr.cur td{background:var(--hi-soft);font-weight:600}
+#cmp-countries td.ref-mid{font-weight:700}
+#meth-countries td{vertical-align:top}
 .en{display:block;color:var(--muted);font-size:.75rem;direction:ltr;text-align:right}
 .params dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 18px;margin:12px 0 0;font-size:.85rem}
 .params dt{color:var(--muted)}
@@ -279,7 +284,7 @@ body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
     </div>
     <div>
       <h1>مسعّر المنشآت الصحية</h1>
-      <p>تقدير تكلفة الإنشاء والتأهيل والتجهيز والتأثيث — الجمهورية اليمنية — بالريال السعودي — أسعار الربع الرابع 2026</p>
+      <p>تقدير تكلفة الإنشاء والتأهيل والتجهيز والتأثيث — <span id="hdr-country">الجمهورية اليمنية</span> — بالريال السعودي — أسعار الربع الرابع 2026</p>
     </div>
     <div class="actions" id="export-box">
       <span class="hint" id="export-status" role="status"></span>
@@ -305,6 +310,7 @@ body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
       <div class="calc-grid">
         <form class="card inputs" id="calcForm" autocomplete="off">
           <h2>المدخلات</h2>
+          <label class="field"><span>الدولة</span><select id="in-country"></select></label>
           <label class="field"><span>نوع المنشأة</span><select id="in-type"></select></label>
           <div class="field">
             <span id="units-label">عدد الأسرّة / الوحدات</span>
@@ -337,6 +343,7 @@ body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
               <div class="kpi"><div class="label">ما يعادل بالدولار</div><div class="value"><span class="num" id="k-usd"></span><span class="cur">$</span></div></div>
             </div>
             <p class="hint" id="k-range" style="margin-top:8px"></p>
+            <p class="hint" id="k-local" style="margin-top:2px"></p>
             <div class="warn" id="sum-warn" hidden></div>
             <div class="sum-foot">
               <div class="includes" id="sum-inc"></div>
@@ -365,16 +372,21 @@ body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
       <div class="page-head">
         <div>
           <h2>جدول استرشادي لتكلفة السرير</h2>
-          <p>سعر الوحدة بالريال السعودي لنطاق متكامل (إنشاء وتجهيز وتأثيث) في المدن الرئيسية. اضغط على أي صف لفتحه في الحاسبة.</p>
+          <p>سعر الوحدة بالريال السعودي لنطاق متكامل (إنشاء وتجهيز وتأثيث) في المدن الرئيسية — <b id="ref-country"></b>. تتغير الدولة من الحاسبة أو من جدول مقارنة الدول أسفل الصفحة. اضغط على أي صف لفتحه في الحاسبة.</p>
         </div>
       </div>
       <div class="tablewrap"><table class="ref" id="ref"></table></div>
       <div class="notes">
         <div class="note"><b>طريقة الاستخدام</b><span>التكلفة التقديرية = سعر الوحدة × عدد الأسرّة (أو كراسي الغسيل، أو عدد المراكز والمختبرات). لأسعار «إنشاء فقط» أو «تجهيز طبي فقط» أو «تأثيث فقط»، أو لموقع خارج المدن الرئيسية، استخدم الحاسبة.</span></div>
         <div class="note"><b>ما يشمله السعر</b><span>أعمال المبنى بكامل أنظمته الإنشائية والمعمارية والكهروميكانيكية والغازات الطبية، أعمال الموقع والبنية التحتية (بما فيها الطاقة الاحتياطية والمياه والصرف)، الأجهزة الطبية، التأثيث وتقنية المعلومات، التصميم والإشراف، والاحتياطي.</span></div>
-        <div class="note"><b>ما لا يشمله</b><span>قيمة الأرض، تكاليف التشغيل والصيانة، الأدوية والمستهلكات، سكن الكوادر، إزالة مخلفات الحرب ونزع الألغام، والتعويضات.</span></div>
+        <div class="note"><b>ما لا يشمله</b><span>قيمة الأرض، تكاليف التشغيل والصيانة، الأدوية والمستهلكات، سكن الكوادر، إزالة مخلفات الحرب ونزع الألغام في مناطق النزاع، والتعويضات.</span></div>
         <div class="note"><b>أسعار التأهيل</b><span>محسوبة بالمستوى المتوسط للتسعير وعلى المساحة القياسية للوحدة.</span></div>
         <div class="note"><b>درجة الدقة</b><span>تقدير من الفئة الخامسة وفق AACE (مرحلة المفهوم)، والمدى المتوقع للانحراف −30% إلى +50%.</span></div>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h2>مقارنة الدول</h2>
+        <p class="hint" style="margin:4px 0 10px">مستشفى عام — بناء جديد بنطاق متكامل — المستوى المتوسط — المدن الرئيسية. اضغط على أي دولة لاعتمادها.</p>
+        <div class="tablewrap"><table id="cmp-countries"></table></div>
       </div>
     </section>
 
@@ -383,7 +395,7 @@ body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
       <div class="page-head">
         <div>
           <h2>تفصيل مكونات سعر الوحدة</h2>
-          <p>بناء جديد، نطاق متكامل، المستوى المتوسط، المدن الرئيسية — بالريال السعودي لكل وحدة تسعير.</p>
+          <p>بناء جديد، نطاق متكامل، المستوى المتوسط، المدن الرئيسية — <b id="brk-country"></b> — بالريال السعودي لكل وحدة تسعير.</p>
         </div>
       </div>
       <div class="tablewrap"><table id="brk"></table></div>
@@ -446,17 +458,19 @@ const CATS = ["المدن الطبية والمستشفيات العامة", "ا
 
 // Full project estimate: returns the four columns (new + 3 rehab levels) for the chosen work package.
 function computeProject(inp, A) {
-  const t = A.types[inp.type], lvl = A.levels[inp.level], loc = A.locations[inp.loc], pk = A.packages[inp.pkg], S = A.scope;
+  const C = A.countries[inp.country] || A.countries[0];
+  const t = A.types[inp.type], lvl = A.levels[inp.level], loc = C.locations[inp.loc] || C.locations[0], pk = A.packages[inp.pkg], S = A.scope;
+  const rate = C.rates[inp.level], gfaC = t.gfa * C.area;          // country building rate and space standard
   const n = Math.max(0, Number(inp.units) || 0);
-  const area = (Number(inp.area) > 0) ? Number(inp.area) : n * t.gfa;
-  const eqUnits = (t.eqByArea && t.gfa > 0) ? area / t.gfa : n;   // labs: equipment follows the floor area
-  const Bn = area * lvl.rate * t.cf;
+  const area = (Number(inp.area) > 0) ? Number(inp.area) : n * gfaC;
+  const eqUnits = (t.eqByArea && gfaC > 0) ? area / gfaC : n;     // labs: equipment follows the floor area
+  const Bn = area * rate * t.cf;
   const escF = Math.pow(1 + A.esc, Math.max(0, (Number(inp.year) || A.baseYear) - A.baseYear));
   const addTotal = A.addons.reduce((s, a, i) => s + (Number(inp.addons[i]) || 0) * a.price, 0);
   const cols = [0, 1, 2, 3].map(k => {
     const b = Bn * S.bld[k] * loc.f * pk.w;
     const x = Bn * A.ext * S.ext[k] * loc.f * pk.w;
-    const e = eqUnits * t.eq * lvl.eq * S.eq[k] * pk.e;
+    const e = eqUnits * t.eq * lvl.eq * C.eq * S.eq[k] * pk.e;
     const ad = addTotal * pk.e;
     const ff = Bn * A.ffe * S.ffe[k] * pk.f;
     const s = (b + x) * S.soft[k];
@@ -464,18 +478,19 @@ function computeProject(inp, A) {
     const base = b + x + e + ad + ff + s + c;
     const escv = base * (escF - 1);
     const total = base + escv;
-    return { b, x, e, ad, ff, s, c, base, escv, total, perUnit: n > 0 ? total / n : 0, usd: total / A.fx };
+    return { b, x, e, ad, ff, s, c, base, escv, total, perUnit: n > 0 ? total / n : 0, usd: total / A.fx, local: C.fx > 0 ? total * C.fx : 0 };
   });
   cols.forEach(cl => { cl.ratio = cols[0].total > 0 ? cl.total / cols[0].total : 0; });
-  return { t, lvl, loc, pk, n, area, Bn, escF, addTotal, cols };
+  return { t, lvl, loc, pk, n, area, Bn, escF, addTotal, cols, C, rate, gfaC };
 }
 
 // Reference unit price (integrated package, main cities, base year) — matches the Excel reference table.
-function unitPrice(t, k, j, A) {
+function unitPrice(t, k, j, A, C) {
+  C = C || A.countries[0];
   const S = A.scope, lvl = A.levels[j];
-  const Bn = t.gfa * lvl.rate * t.cf;
+  const Bn = t.gfa * C.area * C.rates[j] * t.cf;
   const b = Bn * S.bld[k], x = Bn * A.ext * S.ext[k];
-  const e = t.eq * lvl.eq * S.eq[k], ff = Bn * A.ffe * S.ffe[k];
+  const e = t.eq * lvl.eq * C.eq * S.eq[k], ff = Bn * A.ffe * S.ffe[k];
   const s = (b + x) * S.soft[k];
   const c = (b + x + s) * S.cont[k] + (e + ff) * S.cont[0];
   return { b, x, e, ff, s, c, total: b + x + e + ff + s + c, Bn };
@@ -492,16 +507,34 @@ function save(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); retu
 
 function validA(a) {
   try {
-    return a && a.version === 1 && a.types.length === DEFAULTS.types.length && a.levels.length === 3 &&
-      a.packages.length === 5 && a.locations.length === 3 && a.addons.length === 4 && a.scope && a.scope.cont.length === 4;
+    return a && a.version === 2 && a.types.length === DEFAULTS.types.length && a.levels.length === 3 &&
+      a.packages.length === 5 && a.addons.length === 4 && a.scope && a.scope.cont.length === 4 &&
+      Array.isArray(a.countries) && a.countries.length === DEFAULTS.countries.length &&
+      a.countries.every(c => c.rates.length === 3 && c.locations.length === 3);
   } catch (e) { return false; }
 }
-// adds facility types introduced after the user saved their own assumptions
+// keeps the user's own edits when facility types or countries are added in a newer version
 function migrateA(a) {
   try {
-    if (!a || a.version !== 1 || !Array.isArray(a.types)) return null;
+    if (!a || !Array.isArray(a.types)) return null;
+    if (a.version === 1) {            // single-country (Yemen) assumptions saved before countries were added
+      const m = clone(DEFAULTS);
+      ["fx", "ext", "ffe", "esc", "baseYear"].forEach(k => { if (typeof a[k] === "number") m[k] = a[k]; });
+      if (a.scope && Array.isArray(a.scope.cont)) m.scope = a.scope;
+      if (Array.isArray(a.addons) && a.addons.length === 4) m.addons = a.addons;
+      if (Array.isArray(a.packages) && a.packages.length === 5) m.packages = a.packages;
+      if (Array.isArray(a.levels) && a.levels.length === 3) a.levels.forEach((l, i) => { m.levels[i].eq = Number(l.eq); m.countries[0].rates[i] = Number(l.rate); });
+      if (Array.isArray(a.locations) && a.locations.length === 3) a.locations.forEach((l, i) => { m.countries[0].locations[i].f = Number(l.f); });
+      m.types = a.types; a = m;
+    }
+    if (a.version !== 2) return null;
     a.types = DEFAULTS.types.map(t => { const o = a.types.find(x => x && x.en === t.en);
       return o ? Object.assign(clone(t), { gfa: Number(o.gfa), cf: Number(o.cf), eq: Number(o.eq) }) : clone(t); });
+    a.countries = DEFAULTS.countries.map(c => { const o = (a.countries || []).find(x => x && x.id === c.id);
+      if (!o) return clone(c);
+      return Object.assign(clone(c), { rates: c.rates.map((r, i) => Number(o.rates && o.rates[i] != null ? o.rates[i] : r)),
+        area: Number(o.area), eq: Number(o.eq), fx: Number(o.fx),
+        locations: c.locations.map((l, i) => Object.assign(clone(l), { f: Number(o.locations && o.locations[i] ? o.locations[i].f : l.f) })) }); });
     return validA(a) ? a : null;
   } catch (e) { return null; }
 }
@@ -514,10 +547,15 @@ function fixLabUnits(o) {
 }
 // display order: by category, then as defined
 const typeOrder = () => CATS.flatMap((c, ci) => A.types.map((t, i) => i).filter(i => A.types[i].cat === ci));
-const EXAMPLE = { type: 3, units: 100, pkg: 2, scope: 0, level: 1, loc: 0, area: "", year: 2026, addons: [0, 0, 0, 0] };
+const EXAMPLE = { country: 0, type: 3, units: 100, pkg: 2, scope: 0, level: 1, loc: 0, area: "", year: 2026, addons: [0, 0, 0, 0] };
 let inp = (() => {
   const s = load(KEY_I);
-  if (s && Number.isInteger(s.type) && s.type < A.types.length && Array.isArray(s.addons)) return fixLabUnits(Object.assign(clone(EXAMPLE), s));
+  if (s && Number.isInteger(s.type) && s.type < A.types.length && Array.isArray(s.addons)) {
+    const o = Object.assign(clone(EXAMPLE), s);
+    if (!(Number.isInteger(o.country) && o.country >= 0 && o.country < A.countries.length)) o.country = 0;
+    if (!(Number.isInteger(o.loc) && o.loc >= 0 && o.loc < 3)) o.loc = 0;
+    return fixLabUnits(o);
+  }
   return clone(EXAMPLE);
 })();
 
@@ -544,7 +582,8 @@ function buildInputs() {
     `<optgroup label="${esc(c)}">` +
     A.types.map((t, i) => t.cat === ci ? `<option value="${i}">${esc(t.ar)}</option>` : "").join("") +
     `</optgroup>`).join("");
-  $("in-loc").innerHTML = A.locations.map((l, i) => `<option value="${i}">${esc(l.name)} (${esc(l.ex)})</option>`).join("");
+  $("in-country").innerHTML = A.countries.map((c, i) => `<option value="${i}">${esc(c.name)}</option>`).join("");
+  fillLoc();
   const chips = (id, name, arr) => {
     $(id).innerHTML = arr.map((lab, i) =>
       `<label class="chip"><input type="radio" name="${name}" id="${name}-${i}" value="${i}"><span>${esc(lab)}</span></label>`).join("");
@@ -556,6 +595,7 @@ function buildInputs() {
     `<label class="addon" for="addon-${i}"><span>${esc(a.name)}<small><span class="num">${fmt(a.price)}</span> ر.س للوحدة</small></span>` +
     `<input type="number" id="addon-${i}" min="0" step="1" inputmode="numeric"></label>`).join("");
 
+  $("in-country").addEventListener("change", e => { setCountry(+e.target.value); });
   $("in-type").addEventListener("change", e => { inp.type = +e.target.value; changed(); });
   $("in-loc").addEventListener("change", e => { inp.loc = +e.target.value; changed(); });
   $("in-units").addEventListener("input", e => { inp.units = e.target.value === "" ? 0 : Math.max(0, +e.target.value); changed(); });
@@ -565,10 +605,20 @@ function buildInputs() {
     document.querySelectorAll(`input[name=${name}]`).forEach(r => r.addEventListener("change", e => { inp[name] = +e.target.value; changed(); }));
   });
   A.addons.forEach((a, i) => $("addon-" + i).addEventListener("input", e => { inp.addons[i] = Math.max(0, +e.target.value || 0); changed(); }));
-  $("btn-example").addEventListener("click", () => { inp = clone(EXAMPLE); syncInputs(); changed(); });
+  $("btn-example").addEventListener("click", () => { const c = inp.country; inp = clone(EXAMPLE); inp.country = c; syncInputs(); changed(); });
   $("calcForm").addEventListener("submit", e => e.preventDefault());
 }
+const curC = () => A.countries[inp.country] || A.countries[0];
+function fillLoc() {
+  $("in-loc").innerHTML = curC().locations.map((l, i) => `<option value="${i}">${esc(l.name)} (${esc(l.ex)})</option>`).join("");
+}
+function setCountry(i) {
+  inp.country = i; inp.loc = 0; fillLoc(); syncInputs();
+  save(KEY_I, inp); renderCalc(); renderRef(); renderBrk(); renderAssumptions();
+}
 function syncInputs() {
+  $("in-country").value = inp.country;
+  if ($("in-loc").options.length !== curC().locations.length || $("in-loc").dataset.c !== String(inp.country)) { fillLoc(); $("in-loc").dataset.c = String(inp.country); }
   $("in-type").value = inp.type;
   $("in-loc").value = inp.loc;
   $("in-units").value = inp.units;
@@ -602,12 +652,15 @@ function renderCalc() {
   const k = inp.scope, col = R.cols[k], unit = R.t.unit;
   $("unit-name").textContent = unit;
   $("units-label").textContent = `عدد الوحدات (${unit})`;
-  $("sum-desc").textContent = `${R.t.ar} — ${fmt(R.n)} ${unit} — ${A.scopes[k]} — ${R.pk.name} — مستوى ${R.lvl.name} — ${R.loc.name}` + (inp.year > A.baseYear ? ` — تنفيذ ${inp.year}` : "");
+  $("hdr-country").textContent = R.C.full;
+  $("sum-desc").textContent = `${R.C.name} — ${R.t.ar} — ${fmt(R.n)} ${unit} — ${A.scopes[k]} — ${R.pk.name} — مستوى ${R.lvl.name} — ${R.loc.name}` + (inp.year > A.baseYear ? ` — تنفيذ ${inp.year}` : "");
   $("k-total").textContent = fmt(col.total);
   $("k-unit-label").textContent = `سعر الوحدة (${unit})`;
   $("k-unit").textContent = fmt(col.perUnit);
   $("k-usd").textContent = fmt(col.usd);
   $("k-range").innerHTML = `المدى المتوقع للتقدير (−30% / +50%): ${numSpan(col.total * 0.7)} – ${numSpan(col.total * 1.5)} ر.س`;
+  $("k-local").innerHTML = R.C.cur && R.C.fx > 0 ? `ما يعادل بالعملة المحلية: ${numSpan(col.local)} ${esc(R.C.cur)}`
+    : (R.C.id === "SD" ? "يُنصح بالتسعير في السودان بالريال أو الدولار لتقلب سعر صرف الجنيه السوداني." : "");
   $("sum-inc").innerHTML = [["الأعمال الإنشائية", R.pk.w], ["الأجهزة الطبية", R.pk.e], ["التأثيث وتقنية المعلومات", R.pk.f]]
     .map(([l, on]) => `<span class="pill ${on ? "on" : "off"}">${on ? "يشمل" : "لا يشمل"} ${l}</span>`).join("");
   const warns = [];
@@ -645,11 +698,14 @@ function renderCalc() {
   const yes = v => v ? "نعم" : "لا";
   const P = [
     ["وحدة التسعير", R.t.unit],
-    ["المساحة القياسية لكل وحدة (م²)", fmt(R.t.gfa)],
+    ["الدولة", R.C.name],
+    ["المساحة القياسية لكل وحدة (م²)", fmt(R.gfaC)],
     ["المساحة المعتمدة في الحساب (م²)", fmt(R.area)],
     ["معامل التعقيد", R.t.cf.toFixed(2)],
-    ["سعر البناء (ر.س / م²)", fmt(R.lvl.rate)],
-    ["معامل الأجهزة الطبية", R.lvl.eq.toFixed(2)],
+    ["سعر البناء (ر.س / م²)", fmt(R.rate)],
+    ["معامل الأجهزة الطبية (المستوى)", R.lvl.eq.toFixed(2)],
+    ["معامل الأجهزة الطبية (الدولة)", R.C.eq.toFixed(2)],
+    ["معامل المساحات (الدولة)", R.C.area.toFixed(2)],
     ["الأجهزة الطبية القياسية لكل وحدة (ر.س)", fmt(R.t.eq)],
     ["معامل الموقع", R.loc.f.toFixed(2)],
     ["معامل التصعيد", R.escF.toFixed(3)],
@@ -665,11 +721,11 @@ function renderCalc() {
 function summaryText() {
   const R = lastR, k = inp.scope, c = R.cols[k];
   const lines = [
-    "تقدير تكلفة منشأة صحية — الجمهورية اليمنية",
+    "تقدير تكلفة منشأة صحية — " + R.C.full,
     $("sum-desc").textContent,
     `الإجمالي التقديري: ${fmt(c.total)} ر.س`,
     `سعر الوحدة (${R.t.unit}): ${fmt(c.perUnit)} ر.س`,
-    `ما يعادل: ${fmt(c.usd)} دولار أمريكي`,
+    `ما يعادل: ${fmt(c.usd)} دولار أمريكي` + (R.C.cur && R.C.fx > 0 ? ` — ${fmt(c.local)} ${R.C.cur}` : ""),
     `المدى المتوقع (−30% / +50%): ${fmt(c.total * 0.7)} – ${fmt(c.total * 1.5)} ر.س`,
     "",
     `المقارنة بنفس نطاق العمل (${R.pk.name}):`,
@@ -689,7 +745,10 @@ $("btn-copy").addEventListener("click", () => {
 });
 
 /* ---------------- reference & breakdown ---------------- */
+const GEN = () => A.types.findIndex(t => t.en === "General Hospital");
 function renderRef() {
+  const C = curC();
+  $("ref-country").textContent = C.full;
   let h = `<thead><tr><th rowspan="2">م</th><th rowspan="2">نوع المنشأة</th><th rowspan="2">الوحدة</th><th rowspan="2">السعة النموذجية</th><th rowspan="2" class="n">م²/وحدة</th>
     <th colspan="3" style="text-align:center">بناء جديد — سعر الوحدة (ر.س)</th><th colspan="3" style="text-align:center">إعادة تأهيل — المستوى المتوسط (ر.س)</th></tr>
     <tr class="sub"><th class="n">أدنى</th><th class="n">متوسط</th><th class="n">أعلى</th><th class="n">خفيف</th><th class="n">متوسط</th><th class="n">شامل</th></tr></thead><tbody>`;
@@ -698,8 +757,8 @@ function renderRef() {
     h += `<tr class="cat"><td colspan="11">${esc(c)}</td></tr>`;
     A.types.forEach((t, i) => {
       if (t.cat !== ci) return;
-      const v = [unitPrice(t, 0, 0, A), unitPrice(t, 0, 1, A), unitPrice(t, 0, 2, A), unitPrice(t, 1, 1, A), unitPrice(t, 2, 1, A), unitPrice(t, 3, 1, A)].map(x => roundRef(t, x.total));
-      h += `<tr class="row" data-type="${i}" tabindex="0" title="فتح في الحاسبة"><td>${++no}</td><td>${esc(t.ar)}<span class="en">${esc(t.en)}</span></td><td>${esc(t.unit)}</td><td>${esc(t.cap)}</td><td class="n">${fmt(t.gfa)}</td>` +
+      const v = [[0, 0], [0, 1], [0, 2], [1, 1], [2, 1], [3, 1]].map(([kk, j]) => roundRef(t, unitPrice(t, kk, j, A, C).total));
+      h += `<tr class="row" data-type="${i}" tabindex="0" title="فتح في الحاسبة"><td>${++no}</td><td>${esc(t.ar)}<span class="en">${esc(t.en)}</span></td><td>${esc(t.unit)}</td><td>${esc(t.cap)}</td><td class="n">${fmt(t.gfa * C.area)}</td>` +
         v.map((x, j) => `<td class="n ${j === 1 ? "ref-mid" : ""}">${fmt(x)}</td>`).join("") + `</tr>`;
     });
   });
@@ -710,13 +769,41 @@ function renderRef() {
     tr.addEventListener("keydown", e => { if (e.key === "Enter") open(); });
   });
   const teach = A.types.findIndex(t => t.en === "University / Teaching Hospital");
-  $("m-teach").textContent = teach >= 0 ? fmt(round3(unitPrice(A.types[teach], 0, 2, A).total)) : "—";
+  const mt = $("m-teach"); if (mt) mt.textContent = teach >= 0 ? fmt(round3(unitPrice(A.types[teach], 0, 2, A, A.countries[0]).total)) : "—";
+  renderCountries();
+}
+function renderCountries() {
+  const g = A.types[GEN()];
+  if (!g) return;
+  const cur = inp.country;
+  let h = `<thead><tr><th>الدولة</th><th class="n">سعر البناء ر.س/م² (متوسط)</th><th class="n">م²/سرير</th><th class="n">سعر السرير (ر.س)</th><th class="n">ما يعادل بالدولار</th><th>بالعملة المحلية</th><th>درجة الثقة</th></tr></thead><tbody>`;
+  A.countries.forEach((c, i) => {
+    const u = round3(unitPrice(g, 0, 1, A, c).total);
+    h += `<tr class="row ${i === cur ? "cur" : ""}" data-country="${i}" tabindex="0" title="اعتماد ${esc(c.name)}"><td><b>${esc(c.name)}</b></td><td class="n">${fmt(c.rates[1])}</td><td class="n">${fmt(g.gfa * c.area)}</td>` +
+      `<td class="n ${i === cur ? "ref-mid" : ""}">${fmt(u)}</td><td class="n">${fmt(u / A.fx)}</td><td>${c.cur && c.fx > 0 ? `<span class="num">${fmt(u * c.fx)}</span> ${esc(c.cur)}` : "—"}</td><td class="hint">${esc(c.conf)}</td></tr>`;
+  });
+  $("cmp-countries").innerHTML = h + "</tbody>";
+  document.querySelectorAll("#cmp-countries tr.row").forEach(tr => {
+    const pick = () => setCountry(+tr.dataset.country);
+    tr.addEventListener("click", pick);
+    tr.addEventListener("keydown", e => { if (e.key === "Enter") pick(); });
+  });
+  const mc = $("meth-countries");
+  if (mc) {
+    mc.innerHTML = `<thead><tr><th>الدولة</th><th class="n">سعر البناء ر.س/م² (أدنى / متوسط / أعلى)</th><th class="n">معامل المساحات</th><th class="n">معامل الأجهزة</th><th class="n">معاملات المواقع</th><th>أساس التقدير</th><th>الثقة</th></tr></thead><tbody>` +
+      A.countries.map(c => `<tr><td><b>${esc(c.name)}</b></td><td class="n">${c.rates.map(fmt).join(" / ")}</td><td class="n">${c.area.toFixed(2)}</td><td class="n">${c.eq.toFixed(2)}</td><td class="n">${c.locations.map(l => l.f.toFixed(2)).join(" / ")}</td><td class="hint" style="min-width:260px">${esc(c.basis)}</td><td class="hint">${esc(c.conf)}</td></tr>`).join("") + "</tbody>";
+  }
+  const bed = id => { const c = A.countries.find(x => x.id === id); return c ? fmt(round3(unitPrice(g, 0, 1, A, c).total)) : "—"; };
+  if ($("m-sa-bed")) $("m-sa-bed").textContent = bed("SA");
+  if ($("m-eg-bed")) $("m-eg-bed").textContent = bed("EG");
 }
 function renderBrk() {
+  const C = curC();
+  $("brk-country").textContent = C.full;
   let h = `<thead><tr><th>م</th><th>نوع المنشأة</th><th>الوحدة</th><th class="n">م²/وحدة</th><th class="n">أعمال المبنى</th><th class="n">أعمال الموقع</th><th class="n">الأجهزة الطبية</th><th class="n">التأثيث وتقنية المعلومات</th><th class="n">التصميم والإشراف</th><th class="n">الاحتياطي</th><th class="n">إجمالي سعر الوحدة</th><th class="n">نسبة الأجهزة</th><th class="n">ر.س / م²</th></tr></thead><tbody>`;
   typeOrder().forEach((i, pos) => {
-    const t = A.types[i], u = unitPrice(t, 0, 1, A);
-    h += `<tr><td>${pos + 1}</td><td>${esc(t.ar)}</td><td>${esc(t.unit)}</td><td class="n">${fmt(t.gfa)}</td><td class="n">${fmt(u.b)}</td><td class="n">${fmt(u.x)}</td><td class="n">${fmt(u.e)}</td><td class="n">${fmt(u.ff)}</td><td class="n">${fmt(u.s)}</td><td class="n">${fmt(u.c)}</td><td class="n ref-mid" style="background:var(--hi-soft);font-weight:700">${fmt(u.total)}</td><td class="n">${pct(u.e / u.total)}</td><td class="n">${t.gfa > 0 ? fmt(u.total / t.gfa) : "—"}</td></tr>`;
+    const t = A.types[i], u = unitPrice(t, 0, 1, A, C), g = t.gfa * C.area;
+    h += `<tr><td>${pos + 1}</td><td>${esc(t.ar)}</td><td>${esc(t.unit)}</td><td class="n">${fmt(g)}</td><td class="n">${fmt(u.b)}</td><td class="n">${fmt(u.x)}</td><td class="n">${fmt(u.e)}</td><td class="n">${fmt(u.ff)}</td><td class="n">${fmt(u.s)}</td><td class="n">${fmt(u.c)}</td><td class="n ref-mid" style="background:var(--hi-soft);font-weight:700">${fmt(u.total)}</td><td class="n">${pct(u.e / u.total)}</td><td class="n">${g > 0 ? fmt(u.total / g) : "—"}</td></tr>`;
   });
   $("brk").innerHTML = h + "</tbody>";
 }
@@ -742,14 +829,20 @@ function renderAssumptions() {
     <tr><td>نسبة التصعيد السنوي</td><td>${numInput("esc", { pct: 1, label: "التصعيد" })}</td></tr>
     <tr><td>سنة أساس الأسعار</td><td>${numInput("baseYear", { step: 1, label: "سنة الأساس" })}</td></tr>
   </tbody></table></div></div>`;
-  h += `<div class="card as-sec"><h2>مستويات التسعير</h2><div class="tablewrap"><table><thead><tr><th>المستوى</th><th>سعر البناء (ر.س / م²)</th><th>معامل الأجهزة الطبية</th><th>الوصف</th></tr></thead><tbody>` +
-    A.levels.map((l, i) => `<tr><td><b>${esc(l.name)}</b></td><td>${numInput(`levels.${i}.rate`, { step: 50, label: "سعر البناء " + l.name })}</td><td>${numInput(`levels.${i}.eq`, { step: 0.05, label: "معامل الأجهزة " + l.name })}</td><td class="hint">${esc(l.desc)}</td></tr>`).join("") +
+  const ci = A.countries.indexOf(curC()), C = A.countries[ci];
+  h += `<div class="card as-sec"><h2>معاملات الدولة — ${esc(C.full)}</h2><div class="tablewrap"><table><tbody>
+    <tr><td>معامل المساحات (نسبةً إلى المعايير المعتمدة لليمن)</td><td>${numInput(`countries.${ci}.area`, { step: 0.05, label: "معامل المساحات" })}</td></tr>
+    <tr><td>معامل الأجهزة الطبية (فرق السعر وكثافة التجهيز)</td><td>${numInput(`countries.${ci}.eq`, { step: 0.05, label: "معامل الأجهزة للدولة" })}</td></tr>` +
+    (C.cur ? `<tr><td>سعر الصرف (${esc(C.cur)} لكل ريال سعودي)</td><td>${numInput(`countries.${ci}.fx`, { step: 0.0001, label: "سعر الصرف" })}</td></tr>` : "") +
+    `</tbody></table></div><p class="hint" style="margin-top:8px">${esc(C.basis)} درجة الثقة: ${esc(C.conf)}. لتعديل دولة أخرى اخترها من الحاسبة.</p></div>`;
+  h += `<div class="card as-sec"><h2>مستويات التسعير — ${esc(C.name)}</h2><div class="tablewrap"><table><thead><tr><th>المستوى</th><th>سعر البناء (ر.س / م²)</th><th>معامل الأجهزة الطبية</th><th>الوصف</th></tr></thead><tbody>` +
+    A.levels.map((l, i) => `<tr><td><b>${esc(l.name)}</b></td><td>${numInput(`countries.${ci}.rates.${i}`, { step: 50, label: "سعر البناء " + l.name })}</td><td>${numInput(`levels.${i}.eq`, { step: 0.05, label: "معامل الأجهزة " + l.name })}</td><td class="hint">${esc(l.desc)}</td></tr>`).join("") +
     `</tbody></table></div></div>`;
   h += `<div class="card as-sec"><h2>معاملات نطاق العمل (بناء جديد / إعادة تأهيل)</h2><div class="tablewrap"><table><thead><tr><th>البند</th>${A.scopes.map(s => `<th>${esc(s)}</th>`).join("")}</tr></thead><tbody>` +
     scopeRows.map(([lab, key]) => `<tr><td>${esc(lab)}</td>${S[key].map((v, k) => `<td>${numInput(`scope.${key}.${k}`, { pct: 1, label: lab + " " + A.scopes[k] })}</td>`).join("")}</tr>`).join("") +
     `</tbody></table></div><p class="hint" style="margin-top:8px">الاحتياطي الأعلى في التأهيل يُطبق على الأعمال الإنشائية فقط، وتأخذ الأجهزة والأثاث نسبة البناء الجديد.</p></div>`;
-  h += `<div class="card as-sec"><h2>معاملات الموقع</h2><div class="tablewrap"><table><thead><tr><th>الموقع</th><th>المعامل</th><th>أمثلة</th></tr></thead><tbody>` +
-    A.locations.map((l, i) => `<tr><td>${esc(l.name)}</td><td>${numInput(`locations.${i}.f`, { step: 0.05, label: "معامل " + l.name })}</td><td class="hint">${esc(l.ex)}</td></tr>`).join("") +
+  h += `<div class="card as-sec"><h2>معاملات الموقع — ${esc(C.name)}</h2><div class="tablewrap"><table><thead><tr><th>الموقع</th><th>المعامل</th><th>أمثلة</th></tr></thead><tbody>` +
+    C.locations.map((l, i) => `<tr><td>${esc(l.name)}</td><td>${numInput(`countries.${ci}.locations.${i}.f`, { step: 0.05, label: "معامل " + l.name })}</td><td class="hint">${esc(l.ex)}</td></tr>`).join("") +
     `</tbody></table></div></div>`;
   h += `<div class="card as-sec"><h2>الأجهزة الكبرى الإضافية</h2><div class="tablewrap"><table><thead><tr><th>البند</th><th>سعر الوحدة (ر.س)</th></tr></thead><tbody>` +
     A.addons.map((a, i) => `<tr><td>${esc(a.name)}<span class="en">${esc(a.en)}</span></td><td>${numInput(`addons.${i}.price`, { step: 100000, label: a.name })}</td></tr>`).join("") +
@@ -758,7 +851,7 @@ function renderAssumptions() {
     A.packages.map((p, i) => `<tr><td>${esc(p.name)}</td>` + ["w", "e", "f"].map(f =>
       `<td><input type="checkbox" id="as-pk-${i}-${f}" data-pk="${i}" data-f="${f}" ${p[f] ? "checked" : ""} aria-label="${esc(p.name)}"></td>`).join("") + `</tr>`).join("") +
     `</tbody></table></div></div>`;
-  h += `<div class="card as-sec"><h2>معايير المنشآت</h2><div class="tablewrap"><table><thead><tr><th>م</th><th>نوع المنشأة</th><th>الوحدة</th><th>المساحة لكل وحدة (م²)</th><th>معامل التعقيد</th><th>الأجهزة الطبية لكل وحدة (ر.س)</th></tr></thead><tbody>` +
+  h += `<div class="card as-sec"><h2>معايير المنشآت</h2><div class="tablewrap"><table><thead><tr><th>م</th><th>نوع المنشأة</th><th>الوحدة</th><th>المساحة لكل وحدة (م²) — المعيار الأساسي</th><th>معامل التعقيد</th><th>الأجهزة الطبية لكل وحدة (ر.س) — المعيار الأساسي</th></tr></thead><tbody>` +
     typeOrder().map((i, pos) => { const t = A.types[i]; return `<tr><td>${pos + 1}</td><td>${esc(t.ar)}</td><td>${esc(t.unit)}</td><td>${numInput(`types.${i}.gfa`, { step: 5, label: "المساحة " + t.ar })}</td><td>${numInput(`types.${i}.cf`, { step: 0.05, label: "معامل التعقيد " + t.ar })}</td><td>${numInput(`types.${i}.eq`, { step: 10000, label: "الأجهزة " + t.ar })}</td></tr>`; }).join("") +
     `</tbody></table></div></div>`;
   $("as-grid").innerHTML = h;
@@ -776,11 +869,11 @@ function updateAsState() {
   const same = JSON.stringify(A) === JSON.stringify(DEFAULTS);
   $("as-state").textContent = same ? "القيم الافتراضية" : "تم تعديل القيم الافتراضية";
 }
-function assumptionsChanged() { save(KEY_A, A); renderCalc(); renderRef(); renderBrk(); updateAsState(); }
+function assumptionsChanged() { save(KEY_A, A); fillLoc(); $("in-loc").value = inp.loc; renderCalc(); renderRef(); renderBrk(); updateAsState(); }
 $("btn-reset-as").addEventListener("click", () => { $("reset-confirm").hidden = false; $("btn-reset-as").hidden = true; });
 $("btn-reset-no").addEventListener("click", () => { $("reset-confirm").hidden = true; $("btn-reset-as").hidden = false; });
 $("btn-reset-yes").addEventListener("click", () => {
-  A = clone(DEFAULTS); save(KEY_A, A);
+  A = clone(DEFAULTS); save(KEY_A, A); fillLoc(); $("in-loc").value = inp.loc;
   $("reset-confirm").hidden = true; $("btn-reset-as").hidden = false;
   renderAssumptions(); renderCalc(); renderRef(); renderBrk();
 });
@@ -811,10 +904,12 @@ function buildReport() {
 
   // ---- sheet 1: the estimate
   const s1 = sheetBuilder("التقدير", [46, 21, 21, 21, 21]);
-  s1.full("تقدير تكلفة منشأة صحية — الجمهورية اليمنية", "title", 28);
+  const C = R.C;
+  s1.full("تقدير تكلفة منشأة صحية — " + C.full, "title", 28);
   s1.full(`تاريخ التقدير: ${date} — المبالغ بالريال السعودي — أسعار سنة الأساس ${A.baseYear} — تقدير من الفئة الخامسة (Class 5) بدقة −30% / +50%`, "subtitle", 30);
   s1.blank();
   s1.full("أولاً: بيانات المشروع", "section", 22);
+  s1.kv("الدولة", `${C.full} — درجة ثقة التقدير: ${C.conf}`, "lbl_b", "txt");
   s1.kv("نوع المنشأة", `${R.t.ar} — ${R.t.en}`, "lbl_b", "txt");
   s1.kv(`عدد الوحدات (${unit})`, R.n, "lbl_b", "num");
   s1.kv("نطاق العمل", R.pk.name, "lbl_b", "txt");
@@ -831,6 +926,7 @@ function buildReport() {
   s1.kv("الإجمالي التقديري (ر.س)", c.total, "kpi_lbl", "kpi", 24);
   s1.kv(`سعر الوحدة — ${unit} (ر.س)`, c.perUnit, "kpi_lbl", "kpi", 24);
   s1.kv("ما يعادل بالدولار الأمريكي", c.usd, "kpi_lbl", "kpi", 24);
+  if (C.cur && C.fx > 0) s1.kv(`ما يعادل بالعملة المحلية (${C.cur})`, c.local, "kpi_lbl", "kpi", 24);
   s1.kv("المدى المتوقع للتقدير (−30% / +50%)", `${fmt(c.total * 0.7)} – ${fmt(c.total * 1.5)} ر.س`, "kpi_lbl", "kpi_txt", 24);
   s1.blank();
   s1.full(`ثالثاً: البناء الجديد وإعادة التأهيل بنفس نطاق العمل (${R.pk.name})`, "section", 22);
@@ -851,11 +947,13 @@ function buildReport() {
   s1.full("رابعاً: المعايير المستخدمة في الحساب", "section", 22);
   [
     ["وحدة التسعير", unit, "txt"],
-    ["المساحة القياسية لكل وحدة (م²)", R.t.gfa, "num"],
+    ["المساحة القياسية لكل وحدة (م²)", R.gfaC, "num"],
     ["المساحة المعتمدة في الحساب (م²)", R.area, "num"],
     ["معامل التعقيد", R.t.cf, "dec2"],
-    ["سعر البناء (ر.س / م²)", R.lvl.rate, "num"],
-    ["معامل الأجهزة الطبية", R.lvl.eq, "dec2"],
+    ["سعر البناء (ر.س / م²)", R.rate, "num"],
+    ["معامل الأجهزة الطبية (المستوى)", R.lvl.eq, "dec2"],
+    ["معامل الأجهزة الطبية (الدولة)", C.eq, "dec2"],
+    ["معامل المساحات (الدولة)", C.area, "dec2"],
     ["الأجهزة الطبية القياسية لكل وحدة (ر.س)", R.t.eq, "num"],
     ["معامل الموقع", R.loc.f, "dec2"],
     ["معامل التصعيد", R.escF, "dec3"],
@@ -867,7 +965,7 @@ function buildReport() {
 
   // ---- sheet 2: reference table with the current assumptions
   const s2 = sheetBuilder("جدول سعر السرير", [5, 40, 11, 24, 11, 14, 15, 14, 13, 13, 13]);
-  s2.full("جدول استرشادي لتكلفة السرير للمنشآت الصحية — الجمهورية اليمنية", "title", 28);
+  s2.full("جدول استرشادي لتكلفة السرير للمنشآت الصحية — " + C.full, "title", 28);
   s2.full(`سعر الوحدة بالريال السعودي — نطاق متكامل (إنشاء وتجهيز وتأثيث) — المدن الرئيسية — وفق الافتراضات الحالية في البرنامج بتاريخ ${date}`, "subtitle", 30);
   s2.blank();
   const h1 = s2.add([["م", "hdr"], ["نوع المنشأة", "hdr"], ["الوحدة", "hdr"], ["السعة النموذجية", "hdr"], ["م²/وحدة", "hdr"],
@@ -882,8 +980,8 @@ function buildReport() {
     s2.full(cat, "cat", 22);
     A.types.forEach((t, i) => {
       if (t.cat !== ci) return;
-      const v = [[0, 0], [0, 1], [0, 2], [1, 1], [2, 1], [3, 1]].map(([kk, j]) => roundRef(t, unitPrice(t, kk, j, A).total));
-      s2.add([[++no, "int"], [t.ar, "lbl"], [t.unit, "txt_c"], [t.cap, "txt_c"], [t.gfa, "num"]]
+      const v = [[0, 0], [0, 1], [0, 2], [1, 1], [2, 1], [3, 1]].map(([kk, j]) => roundRef(t, unitPrice(t, kk, j, A, C).total));
+      s2.add([[++no, "int"], [t.ar, "lbl"], [t.unit, "txt_c"], [t.cap, "txt_c"], [t.gfa * C.area, "num"]]
         .concat(v.map((x, j) => [x, j === 1 ? "num_mid" : "num"])), 22);
     });
   });
@@ -902,9 +1000,15 @@ function buildReport() {
   s3.kv("نسبة التصعيد السنوي", A.esc, "lbl", "pct1");
   s3.kv("سنة أساس الأسعار", A.baseYear, "lbl", "int");
   s3.blank();
-  s3.full("مستويات التسعير", "section", 22);
+  s3.full("معاملات الدولة — " + C.full, "section", 22);
+  s3.kv("معامل المساحات (نسبةً إلى المعايير المعتمدة لليمن)", C.area, "lbl", "dec2");
+  s3.kv("معامل الأجهزة الطبية (فرق السعر وكثافة التجهيز)", C.eq, "lbl", "dec2");
+  if (C.cur && C.fx > 0) s3.kv(`سعر الصرف (${C.cur} لكل ريال سعودي)`, C.fx, "lbl", "dec3");
+  s3.kv("أساس التقدير", `${C.basis} درجة الثقة: ${C.conf}.`, "lbl", "txt", 46);
+  s3.blank();
+  s3.full("مستويات التسعير — " + C.name, "section", 22);
   s3.add([["المستوى", "hdr"], ["سعر البناء (ر.س / م²)", "hdr"], ["معامل الأجهزة الطبية", "hdr"]], 30);
-  A.levels.forEach(l => s3.add([[l.name, "lbl_b"], [l.rate, "num"], [l.eq, "dec2"]]));
+  A.levels.forEach((l, i) => s3.add([[l.name, "lbl_b"], [C.rates[i], "num"], [l.eq, "dec2"]]));
   s3.blank();
   s3.full("معاملات نطاق العمل (بناء جديد / إعادة تأهيل)", "section", 22);
   s3.add([["البند", "hdr"]].concat(A.scopes.map(sc => [sc, "hdr"])), 30);
@@ -912,10 +1016,10 @@ function buildReport() {
    ["التأثيث وتقنية المعلومات", "ffe"], ["التصميم والإشراف (% من الأعمال)", "soft"], ["الاحتياطي", "cont"]]
     .forEach(([l, key]) => s3.add([[l, "lbl"]].concat(A.scope[key].map(v => [v, "pct"]))));
   s3.blank();
-  s3.full("معاملات الموقع", "section", 22);
+  s3.full("معاملات الموقع — " + C.name, "section", 22);
   s3.add([["الموقع", "hdr"], ["المعامل", "hdr"], ["أمثلة", "hdr"], [null, "hdr"], [null, "hdr"]], 22);
   s3.merges.push(`C${s3.rows.length}:E${s3.rows.length}`);
-  A.locations.forEach(l => {
+  C.locations.forEach(l => {
     const r = s3.add([[l.name, "lbl"], [l.f, "dec2"], [l.ex, "txt"], [null, "txt"], [null, "txt"]]);
     s3.merges.push(`C${r}:E${r}`);
   });
@@ -933,7 +1037,7 @@ function buildReport() {
   typeOrder().forEach(i => { const t = A.types[i]; s3.add([[t.ar, "lbl"], [t.unit, "txt_c"], [t.gfa, "num"], [t.cf, "dec2"], [t.eq, "num"]]); });
 
   return {
-    filename: `تقدير ${R.t.ar} - ${R.n} ${unit} - ${A.scopes[k]} - ${date}.xlsx`,
+    filename: `تقدير ${R.t.ar} - ${C.name} - ${R.n} ${unit} - ${A.scopes[k]} - ${date}.xlsx`,
     title: `تقدير ${R.t.ar} — ${A.scopes[k]}`,
     sheets: [s1, s2, s3]
   };
@@ -1176,12 +1280,25 @@ g("g-act").addEventListener("submit", async ev => {
 });
 
 /* ---------- start ---------- */
+const METH_CARD = "        <div class=\"card\">\n          <h2>التسعير حسب الدولة</h2>\n          <ul>\n            <li><b>ما يتغير بين الدول:</b> سعر البناء للمتر المربع لكل مستوى تسعير؛ ومعامل المساحات، لأن المعايير الخليجية تخصص للسرير نحو 130–140 م² في المستشفى العام مقابل 100 م² في المعايير المعتمدة لليمن؛ ومعامل الأجهزة الطبية، ويجمع فرق السعر (الرسوم الجمركية والنقل وفروق الصرف) وكثافة التجهيز المعتادة؛ وفئات المواقع داخل كل دولة. بقية المعادلة ونسبها واحدة لجميع الدول.</li>\n            <li><b>اليمن:</b> بقيت معايرته الأصلية دون تغيير، فنتائجه مطابقة للإصدارات السابقة.</li>\n            <li><b>العملة:</b> جميع المبالغ بالريال السعودي، ويظهر ما يعادلها بالعملة المحلية بأسعار صرف أكتوبر 2026 (لكل ريال سعودي): الدرهم 0.9793، الريال القطري 0.9707، الدينار الكويتي 0.08291، الدينار البحريني 0.10027، الريال العماني 0.10253، الجنيه المصري 13.97. ويمكن تعديلها من «الافتراضات».</li>\n            <li><b>مصدر الأرقام:</b> السعودية والإمارات من معدلات منشورة لتكلفة المستشفيات (Turner &amp; Townsend)، وبقية الدول تقديرات مشتقة من عقود مستشفيات حقيقية بقيمتها وسعتها ومساحتها، ودرجة الثقة مبيّنة لكل دولة في الجدول أدناه.</li>\n            <li><b>التحقق:</b> التكلفة الشاملة للسرير في مشاريع خليجية منفذة بين 2.6 و4.3 مليون ر.س (تصل إلى 6.8 مليون في المستشفيات الخاصة الفاخرة)، والأداة تعطي للمستشفى العام في الرياض بالمستوى المتوسط نحو <span class=\"num\" id=\"m-sa-bed\"></span> ر.س للسرير. وفي مصر بين 0.4 و0.9 مليون ر.س للسرير بين القطاعين الحكومي والخاص، والأداة تعطي نحو <span class=\"num\" id=\"m-eg-bed\"></span> ر.س.</li>\n            <li><b>تنبيه 2026 — مضيق هرمز:</b> رفعت الأزمة أسعار حديد التسليح (+9%) والألمنيوم (+14%) في الخليج. الكويت وقطر والبحرين الأكثر تعرضاً، وعُمان الأقل لأن موانئها خارج المضيق. لم تُضمَّن في الأسعار الأساسية؛ يُنصح بزيادة الاحتياطي 5–10% في الدول الأكثر تعرضاً.</li>\n            <li><b>السودان:</b> لا تتوفر عقود منشورة، والتقدير منخفض الثقة جداً. سعر الجنيه السوداني شديد التقلب (من نحو 565 للدولار قبل الحرب إلى أكثر من 7,000 في السوق الموازية 2026)، فيُسعّر بالريال أو الدولار. التنفيذ في كردفان ودارفور والنيل الأزرق غير متاح حالياً.</li>\n            <li><b>مصر:</b> تقدير منخفض الثقة مبني على عقدين حديثين؛ تراجعت ضريبة القيمة المضافة على الأجهزة الطبية من 14% إلى 5% (يونيو 2026)، وتقلّب سعر الجنيه في حدود ±8% خلال 2026.</li>\n          </ul>\n          <div class=\"tablewrap\" style=\"margin-top:10px\"><table id=\"meth-countries\"></table></div>\n        </div>\n";
+const METH_SOURCES = "            <li><a href=\"https://www.agbi.com/analysis/construction/2024/06/building-construction-costs-dubai-riyadh-doha-abu-dhabi/\" target=\"_blank\" rel=\"noopener\">AGBI — Turner &amp; Townsend ICMS 2024: Riyadh, Dubai, Doha, Abu Dhabi</a></li>\n            <li><a href=\"https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance\" target=\"_blank\" rel=\"noopener\">Turner &amp; Townsend — UAE Market Intelligence 2025</a></li>\n            <li><a href=\"https://marketintelligence.turnerandtownsend.com/qatar-mi-2025/construction-cost-performance\" target=\"_blank\" rel=\"noopener\">Turner &amp; Townsend — Qatar Market Intelligence 2025</a></li>\n            <li><a href=\"https://www.arcadis.com/contentassets/9c69333169054e2ba8bb8fabf1a80df9/international-construction-costs-2025.pdf\" target=\"_blank\" rel=\"noopener\">Arcadis — International Construction Costs 2025</a></li>\n            <li><a href=\"https://aaqs.org/wp-content/uploads/2025/05/AECOM-Africa-Cost-Guide-2024-25.pdf\" target=\"_blank\" rel=\"noopener\">AECOM — Africa Property &amp; Construction Cost Guide 2024/25</a></li>\n            <li><a href=\"https://www.argaam.com/en/article/articledetail/id/1737618\" target=\"_blank\" rel=\"noopener\">أرقام — عقد مستشفى دلة العارض بالرياض</a></li>\n            <li><a href=\"https://www.meed.com/local-contractor-wins-dubai-hospital-construction-deal/\" target=\"_blank\" rel=\"noopener\">MEED — Mediclinic Park View, Dubai</a></li>\n            <li><a href=\"https://www.gtai.de/de/trade/kuwait/branchen/kuwait-baut-den-gesundheitssektor-weiter-aus-1781116\" target=\"_blank\" rel=\"noopener\">GTAI — مشاريع المستشفيات في الكويت</a></li>\n            <li><a href=\"https://www.zawya.com/en/business/healthcare/bahrain-260mln-medical-city-a-step-closer-to-operation-sitlsv13\" target=\"_blank\" rel=\"noopener\">Zawya — مدينة الملك عبدالله الطبية، البحرين</a></li>\n            <li><a href=\"https://timesofoman.com/article/146605-foundation-stone-laid-for-omr-45-milion-hospital-project-in-al-dakhiliyah\" target=\"_blank\" rel=\"noopener\">Times of Oman — مستشفى سمائل الجديد</a></li>\n            <li><a href=\"https://www.dailynewsegypt.com/2026/01/27/egypt-opens-egp-3-5bn-cleopatra-sky-hospital-under-private-public-partnership-model/\" target=\"_blank\" rel=\"noopener\">Daily News Egypt — مستشفى كليوباترا سكاي</a></li>\n            <li><a href=\"https://www.masrawy.com/news/news_egypt/details/2025/12/13/2906994/\" target=\"_blank\" rel=\"noopener\">مصراوي — مستشفى التأمين الصحي الشامل بالعاصمة الإدارية</a></li>\n            <li><a href=\"https://logcluster.org/sites/default/files/public/2024-07/factsheet-sudan-importation-and-customsjune-2024.pdf\" target=\"_blank\" rel=\"noopener\">Logistics Cluster — الاستيراد والجمارك في السودان</a></li>\n            <li><a href=\"https://enterpriseam.com/menaplus/2026/07/06/how-the-hormuz-crisis-is-dividing-the-mena-infrastructure-markets-fortunes/\" target=\"_blank\" rel=\"noopener\">Enterprise — أثر أزمة هرمز على أسواق البناء 2026</a></li>\n";
+function addMethExtras() {
+  const pm = g("p-meth");
+  if (pm.querySelector("#meth-countries")) return;
+  const hs = [...pm.querySelectorAll(".card > h2")];
+  const rehab = hs.find(h => h.textContent.indexOf("تعريف مستويات") >= 0);
+  if (rehab) rehab.parentElement.insertAdjacentHTML("beforebegin", METH_CARD); else pm.insertAdjacentHTML("beforeend", METH_CARD);
+  const src = hs.find(h => h.textContent.trim() === "المصادر");
+  const ul = src && src.parentElement.querySelector("ul");
+  if (ul) ul.insertAdjacentHTML("beforeend", METH_SOURCES);
+}
 let started = false, lastOk = 0, me = null;
 function launch(cfg, offlineSince) {
   if (started) return;
   if (!cfg || !cfg.data || !Array.isArray(cfg.data.types)) throw new Error("bad config");
   started = true; me = cfg.me || {};
   g("p-meth").innerHTML = cfg.meth || "";
+  addMethExtras();
   const admin = me.role === "admin";
   if (!admin) { g("t-users").remove(); g("p-users").remove(); }
   const who = g("who");
