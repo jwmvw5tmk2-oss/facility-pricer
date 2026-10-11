@@ -309,6 +309,12 @@ h1 .abbr{display:inline-block;vertical-align:middle;margin-inline-start:8px;font
   border:1px solid var(--glass-border);box-shadow:var(--glass-hi),0 4px 12px rgba(14,74,54,.08)}
 .btn.danger{background:linear-gradient(180deg,color-mix(in srgb,var(--warn) 80%,#fff),var(--warn));border-color:rgba(255,255,255,.2)}
 .btn.warn-ghost{border-radius:999px}
+/* option grids: equal cells in tidy columns (construction packages on one side, no-construction on the other) */
+#in-pkg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,auto);grid-auto-flow:column;gap:8px}
+#in-scope,#in-level{gap:8px}
+#in-pkg .chip,#in-scope .chip,#in-level .chip{display:flex}
+#in-pkg .chip span,#in-scope .chip span,#in-level .chip span{flex:1;display:flex;align-items:center;justify-content:center;
+  min-height:44px;border-radius:14px;line-height:1.35;padding:7px 10px}
 /* fields */
 select,input[type=number],.gate input,.u-form input,.u-form select,.u-invite textarea{
   background:var(--glass-field);border:1px solid var(--glass-border);border-radius:14px;
