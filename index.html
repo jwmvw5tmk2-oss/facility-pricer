@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
+<script>try{var t=localStorage.getItem("hcp-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0E4A36">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -243,15 +244,17 @@ body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
 
 /* ================= Liquid Glass ================= */
 :root{
-  --glass:linear-gradient(135deg,rgba(255,255,255,.74),rgba(255,255,255,.46));
-  --glass-solid:rgba(255,255,255,.82);
-  --glass-field:rgba(255,255,255,.62);
-  --glass-border:rgba(255,255,255,.7);
-  --glass-edge:rgba(14,74,54,.10);
-  --glass-hi:inset 0 1px 0 rgba(255,255,255,.85), inset 0 -1px 0 rgba(14,74,54,.05);
-  --glass-shadow:0 10px 30px rgba(14,74,54,.10), 0 2px 6px rgba(14,74,54,.06);
+  --glass:linear-gradient(140deg,rgba(255,255,255,.90),rgba(255,255,255,.66));
+  --glass-solid:rgba(255,255,255,.94);
+  --glass-field:rgba(244,248,245,.92);
+  --field-border:rgba(14,74,54,.16);
+  --glass-border:rgba(255,255,255,.95);
+  --glass-edge:rgba(14,74,54,.08);
+  --glass-hi:inset 0 1px 0 rgba(255,255,255,1), inset 0 -1px 0 rgba(14,74,54,.04);
+  --glass-shadow:0 14px 34px rgba(14,74,54,.08), 0 2px 6px rgba(14,74,54,.05);
+  --card-top:rgba(201,162,39,.38); --gold-line:rgba(201,162,39,.55);
   --blur:blur(22px) saturate(175%);
-  --bg-glow-1:rgba(14,74,54,.30); --bg-glow-2:rgba(201,162,39,.24); --bg-glow-3:rgba(93,187,142,.26); --bg-base:#E9F0EB;
+  --bg-glow-1:rgba(14,74,54,.13); --bg-glow-2:rgba(201,162,39,.20); --bg-glow-3:rgba(93,187,142,.14); --bg-base:#F6F8F6;
   --r:20px;
 }
 @media (prefers-color-scheme: dark){
@@ -259,12 +262,26 @@ body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
     --glass:linear-gradient(135deg,rgba(30,58,46,.62),rgba(14,30,23,.46));
     --glass-solid:rgba(20,40,32,.86);
     --glass-field:rgba(255,255,255,.06);
+    --field-border:rgba(255,255,255,.11);
     --glass-border:rgba(255,255,255,.11);
     --glass-edge:rgba(0,0,0,.25);
     --glass-hi:inset 0 1px 0 rgba(255,255,255,.10), inset 0 -1px 0 rgba(0,0,0,.25);
     --glass-shadow:0 12px 34px rgba(0,0,0,.40), 0 2px 6px rgba(0,0,0,.25);
+    --card-top:rgba(255,255,255,.11); --gold-line:rgba(216,180,68,.45);
     --bg-glow-1:rgba(93,187,142,.20); --bg-glow-2:rgba(216,180,68,.16); --bg-glow-3:rgba(14,74,54,.55); --bg-base:#06110C;
   }
+}
+:root[data-theme="dark"]{
+    --glass:linear-gradient(135deg,rgba(30,58,46,.62),rgba(14,30,23,.46));
+    --glass-solid:rgba(20,40,32,.86);
+    --glass-field:rgba(255,255,255,.06);
+    --field-border:rgba(255,255,255,.11);
+    --glass-border:rgba(255,255,255,.11);
+    --glass-edge:rgba(0,0,0,.25);
+    --glass-hi:inset 0 1px 0 rgba(255,255,255,.10), inset 0 -1px 0 rgba(0,0,0,.25);
+    --glass-shadow:0 12px 34px rgba(0,0,0,.40), 0 2px 6px rgba(0,0,0,.25);
+    --card-top:rgba(255,255,255,.11); --gold-line:rgba(216,180,68,.45);
+    --bg-glow-1:rgba(93,187,142,.20); --bg-glow-2:rgba(216,180,68,.16); --bg-glow-3:rgba(14,74,54,.55); --bg-base:#06110C;
 }
 body{background:var(--bg-base)}
 body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
@@ -276,7 +293,9 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .card,.gate-card,.tabs,.tablewrap{
   background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
   border:1px solid var(--glass-border);box-shadow:var(--glass-hi),var(--glass-shadow)}
-.card{border-radius:var(--r);padding:20px}
+.card{border-radius:var(--r);padding:20px;border-top-color:var(--card-top)}
+.card > h2{position:relative;padding-bottom:6px}
+.card > h2::after{content:"";position:absolute;inset-inline-start:0;bottom:0;width:34px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--hi),var(--gold-line))}
 .gate-card{border-radius:28px;padding:26px 22px}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
   .card,.gate-card,.tabs,.tablewrap{background:var(--glass-solid)}
@@ -291,7 +310,10 @@ h1 .abbr{display:inline-block;vertical-align:middle;margin-inline-start:8px;font
   color:var(--accent);background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
   border:1px solid var(--glass-border);box-shadow:var(--glass-hi),0 4px 12px rgba(14,74,54,.10)}
 .lang-btn:hover{filter:brightness(1.04)}
-.gate-head .lang-btn{margin-inline-start:auto;align-self:flex-start}
+.gate-head .lang-btn{align-self:flex-start}
+.gate-head .lang-btn:first-of-type{margin-inline-start:auto}
+.theme-btn{min-width:36px;width:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;color:var(--hi)}
+.theme-btn svg{width:18px;height:18px}
 /* floating capsule tab bar */
 .tabs{position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:30;display:flex;width:fit-content;max-width:100%;
   gap:4px;padding:5px;border-radius:999px;margin:4px 0 20px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--glass-border)}
@@ -317,15 +339,16 @@ h1 .abbr{display:inline-block;vertical-align:middle;margin-inline-start:8px;font
   min-height:44px;border-radius:14px;line-height:1.35;padding:7px 10px}
 /* fields */
 select,input[type=number],.gate input,.u-form input,.u-form select,.u-invite textarea{
-  background:var(--glass-field);border:1px solid var(--glass-border);border-radius:14px;
+  background:var(--glass-field);border:1px solid var(--field-border);border-radius:14px;
   box-shadow:inset 0 1px 2px rgba(14,74,54,.06);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 select,input[type=number]{padding:9px 12px}
 /* native drop-down lists: solid colours (a translucent field background makes the Windows list white with pale text) */
 select option,select optgroup{background-color:var(--surface);color:var(--ink)}
 select optgroup{font-weight:700;color:var(--accent)}
 select option:checked{background-color:var(--accent-soft);color:var(--ink)}
-.chip span{border-radius:999px;padding:7px 12px;background:var(--glass-field);border:1px solid var(--glass-border);
+.chip span{border-radius:999px;padding:7px 12px;background:var(--glass-field);border:1px solid var(--field-border);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+#in-pkg .chip:hover span,#in-scope .chip:hover span,#in-level .chip:hover span{border-color:var(--gold-line)}
 .chip input:checked+span{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 82%,#fff),var(--accent));
   border-color:rgba(255,255,255,.25);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 10px rgba(14,74,54,.22)}
 /* summary */
@@ -333,7 +356,7 @@ select option:checked{background-color:var(--accent-soft);color:var(--ink)}
 .summary::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,var(--hi),#EBD27A,var(--hi))}
 .kpi.main .value{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 70%,#fff),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
 .warn{border-radius:14px}
-.pill{background:var(--glass-field);border-color:var(--glass-border)}
+.pill{background:var(--glass-field);border-color:var(--field-border)}
 /* bars */
 .bar-track{height:14px;border-radius:999px;background:var(--glass-field);box-shadow:inset 0 1px 2px rgba(14,74,54,.10)}
 .bar-fill{border-radius:999px;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 70%,#fff),var(--accent))}
@@ -355,7 +378,7 @@ th,td{border-bottom-color:var(--glass-edge)}
   body::before{display:none}
   .card,.gate-card,.tabs,.tablewrap{background:#fff!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border-color:#C9D3CC!important}
   .kpi.main .value{color:#0E4A36;background:none}
-  .lang-btn{display:none!important}
+  .lang-btn,.theme-btn{display:none!important}
 }
 </style>
 </head>
@@ -367,6 +390,7 @@ th,td{border-bottom-color:var(--glass-edge)}
         <svg width="30" height="30" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v15M3 17h22v5"/><rect x="13" y="10.5" width="12" height="6.5" rx="3"/><circle cx="8" cy="13" r="2.4" fill="currentColor" stroke="none"/><path d="M19.5 2.5v6M16.5 5.5h6" style="stroke:var(--hi)"/></svg>
       </div>
       <div><h1>مسعّر المنشآت الصحية <span class="abbr" lang="en" dir="ltr">HFCE</span></h1><p class="hint">للمستخدمين المصرّح لهم فقط</p></div>
+      <button type="button" class="lang-btn theme-btn" data-theme-toggle></button>
       <button type="button" class="lang-btn" data-lang-toggle aria-label="English / عربي">EN</button>
     </div>
     <div id="g-loading" class="g-view"><p class="g-wait">جارٍ التحقق من الصلاحية…</p></div>
@@ -407,6 +431,7 @@ th,td{border-bottom-color:var(--glass-edge)}
     <div class="actions" id="export-box">
       <span class="hint" id="export-status" role="status"></span>
       <span class="who" id="who"></span>
+      <button type="button" class="lang-btn theme-btn" data-theme-toggle></button>
       <button type="button" class="lang-btn" data-lang-toggle aria-label="English / عربي">EN</button>
       <button type="button" class="btn ghost" id="btn-logout">خروج</button>
       <button type="button" class="btn ghost" id="btn-print">طباعة</button>
@@ -1438,10 +1463,34 @@ document.addEventListener("click", e => {
   try { localStorage.setItem("hcp-lang", EN ? "ar" : "en"); } catch (x) {}
   location.reload();
 });
-window.__i18n = { EN, tr, addData, afterStart, applyDir };
+const SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>';
+const MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z"/></svg>';
+const isDark = () => { const t = document.documentElement.getAttribute("data-theme");
+  return t ? t === "dark" : !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches); };
+function applyTheme() {
+  const dark = isDark();
+  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute("content", dark ? "#06110C" : "#F6F8F6");
+  document.querySelectorAll("[data-theme-toggle]").forEach(b => {
+    b.setAttribute("data-no-tr", "");
+    b.innerHTML = dark ? SUN : MOON;
+    const lab = dark ? (EN ? "Light mode" : "الوضع الفاتح") : (EN ? "Dark mode" : "الوضع الداكن");
+    b.title = lab; b.setAttribute("aria-label", lab);
+  });
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-theme-toggle]");
+  if (!b) return;
+  const next = isDark() ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem("hcp-theme", next); } catch (x) {}
+  applyTheme();
+});
+if (window.matchMedia) { try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme); } catch (x) {} }
+window.__i18n = { EN, tr, addData, afterStart, applyDir, applyTheme };
 window.__trText = tr;
 window.__trReport = trReport;
 applyDir();
+applyTheme();
 if (EN) { trTree(document.body); observe(); }
 })();
 </script>
