@@ -812,13 +812,14 @@ const ROWS = [
   ["النسبة من البناء الجديد", "ratio", "pct"]
 ];
 let lastR = null;
-const EQ_SCOPES = ["فرش وتجهيز كامل جديد", "استكمال تجهيز محدود", "استكمال تجهيز جزئي", "فرش وتجهيز كامل لمبنى قائم"];
+const EQ_SCOPES = ["فرش وتجهيز كامل جديد", "استكمال تجهيز محدود", "استكمال تجهيز جزئي"];
 const scopeNames = pk => (pk && !pk.w) ? EQ_SCOPES : A.scopes;
 function renderCalc() {
   const R = computeProject(inp, A); lastR = R;
-  const k = inp.scope, col = R.cols[k], unit = R.t.unit, SC = scopeNames(R.pk);
+  if (!R.pk.w && inp.scope > 2) { inp.scope = 0; syncInputs(); }
+  const k = inp.scope, col = R.cols[k], unit = R.t.unit, SC = scopeNames(R.pk), VC = R.cols.slice(0, SC.length);
   document.querySelectorAll("#in-scope .chip span").forEach((el, i) => { if (SC[i] && el.textContent !== SC[i]) el.textContent = SC[i]; });
-  { const fe = $("in-scope").children[4]; if (fe) fe.style.display = R.pk.w ? "" : "none"; }
+  { const ch = $("in-scope").children; if (ch[4]) ch[4].style.display = R.pk.w ? "" : "none"; if (ch[3]) ch[3].style.display = R.pk.w ? "" : "none"; if (ch[2]) ch[2].style.gridColumn = R.pk.w ? "" : "1 / -1"; }
   $("cmp-title").textContent = R.pk.w ? "البناء الجديد وإعادة التأهيل بنفس نطاق العمل" : "مستويات الفرش والتجهيز بنفس نطاق العمل";
   $("unit-name").textContent = unit;
   $("units-label").textContent = `عدد الوحدات (${unit})`;
@@ -840,8 +841,8 @@ function renderCalc() {
   $("sum-warn").textContent = warns.join(" ");
 
   // bars
-  const max = Math.max(...R.cols.map(c => c.total), 1);
-  $("bars").innerHTML = R.cols.map((c, i) =>
+  const max = Math.max(...VC.map(c => c.total), 1);
+  $("bars").innerHTML = VC.map((c, i) =>
     `<div class="bar-row ${i === k ? "sel" : ""}" data-col="${i}" role="button" tabindex="0" aria-pressed="${i === k}">
       <span>${esc(SC[i])}</span>
       <span class="bar-track"><span class="bar-fill" style="width:${(c.total / max * 100).toFixed(1)}%;display:block"></span></span>
@@ -854,7 +855,7 @@ function renderCalc() {
   ROWS.forEach(([lab, key, cls]) => {
     if (!R.pk.w && (key === "b" || key === "x" || key === "s")) return;
     const label = key === "perUnit" ? `سعر الوحدة — ${unit} (ر.س)` : (key === "ratio" && !R.pk.w ? "النسبة من الفرش والتجهيز الكامل" : lab);
-    h += `<tr class="${cls && cls !== "pct" ? cls : ""}"><td>${esc(label)}</td>` + R.cols.map((c, i) =>
+    h += `<tr class="${cls && cls !== "pct" ? cls : ""}"><td>${esc(label)}</td>` + VC.map((c, i) =>
       `<td class="n ${i === k ? "sel" : ""}">${cls === "pct" ? pct(c[key]) : fmt(c[key])}</td>`).join("") + `</tr>`;
   });
   $("cmp").innerHTML = h + "</tbody>";
@@ -899,7 +900,7 @@ function summaryText() {
     `المدى المتوقع (−30% / +50%): ${fmt(c.total * 0.7)} – ${fmt(c.total * 1.5)} ر.س`,
     "",
     `المقارنة بنفس نطاق العمل (${R.pk.name}):`,
-    ...R.cols.map((cl, i) => `- ${scopeNames(R.pk)[i]}: ${fmt(cl.total)} ر.س (${fmt(cl.perUnit)} ر.س لكل ${R.t.unit})`),
+    ...R.cols.slice(0, scopeNames(R.pk).length).map((cl, i) => `- ${scopeNames(R.pk)[i]}: ${fmt(cl.total)} ر.س (${fmt(cl.perUnit)} ر.س لكل ${R.t.unit})`),
     "",
     "تقدير من الفئة الخامسة (Class 5) لمرحلة الاحتياج والجدوى."
   ];
@@ -1132,7 +1133,7 @@ function buildReport() {
       if (cls === "subtotal") return sel ? "num_sel_b" : "num_b";
       return sel ? "num_sel" : "num";
     };
-    s1.add([[label, ls]].concat(R.cols.map((cl, i) => [cl[key], vs(i)])));
+    s1.add([[label, ls]].concat(R.cols.slice(0, scopeNames(R.pk).length).map((cl, i) => [cl[key], vs(i)])));
   });
   s1.blank();
   s1.full("رابعاً: المعايير المستخدمة في الحساب", "section", 22);
