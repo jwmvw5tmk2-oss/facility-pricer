@@ -381,6 +381,69 @@ th,td{border-bottom-color:var(--glass-edge)}
   .lang-btn,.theme-btn{display:none!important}
 }
 </style>
+<style id="fit-one-screen">
+/* ===== calculator on one screen (desktop) ===== */
+@media screen and (min-width:1100px) and (min-height:740px){
+  body:has(#p-calc:not([hidden])){overflow:hidden}
+  .app:has(#p-calc:not([hidden])){max-width:none;height:100dvh;display:flex;flex-direction:column;padding:10px 22px 12px}
+  .app:has(#p-calc:not([hidden])) .top{flex:none;padding-bottom:6px;gap:12px}
+  .app:has(#p-calc:not([hidden])) .top h1{font-size:1.2rem}
+  .app:has(#p-calc:not([hidden])) .top p{font-size:.78rem}
+  .app:has(#p-calc:not([hidden])) .mark{width:40px;height:40px}
+  .app:has(#p-calc:not([hidden])) .tabs{position:static;flex:none;margin:0 auto 10px;padding:4px}
+  .app:has(#p-calc:not([hidden])) .tab{padding:6px 14px}
+  .app:has(#p-calc:not([hidden])) main{flex:1;min-height:0}
+  #p-calc{height:100%}
+  #p-calc .calc-grid{height:100%;grid-template-columns:minmax(560px,42%) minmax(0,1fr);gap:16px;align-items:stretch}
+  /* inputs: two columns, no scrolling */
+  #p-calc .inputs{position:static;min-height:0;overflow:auto;display:grid;align-content:start;padding:14px 16px;gap:8px 16px;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);
+    grid-template-areas:"h h" "country pkg" "type pkg" "units pkg" "loc scope" "dims scope" "hint level" "addons level" "reset level"}
+  #p-calc .inputs>h2{grid-area:h;margin:0;font-size:1rem}
+  #p-calc .inputs>.field:has(#in-country){grid-area:country}
+  #p-calc .inputs>.field:has(#in-type){grid-area:type}
+  #p-calc .inputs>.field:has(#in-units){grid-area:units}
+  #p-calc .inputs>.field:has(#in-loc){grid-area:loc}
+  #p-calc .inputs>.row2{grid-area:dims}
+  #p-calc .inputs>p.hint{grid-area:hint;font-size:.74rem;margin:0}
+  #p-calc .inputs>#addons-box{grid-area:addons}
+  #p-calc .inputs>div:has(#btn-example){grid-area:reset}
+  #p-calc .inputs>fieldset:has(#in-pkg){grid-area:pkg;align-self:start}
+  #p-calc .inputs>fieldset:has(#in-scope){grid-area:scope;align-self:start}
+  #p-calc .inputs>fieldset:has(#in-level){grid-area:level;align-self:start}
+  #p-calc .field{gap:4px}
+  #p-calc .field>span,#p-calc .field>legend{font-size:.82rem}
+  #p-calc select,#p-calc input[type=number]{padding:7px 10px}
+  #p-calc #in-pkg .chip span,#p-calc #in-scope .chip span,#p-calc #in-level .chip span{min-height:38px;font-size:.8rem;padding:5px 8px}
+  #p-calc #in-pkg,#p-calc #in-scope,#p-calc #in-level{gap:6px}
+  #p-calc #btn-example{padding:7px 14px;font-size:.82rem}
+  /* results: summary + comparison fit the remaining height */
+  #p-calc .results{min-height:0;overflow:auto;gap:12px;padding-inline-end:2px}
+  #p-calc .results>*{flex-shrink:0}
+  #p-calc .bars,#p-calc .results>.card>p.hint{display:none}
+  #p-calc .card.summary{padding:14px 18px}
+  #p-calc .sum-desc{font-size:.9rem;margin-top:2px}
+  #p-calc .kpis{margin-top:8px;gap:10px}
+  #p-calc .kpi.main .value{font-size:1.75rem}
+  #p-calc .kpi .value{font-size:1.15rem}
+  #p-calc #k-range{margin-top:4px!important}
+  #p-calc .sum-foot{margin-top:8px;padding-top:8px}
+  #p-calc .results>.card:not(.summary){padding:14px 18px}
+  #p-calc .results>.card>h2{font-size:1rem}
+  #p-calc .results .hint{font-size:.74rem}
+  #p-calc .bars{margin:8px 0 10px;gap:3px}
+  #p-calc .bar-row{font-size:.8rem;padding:1px 4px}
+  #p-calc .bar-track{height:10px}
+  #p-calc .cmp th,#p-calc .cmp td{padding:5px 10px;font-size:.83rem}
+  #p-calc details.params{padding:10px 18px}
+}
+@media screen and (min-width:1100px) and (min-height:740px) and (max-height:900px){
+  #p-calc .cmp th,#p-calc .cmp td{padding:4px 10px;font-size:.8rem}
+  #p-calc .card.summary{padding:10px 16px}
+  #p-calc .kpi.main .value{font-size:1.5rem}
+  #p-calc .results>.card:not(.summary){padding:10px 16px}
+}
+</style>
 </head>
 <body>
 <div id="gate" class="gate" dir="rtl" lang="ar">
