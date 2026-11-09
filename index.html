@@ -359,6 +359,107 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
   .card{break-inside:avoid;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border-color:#C9D3CC!important;margin-bottom:10px}
   .tablewrap{overflow:visible}
 }
+/* ---------- dashboard ---------- */
+:root{--c1:#2A78D6;--c2:#B8860B;--c3:#1A9E6E;--c4:#7B66D8;--c5:#D45A33;--d-mute:#BCC8C0;--d-line:#0E6247;--d-wash:rgba(14,98,71,.10)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--d-mute:#33493F;--d-line:#5FC092;--d-wash:rgba(95,192,146,.12)}}
+:root[data-theme="dark"]{--d-mute:#33493F;--d-line:#5FC092;--d-wash:rgba(95,192,146,.12)}
+#p-dash .page-head{align-items:center}
+.d-filters .d-f-type{grid-column:span 2}
+.d-filters{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px 12px;padding:12px 16px;margin-bottom:12px}
+@media (max-width:1100px){.d-filters{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:640px){.d-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.d-desc{color:var(--muted);font-size:.84rem;margin:0 2px 12px}
+.d-kpis{display:grid;grid-template-columns:2fr repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+@media (max-width:1100px){.d-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.d-tile.hero{grid-column:1/-1}}
+.d-tile{display:flex;flex-direction:column;gap:4px;padding:14px 16px;min-width:0}
+.d-tile .lab{font-size:.8rem;color:var(--muted);font-weight:500}
+.d-tile .val{font-size:1.45rem;font-weight:600;line-height:1.15;white-space:nowrap;font-variant-numeric:proportional-nums;font-feature-settings:"tnum" 0}
+.d-tile .val small{font-size:.72rem;color:var(--muted);font-weight:500;margin-inline-start:5px}
+.d-tile .sub{font-size:.76rem;color:var(--muted)}
+.d-tile.hero{position:relative;overflow:hidden}
+.d-tile.hero::after{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:4px;background:var(--brass)}
+.d-tile.hero .val{font-size:clamp(2.4rem,3.6vw,3.3rem);font-weight:700;color:var(--pine);letter-spacing:-.01em}
+.d-meter{height:8px;border-radius:999px;background:var(--pine-soft);overflow:hidden;margin-top:6px}
+.d-meter span{display:block;height:100%;border-radius:999px;background:var(--pine)}
+.d-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.d-span{grid-column:1/-1}
+@media (max-width:920px){.d-grid{grid-template-columns:minmax(0,1fr)}}
+.d-card{display:flex;flex-direction:column;min-width:0}
+.d-card>h2{margin-bottom:2px}
+.d-sub{margin-bottom:12px}
+/* tall segmented bar */
+.d-seg{display:flex;gap:2px;height:28px;margin:4px 0 10px}
+.d-seg .blk{position:relative;height:100%;border-radius:4px;min-width:0;display:flex;align-items:center;padding-inline:8px;font-size:.74rem;font-weight:600;white-space:nowrap;cursor:default;outline-offset:2px;transition:filter .15s,flex-basis .4s}
+.d-seg .blk:hover,.d-seg .blk:focus-visible{filter:brightness(1.12)}
+.d-seg .blk b{font-weight:600}
+.d-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.78rem;color:var(--muted);margin-bottom:10px}
+.d-legend span{display:inline-flex;align-items:center;gap:6px}
+.d-legend i{width:10px;height:10px;border-radius:3px;flex:none}
+.d-rows{display:grid;gap:0;font-size:.84rem;margin-top:auto}
+.d-rows .r{display:grid;grid-template-columns:12px minmax(0,1fr) auto 3.4rem;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+.d-rows .r i{width:10px;height:10px;border-radius:3px}
+.d-rows .r .a{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.d-rows .r .p{color:var(--muted);text-align:end;font-variant-numeric:tabular-nums}
+.d-rows .r.tot{font-weight:700;border-top:1px solid var(--line-2)}
+/* bar lists (ranked, emphasis) and stacked bars */
+.d-bars,.d-stack{display:grid;gap:4px}
+.d-stack{flex:1;align-content:space-evenly;min-height:150px}
+.d-bar{display:grid;grid-template-columns:minmax(6rem,9.5rem) minmax(0,1fr) 5.6rem;gap:10px;align-items:center;font-size:.8125rem;padding:4px 6px;border-radius:8px;cursor:pointer}
+.d-bar:hover,.d-bar:focus-visible{background:var(--panel-2)}
+.d-bar .l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.d-bar.sel .l,.d-bar.sel .v{font-weight:700}
+.d-bar .t{position:relative;height:20px;display:flex;align-items:center}
+.d-bar .f{height:16px;max-height:24px;min-width:2px;border-radius:0;border-start-end-radius:4px;border-end-end-radius:4px;background:var(--d-mute);transition:width .4s ease}
+.d-bar.sel .f{background:var(--brass)}
+.d-bar .v{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:end}
+.d-stack .d-bar{grid-template-columns:minmax(6rem,9.5rem) minmax(0,1fr) 5.6rem}
+.d-stack .f{display:flex;gap:2px;background:none;overflow:hidden}
+.d-stack .f span{height:100%;min-width:0;transition:filter .15s}
+.d-stack .f span:hover{filter:brightness(1.15)}
+.d-stack .d-bar.sel{box-shadow:inset 0 0 0 1px var(--brass-line);background:var(--brass-soft)}
+.d-axis{display:grid;grid-template-columns:minmax(6rem,9.5rem) minmax(0,1fr) 5.6rem;gap:10px;padding:0 6px;font-size:.7rem;color:var(--muted)}
+.d-axis .t{position:relative;height:1.4em;border-top:1px solid var(--line-2)}
+.d-axis .t span{position:absolute;top:2px;transform:translateX(50%);font-variant-numeric:tabular-nums;white-space:nowrap}
+[dir="ltr"] .d-axis .t span{transform:translateX(-50%)}
+.d-multi{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.d-multi h3{font-size:.84rem;color:var(--muted);font-weight:600;margin-bottom:6px}
+@media (max-width:1100px){.d-multi{grid-template-columns:minmax(0,1fr)}}
+.d-multi .d-bar{grid-template-columns:minmax(4.5rem,8rem) minmax(0,1fr) 5.2rem}
+/* line chart */
+.d-line{position:relative;min-height:230px}
+.d-line svg{display:block;width:100%;height:230px;overflow:visible}
+.d-line .grid{stroke:var(--line);stroke-width:1}
+.d-line .ax{fill:var(--muted);font-size:11px;font-family:var(--font)}
+.d-line .ln{fill:none;stroke:var(--d-line);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.d-line .wash{fill:var(--d-wash)}
+.d-line .dot{fill:var(--d-line);stroke:var(--panel-solid);stroke-width:2}
+.d-line .dot.sel{fill:var(--brass);r:6}
+.d-line .xh{stroke:var(--muted);stroke-width:1}
+.d-line .lbl{fill:var(--ink);font-size:12px;font-weight:600;font-family:var(--font)}
+.d-line svg:focus-visible{outline:2px solid var(--brass);outline-offset:4px;border-radius:8px}
+.d-tv{margin-top:10px}
+.d-tv summary{font-size:.8rem;color:var(--muted);font-weight:500}
+.d-tv .tablewrap{margin-top:8px}
+/* tooltip */
+.d-tip{position:fixed;z-index:100;pointer-events:none;min-width:150px;max-width:280px;padding:8px 10px;border-radius:10px;font-size:.8rem;line-height:1.45;
+  background:var(--panel-solid);color:var(--ink);border:1px solid var(--line-2);box-shadow:0 12px 28px -12px rgba(0,0,0,.45)}
+.d-tip .h{color:var(--muted);font-size:.74rem;margin-bottom:3px}
+.d-tip .r{display:flex;align-items:center;gap:8px}
+.d-tip .r i{width:12px;height:2px;border-radius:1px;flex:none}
+.d-tip .r b{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.d-tip .r span{color:var(--muted)}
+#btn-dash{white-space:nowrap}
+@media (max-width:640px){
+  .d-bar,.d-stack .d-bar,.d-multi .d-bar{grid-template-columns:minmax(0,1fr) auto;row-gap:4px}
+  .d-bar .t{grid-column:1/-1;grid-row:2}
+  .d-axis{grid-template-columns:minmax(0,1fr)}
+  .d-axis>span:not(.t){display:none}
+  .d-axis .t span:not(:first-child):not(:last-child){display:none}
+  .d-axis .t span:last-child{transform:none;inset-inline-start:auto!important;inset-inline-end:0}
+  .d-axis .t span:first-child{transform:none}
+}
+@media print{ .d-filters,.d-tip,#d-to-calc,.d-tv summary{display:none!important} .d-grid{grid-template-columns:1fr 1fr} }
+@media (prefers-reduced-motion:reduce){ .d-bar .f,.d-seg .blk{transition:none} }
 </style>
 <style id="fit-one-screen">
 /* ===== calculator on one screen (desktop): the inputs panel fills the column height, results stack beside it; fitCalc scales only if needed ===== */
@@ -519,6 +620,7 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
 
   <nav class="tabs" role="tablist" aria-label="أقسام البرنامج">
     <button class="tab" role="tab" id="t-calc" data-tab="calc" aria-selected="true">الحاسبة</button>
+    <button class="tab" role="tab" id="t-dash" data-tab="dash" aria-selected="false">لوحة المؤشرات</button>
     <button class="tab" role="tab" id="t-ref" data-tab="ref" aria-selected="false">جدول سعر السرير</button>
     <button class="tab" role="tab" id="t-brk" data-tab="brk" aria-selected="false">تفصيل التكلفة</button>
     <button class="tab" role="tab" id="t-as" data-tab="as" aria-selected="false">الافتراضات</button>
@@ -573,7 +675,7 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
             <div class="warn" id="sum-warn" hidden></div>
             <div class="sum-foot">
               <div class="includes" id="sum-inc"></div>
-              <div class="copy-row"><button type="button" class="btn ghost" id="btn-copy">نسخ الملخص</button><span id="copy-status" role="status"></span></div>
+              <div class="copy-row"><button type="button" class="btn ghost" id="btn-dash">لوحة المؤشرات</button><button type="button" class="btn ghost" id="btn-copy">نسخ الملخص</button><span id="copy-status" role="status"></span></div>
             </div>
             <textarea id="copy-fallback" readonly hidden aria-label="نص الملخص للنسخ"></textarea>
           </div>
@@ -590,6 +692,64 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
             <dl id="params"></dl>
           </details>
         </div>
+      </div>
+    </section>
+
+    <!-- ================= DASHBOARD ================= -->
+    <section id="p-dash" role="tabpanel" aria-labelledby="t-dash" hidden>
+      <div class="page-head">
+        <div>
+          <h2>لوحة المؤشرات</h2>
+          <p>مؤشرات التقدير الحالي ورسومه البيانية. أي تغيير هنا ينعكس على الحاسبة، واضغط على أي عمود أو نقطة لاعتمادها.</p>
+        </div>
+        <button type="button" class="btn ghost" id="d-to-calc">العودة إلى الحاسبة</button>
+      </div>
+      <div class="card d-filters">
+        <label class="field"><span>الدولة</span><select id="d-country"></select></label>
+        <label class="field d-f-type"><span>نوع المنشأة</span><select id="d-type"></select></label>
+        <label class="field"><span id="d-units-label">عدد الوحدات</span><input id="d-units" type="number" min="0" step="1" inputmode="numeric"></label>
+        <label class="field"><span>نطاق العمل</span><select id="d-pkg"></select></label>
+        <label class="field"><span>مستوى التسعير</span><select id="d-level"></select></label>
+        <label class="field"><span>موقع المشروع</span><select id="d-loc"></select></label>
+        <label class="field"><span>سنة التنفيذ</span><input id="d-year" type="number" min="2026" max="2045" step="1" inputmode="numeric"></label>
+      </div>
+      <p class="d-desc" id="d-desc"></p>
+      <div class="d-kpis" id="d-kpis"></div>
+      <div class="d-grid">
+        <article class="card d-card" id="d-mix-card">
+          <h2>مكونات التكلفة</h2>
+          <p class="hint d-sub" id="d-mix-sub"></p>
+          <div class="d-seg" id="d-mix" role="img"></div>
+          <div class="d-legend" id="d-legend"></div>
+          <div class="d-rows" id="d-mix-rows"></div>
+        </article>
+        <article class="card d-card" id="d-scope-card">
+          <h2 id="d-scope-title">المقارنة بنفس نطاق العمل</h2>
+          <p class="hint d-sub">مقسّمة حسب مكونات التكلفة. اضغط على أي شريط لاعتماده.</p>
+          <div class="d-stack" id="d-scope"></div>
+          <div class="d-legend" id="d-legend2"></div>
+          <details class="d-tv"><summary>عرض الجدول</summary><div class="tablewrap"><table id="d-scope-tv"></table></div></details>
+        </article>
+        <article class="card d-card" id="d-ctry-card">
+          <h2>التكلفة حسب الدولة</h2>
+          <p class="hint d-sub">نفس المشروع في كل دولة، في المدن الرئيسية. اضغط على أي دولة لاعتمادها.</p>
+          <div class="d-bars" id="d-ctry"></div>
+        </article>
+        <article class="card d-card" id="d-year-card">
+          <h2>أثر سنة التنفيذ</h2>
+          <p class="hint d-sub" id="d-year-sub"></p>
+          <div class="d-line" id="d-line"></div>
+          <details class="d-tv"><summary>عرض الجدول</summary><div class="tablewrap"><table id="d-year-tv"></table></div></details>
+        </article>
+        <article class="card d-card d-span" id="d-sens-card">
+          <h2>حساسية التقدير</h2>
+          <p class="hint d-sub">الإجمالي عند تغيير عامل واحد مع تثبيت بقية المدخلات. اضغط على أي شريط لاعتماده.</p>
+          <div class="d-multi">
+            <div><h3>مستوى التسعير</h3><div class="d-bars" id="d-lvl"></div></div>
+            <div><h3>موقع المشروع</h3><div class="d-bars" id="d-locs"></div></div>
+            <div><h3>نطاق العمل</h3><div class="d-bars" id="d-pkgs"></div></div>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -800,7 +960,8 @@ const numSpan = v => `<span class="num">${fmt(v)}</span>`;
 document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
 function showTab(name) {
   document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
-  ["calc", "ref", "brk", "as", "meth", "users"].forEach(p => { const el = $("p-" + p); if (el) el.hidden = p !== name; });
+  ["calc", "dash", "ref", "brk", "as", "meth", "users"].forEach(p => { const el = $("p-" + p); if (el) el.hidden = p !== name; });
+  if (name === "dash") { renderDash(); window.scrollTo({ top: 0 }); }
   try { localStorage.setItem("hcp-yemen-tab", name); } catch (e) {}
 }
 
@@ -968,7 +1129,242 @@ function renderCalc() {
   ];
   $("params").innerHTML = P.map(([a, b]) => `<dt>${esc(a)}</dt><dd class="num">${esc(b)}</dd>`).join("");
   $("copy-status").textContent = "";
+  renderDash();
 }
+
+/* ---------------- dashboard (لوحة المؤشرات) ---------------- */
+const PARTS = [
+  { name: "المبنى والموقع", v: c => c.b + c.x },
+  { name: "الأجهزة الطبية", v: c => c.e + c.ad },
+  { name: "التأثيث وتقنية المعلومات", v: c => c.ff },
+  { name: "التصميم والإشراف", v: c => c.s },
+  { name: "الاحتياطي والتصعيد", v: c => c.c + c.escv }
+];
+const PART_COL = ["#2A78D6", "#B8860B", "#1A9E6E", "#7B66D8", "#D45A33"];   // validated set (light and dark surfaces)
+const PART_INK = PART_COL.map(h => { const n = parseInt(h.slice(1), 16), ch = [n >> 16, n >> 8 & 255, n & 255].map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); });
+  const L = .2126 * ch[0] + .7152 * ch[1] + .0722 * ch[2]; return (1.05 / (L + .05)) >= ((L + .05) / .0615) ? "#FFFFFF" : "#0E1411"; });
+const trD = s => (window.__trText ? window.__trText(s) : s);
+const trimN = x => String(x >= 100 ? Math.round(x) : x >= 10 ? Math.round(x * 10) / 10 : Math.round(x * 100) / 100);
+const fmtC = v => { const a = Math.abs(v); return a >= 1e9 ? trimN(v / 1e9) + " مليار" : a >= 1e6 ? trimN(v / 1e6) + " مليون" : a >= 1e4 ? trimN(v / 1e3) + " ألف" : fmt(v); };
+function niceTicks(max, n) {
+  if (!(max > 0)) return [0, 1];
+  const raw = max / (n || 4), p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
+  const step = (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p, t = [];
+  for (let v = 0; v < max + step * 0.999; v += step) t.push(v);
+  return t;
+}
+const tipAttr = (head, rows) => `data-tip="${esc(JSON.stringify({ h: head, r: rows }))}"`;
+let dashPrevTotal = null;
+
+function dashFilters() {
+  const C = curC();
+  if ($("d-country").options.length !== A.countries.length) $("d-country").innerHTML = A.countries.map((c, i) => `<option value="${i}">${esc(c.name)}</option>`).join("");
+  if ($("d-type").innerHTML !== $("in-type").innerHTML) $("d-type").innerHTML = $("in-type").innerHTML;
+  $("d-pkg").innerHTML = A.packages.map((p, i) => `<option value="${i}">${esc(p.name)}</option>`).join("");
+  $("d-level").innerHTML = A.levels.map((l, i) => `<option value="${i}">${esc(l.name)}</option>`).join("");
+  $("d-loc").innerHTML = C.locations.map((l, i) => `<option value="${i}">${esc(l.name)}</option>`).join("");
+  $("d-country").value = inp.country; $("d-type").value = inp.type; $("d-pkg").value = inp.pkg;
+  $("d-level").value = inp.level; $("d-loc").value = inp.loc;
+  if (document.activeElement !== $("d-units")) $("d-units").value = inp.units;
+  if (document.activeElement !== $("d-year")) $("d-year").value = inp.year;
+}
+
+function barRow(lab, v, max, sel, act, tip, valText) {
+  const w = max > 0 ? Math.max(0, v / max * 100) : 0;
+  return `<div class="d-bar ${sel ? "sel" : ""}" role="button" tabindex="0" aria-pressed="${sel}" data-act="${act}" ${tip}>
+    <span class="l">${esc(lab)}</span><span class="t"><span class="f" style="width:${w.toFixed(2)}%"></span></span><span class="v num">${esc(valText != null ? valText : fmtC(v))}</span></div>`;
+}
+
+function renderDash() {
+  const pd = $("p-dash"); if (!pd || pd.hidden) return;
+  dashFilters();
+  const R = computeProject(inp, A), k = inp.scope, col = R.cols[k], SC = scopeNames(R.pk), unit = R.t.unit;
+  const VC = R.cols.slice(0, SC.length);
+  $("d-units-label").textContent = `عدد الوحدات (${unit})`;
+  $("d-desc").textContent = $("sum-desc").textContent;
+
+  // KPI row
+  const share = col.total > 0 ? (col.e + col.ad + col.ff) / col.total : 0;
+  const perM2 = R.area > 0 ? col.total / R.area : 0;
+  const tile = (lab, val, cur, sub, extra, cls) => `<div class="card d-tile ${cls || ""}"><div class="lab">${esc(lab)}</div>
+    <div class="val"><span class="num" ${cls === "hero" ? 'id="d-total"' : ""}>${esc(val)}</span>${cur ? `<small>${esc(cur)}</small>` : ""}</div>${sub ? `<div class="sub">${sub}</div>` : ""}${extra || ""}</div>`;
+  $("d-kpis").innerHTML =
+    tile("الإجمالي التقديري", fmt(col.total), "ر.س", `ما يعادل ${numSpan(col.usd)} دولار<br>المدى المتوقع ${numSpan(col.total * 0.7)} – ${numSpan(col.total * 1.5)} ر.س`, "", "hero") +
+    tile(`سعر الوحدة (${unit})`, fmt(col.perUnit), "ر.س", `${numSpan(R.n)} ${esc(unit)}`) +
+    tile("تكلفة المتر المربع", perM2 > 0 ? fmt(perM2) : "—", perM2 > 0 ? "ر.س / م²" : "", `على مساحة ${numSpan(R.area)} م²`) +
+    tile("المساحة المعتمدة", fmt(R.area), "م²", `${numSpan(R.gfaC)} م² لكل ${esc(unit)}`) +
+    tile("حصة الأجهزة والتأثيث", pct(share), "", "من الإجمالي التقديري", `<div class="d-meter" aria-hidden="true"><span style="width:${(share * 100).toFixed(1)}%"></span></div>`);
+  countUp($("d-total"), dashPrevTotal, col.total); dashPrevTotal = col.total;
+
+  // cost mix: tall segmented bar + rows (the rows are its table view)
+  const parts = PARTS.map((p, i) => ({ i, name: p.name, v: Math.max(0, p.v(col)) }));
+  const tot = parts.reduce((s, p) => s + p.v, 0) || 1;
+  $("d-mix-sub").textContent = `${SC[k]} — ${R.pk.name}`;
+  $("d-mix").setAttribute("aria-label", parts.filter(p => p.v > 0).map(p => `${p.name} ${pct(p.v / tot)}`).join("، "));
+  $("d-mix").innerHTML = parts.filter(p => p.v > 0).map(p =>
+    `<span class="blk" tabindex="0" style="flex:${(p.v / tot).toFixed(4)} 1 0;background:${PART_COL[p.i]};color:${PART_INK[p.i]}" ${tipAttr(p.name, [[fmt(p.v) + " ر.س", pct(p.v / tot), PART_COL[p.i]]])}><b>${pct(p.v / tot)}</b></span>`).join("");
+  const legend = parts.map(p => `<span><i style="background:${PART_COL[p.i]}"></i>${esc(p.name)}</span>`).join("");
+  $("d-legend").innerHTML = legend; $("d-legend2").innerHTML = legend;
+  $("d-mix-rows").innerHTML = parts.map(p => `<div class="r"><i style="background:${PART_COL[p.i]}"></i><span>${esc(p.name)}</span><span class="a">${fmt(p.v)}</span><span class="p">${pct(p.v / tot)}</span></div>`).join("") +
+    `<div class="r tot"><i></i><span>الإجمالي التقديري (ر.س)</span><span class="a">${fmt(col.total)}</span><span class="p">100%</span></div>`;
+  requestAnimationFrame(() => document.querySelectorAll("#d-mix .blk").forEach(b => { const t = b.querySelector("b"); t.style.visibility = (b.clientWidth >= t.scrollWidth + 16) ? "" : "hidden"; }));
+
+  // scope comparison: stacked bars on one axis
+  $("d-scope-title").textContent = $("cmp-title").textContent;
+  const smax = Math.max(...VC.map(c => c.total), 1), ticks = niceTicks(smax, 4), axMax = ticks[ticks.length - 1];
+  $("d-scope").innerHTML = VC.map((c, i) => {
+    const segs = PARTS.map((p, j) => ({ j, v: Math.max(0, p.v(c)) })).filter(s => s.v > 0);
+    const ctot = segs.reduce((s, x) => s + x.v, 0) || 1;
+    const rows = segs.map(s => [fmt(s.v) + " ر.س", PARTS[s.j].name, PART_COL[s.j]]).concat([[fmt(c.total) + " ر.س", "الإجمالي التقديري"]]);
+    return `<div class="d-bar ${i === k ? "sel" : ""}" role="button" tabindex="0" aria-pressed="${i === k}" data-act="scope:${i}" ${tipAttr(SC[i], rows)}>
+      <span class="l">${esc(SC[i])}</span><span class="t"><span class="f" style="width:${(c.total / axMax * 100).toFixed(2)}%">` +
+      segs.map(s => `<span style="flex:${(s.v / ctot).toFixed(4)} 1 0;background:${PART_COL[s.j]}"></span>`).join("") +
+      `</span></span><span class="v num">${esc(fmtC(c.total))}</span></div>`;
+  }).join("") + `<div class="d-axis" aria-hidden="true"><span></span><span class="t">${ticks.map(v => `<span style="inset-inline-start:${(v / axMax * 100).toFixed(2)}%">${esc(fmtC(v))}</span>`).join("")}</span><span></span></div>`;
+  $("d-scope-tv").innerHTML = `<thead><tr><th>البند</th>${SC.map(s => `<th class="n">${esc(s)}</th>`).join("")}</tr></thead><tbody>` +
+    PARTS.map(p => `<tr><td>${esc(p.name)}</td>${VC.map(c => `<td class="n">${fmt(p.v(c))}</td>`).join("")}</tr>`).join("") +
+    `<tr class="total"><td>الإجمالي التقديري (ر.س)</td>${VC.map(c => `<td class="n">${fmt(c.total)}</td>`).join("")}</tr></tbody>`;
+
+  // countries: same project, main cities, ranked
+  const cs = A.countries.map((C, i) => ({ i, name: C.name, v: computeProject(Object.assign({}, inp, { country: i, loc: 0 }), A).cols[k].total }))
+    .sort((a, b) => b.v - a.v);
+  const cmax = Math.max(...cs.map(c => c.v), 1);
+  $("d-ctry").innerHTML = cs.map(c => barRow(c.name, c.v, cmax, c.i === inp.country, `country:${c.i}`,
+    tipAttr(c.name, [[fmt(c.v) + " ر.س", "الإجمالي التقديري"], [pct(col.total > 0 ? c.v / computeProject(Object.assign({}, inp, { loc: 0 }), A).cols[k].total : 0), `مقارنة مع ${curC().name}`]]))).join("");
+
+  // execution year: line chart
+  drawYears(R, k);
+
+  // sensitivity: one factor at a time
+  const one = patch => computeProject(Object.assign({}, inp, patch), A).cols[k].total;
+  const lv = A.levels.map((l, i) => ({ i, name: l.name, v: one({ level: i }) }));
+  const lc = curC().locations.map((l, i) => ({ i, name: l.name, v: one({ loc: i }) }));
+  const pk = A.packages.map((p, i) => ({ i, name: p.name, v: computeProject(Object.assign({}, inp, { pkg: i, scope: (!p.w && inp.scope > 2) ? 0 : inp.scope }), A).cols[(!p.w && inp.scope > 2) ? 0 : k].total }));
+  const smx = arr => Math.max(...arr.map(x => x.v), 1);
+  const rel = (v, base) => base > 0 ? (v >= base ? "+" : "−") + Math.round(Math.abs(v / base - 1) * 100) + "%" : "";
+  $("d-lvl").innerHTML = lv.map(x => barRow(x.name, x.v, smx(lv), x.i === inp.level, `level:${x.i}`, tipAttr(x.name, [[fmt(x.v) + " ر.س", "الإجمالي التقديري"], [rel(x.v, col.total), "عن التقدير الحالي"]]))).join("");
+  $("d-locs").innerHTML = lc.map(x => barRow(x.name, x.v, smx(lc), x.i === inp.loc, `loc:${x.i}`, tipAttr(x.name, [[fmt(x.v) + " ر.س", "الإجمالي التقديري"], [rel(x.v, col.total), "عن التقدير الحالي"]]))).join("");
+  $("d-pkgs").innerHTML = pk.map(x => barRow(x.name, x.v, smx(pk), x.i === inp.pkg, `pkg:${x.i}`, tipAttr(x.name, [[fmt(x.v) + " ر.س", "الإجمالي التقديري"], [rel(x.v, col.total), "عن التقدير الحالي"]]))).join("");
+}
+
+function countUp(el, from, to) {
+  if (!el) return;
+  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (from == null || reduce || from === to) { el.textContent = fmt(to); return; }
+  const t0 = performance.now(), d = 450;
+  const step = now => { const p = Math.min(1, (now - t0) / d), e = 1 - Math.pow(1 - p, 3);
+    if (!el.isConnected) return; el.textContent = fmt(from + (to - from) * e); if (p < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+
+function drawYears(R, k) {
+  const box = $("d-line"), W = Math.max(280, box.clientWidth || 600), H = 230;
+  const y0 = A.baseYear, years = Array.from({ length: 11 }, (_, i) => y0 + i);
+  const vals = years.map(y => computeProject(Object.assign({}, inp, { year: y }), A).cols[k].total);
+  const sel = Math.min(years.length - 1, Math.max(0, (Number(inp.year) || y0) - y0));
+  $("d-year-sub").textContent = `التصعيد السنوي ${pct(A.esc)} من سنة الأساس ${y0}. اضغط على أي سنة لاعتمادها.`;
+  const rtl = (document.querySelector(".app") || document.documentElement).getAttribute("dir") === "rtl";
+  const pad = { s: 64, e: 18, t: 18, b: 28 }, iw = W - pad.s - pad.e, ih = H - pad.t - pad.b;
+  const ticks = niceTicks(Math.max(...vals), 4), ymax = ticks[ticks.length - 1] || 1;
+  const X = i => { const x = pad.s + iw * i / (years.length - 1); return rtl ? W - x : x; };
+  const Y = v => pad.t + ih - ih * v / ymax;
+  const sx = rtl ? W - pad.s + 8 : pad.s - 8, anchor = rtl ? "start" : "end";
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="direction:ltr" tabindex="0" role="img" aria-label="${esc(trD("أثر سنة التنفيذ"))}">`;
+  ticks.forEach(v => { s += `<line class="grid" x1="${rtl ? 0 + pad.e : pad.s}" x2="${rtl ? W - pad.s : W - pad.e}" y1="${Y(v)}" y2="${Y(v)}"/><text class="ax" x="${sx}" y="${Y(v) + 4}" text-anchor="${anchor}">${esc(fmtC(v))}</text>`; });
+  years.forEach((y, i) => { if (i % 2 === 0 || i === sel) s += `<text class="ax" x="${X(i)}" y="${H - 8}" text-anchor="middle">${y}</text>`; });
+  const pts = vals.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`);
+  s += `<path class="wash" d="M${X(0)},${Y(0)} L${pts.join(" L")} L${X(years.length - 1)},${Y(0)} Z"/>`;
+  s += `<polyline class="ln" points="${pts.join(" ")}"/>`;
+  s += `<line class="xh" id="d-xh" x1="0" x2="0" y1="${pad.t}" y2="${pad.t + ih}" visibility="hidden"/>`;
+  s += `<circle class="dot" id="d-hov" r="5" cx="-20" cy="-20" visibility="hidden"/>`;
+  s += `<circle class="dot sel" r="6" cx="${X(sel)}" cy="${Y(vals[sel])}"/>`;
+  const lx = X(sel), lanchor = (sel > years.length / 2) === rtl ? "start" : "end";
+  s += `<text class="lbl" x="${lx + (lanchor === "start" ? 10 : -10)}" y="${Y(vals[sel]) - 10}" text-anchor="${lanchor}">${esc(fmtC(vals[sel]))}</text>`;
+  s += `<rect x="0" y="0" width="${W}" height="${H}" fill="transparent" id="d-hit" style="cursor:pointer"/></svg>`;
+  box.innerHTML = s;
+  $("d-year-tv").innerHTML = `<thead><tr><th>سنة التنفيذ</th><th class="n">الإجمالي التقديري (ر.س)</th><th class="n">التصعيد</th></tr></thead><tbody>` +
+    years.map((y, i) => `<tr class="${i === sel ? "cur" : ""}"><td>${y}</td><td class="n">${fmt(vals[i])}</td><td class="n">${pct(vals[0] > 0 ? vals[i] / vals[0] - 1 : 0)}</td></tr>`).join("") + "</tbody>";
+  const svg = box.querySelector("svg"), hit = $("d-hit"), xh = $("d-xh"), hov = $("d-hov");
+  let cur = sel;
+  const show = (i, ev) => {
+    cur = i; xh.setAttribute("x1", X(i)); xh.setAttribute("x2", X(i)); xh.setAttribute("visibility", "visible");
+    hov.setAttribute("cx", X(i)); hov.setAttribute("cy", Y(vals[i])); hov.setAttribute("visibility", "visible");
+    const r = svg.getBoundingClientRect();
+    showTip({ h: String(years[i]), r: [[fmt(vals[i]) + " ر.س", "الإجمالي التقديري"], ["+" + pct(vals[0] > 0 ? vals[i] / vals[0] - 1 : 0), `عن سنة ${y0}`]] },
+      ev ? ev.clientX : r.left + X(i) * r.width / W, ev ? ev.clientY : r.top + Y(vals[i]) * r.height / H);
+  };
+  const idx = ev => { const r = svg.getBoundingClientRect(); let x = (ev.clientX - r.left) * W / r.width; if (rtl) x = W - x;
+    return Math.min(years.length - 1, Math.max(0, Math.round((x - pad.s) / iw * (years.length - 1)))); };
+  hit.addEventListener("pointermove", ev => show(idx(ev), ev));
+  hit.addEventListener("pointerleave", () => { xh.setAttribute("visibility", "hidden"); hov.setAttribute("visibility", "hidden"); hideTip(); });
+  hit.addEventListener("click", ev => { inp.year = years[idx(ev)]; syncInputs(); changed(); });
+  svg.addEventListener("focus", () => show(cur));
+  svg.addEventListener("blur", () => { xh.setAttribute("visibility", "hidden"); hov.setAttribute("visibility", "hidden"); hideTip(); });
+  svg.addEventListener("keydown", ev => {
+    const fwd = rtl ? "ArrowLeft" : "ArrowRight", back = rtl ? "ArrowRight" : "ArrowLeft";
+    if (ev.key === fwd || ev.key === back) { ev.preventDefault(); show(Math.min(years.length - 1, Math.max(0, cur + (ev.key === fwd ? 1 : -1)))); }
+    else if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); inp.year = years[cur]; syncInputs(); changed(); setTimeout(() => { const s2 = $("d-line").querySelector("svg"); if (s2) s2.focus(); }, 0); }
+  });
+}
+
+/* tooltip: one element, values first, labels via textContent */
+const dTip = document.createElement("div"); dTip.className = "d-tip"; dTip.setAttribute("role", "tooltip"); dTip.hidden = true;
+document.body.appendChild(dTip);
+function showTip(d, x, y) {
+  const kids = [];
+  if (d.h) { const h = document.createElement("div"); h.className = "h"; h.textContent = trD(d.h); kids.push(h); }
+  (d.r || []).forEach(([v, l, c]) => { const r = document.createElement("div"); r.className = "r";
+    if (c) { const i = document.createElement("i"); i.style.background = c; r.appendChild(i); }
+    const b = document.createElement("b"); b.textContent = trD(v); const s = document.createElement("span"); s.textContent = trD(l || "");
+    r.append(b, s); kids.push(r); });
+  dTip.replaceChildren(...kids); dTip.hidden = false;
+  const w = dTip.offsetWidth, h = dTip.offsetHeight, vw = innerWidth, vh = innerHeight;
+  let left = x + 14, top = y + 14;
+  if (left + w > vw - 8) left = x - w - 14; if (left < 8) left = 8;
+  if (top + h > vh - 8) top = y - h - 14; if (top < 8) top = 8;
+  dTip.style.left = left + "px"; dTip.style.top = top + "px";
+}
+function hideTip() { dTip.hidden = true; }
+(() => {
+  const pd = $("p-dash"); if (!pd) return;
+  const tipOf = el => { try { return JSON.parse(el.getAttribute("data-tip")); } catch (e) { return null; } };
+  pd.addEventListener("pointermove", ev => {
+    if (ev.target.closest && ev.target.closest("#d-line")) return;
+    const seg = ev.target.closest && ev.target.closest(".d-stack .f > span");
+    const el = ev.target.closest && ev.target.closest("[data-tip]");
+    if (!el) { hideTip(); return; }
+    const d = tipOf(el); if (!d) return;
+    if (seg) {   // a stacked segment: lead with that component, keep the total
+      const j = [...seg.parentElement.children].indexOf(seg), r = d.r.slice(0, -1)[j];
+      if (r) { showTip({ h: d.h, r: [r, d.r[d.r.length - 1]] }, ev.clientX, ev.clientY); return; }
+    }
+    showTip(d, ev.clientX, ev.clientY);
+  });
+  pd.addEventListener("pointerleave", hideTip);
+  pd.addEventListener("focusin", ev => { const el = ev.target.closest("[data-tip]"); if (el) { const r = el.getBoundingClientRect(), d = tipOf(el); if (d) showTip(d, r.left + r.width / 2, r.bottom - 6); } });
+  pd.addEventListener("focusout", hideTip);
+  const act = el => {
+    const [kind, v] = el.dataset.act.split(":"), n = +v;
+    if (kind === "country") { if (n !== inp.country) setCountry(n); return; }
+    if (kind === "pkg") { const wasBuild = A.packages[inp.pkg] && A.packages[inp.pkg].w; inp.pkg = n; if (wasBuild && !A.packages[n].w) inp.scope = 0; }
+    else inp[kind] = n;
+    syncInputs(); changed();
+  };
+  pd.addEventListener("click", ev => { const el = ev.target.closest && ev.target.closest("[data-act]"); if (el) act(el); });
+  pd.addEventListener("keydown", ev => { if (ev.key !== "Enter" && ev.key !== " ") return; const el = ev.target.closest && ev.target.closest("[data-act]");
+    if (el) { ev.preventDefault(); const a = el.dataset.act; act(el); setTimeout(() => { const n = pd.querySelector(`[data-act="${a}"]`); if (n) n.focus(); }, 0); } });
+  const num = (id, key, lo, hi) => $(id).addEventListener("input", e => { const v = e.target.value === "" ? 0 : +e.target.value; if (v >= lo && v <= hi) { inp[key] = v; syncInputs(); changed(); } });
+  num("d-units", "units", 0, 1e6); num("d-year", "year", 2000, 2100);
+  $("d-country").addEventListener("change", e => setCountry(+e.target.value));
+  $("d-type").addEventListener("change", e => { const s = $("in-type"); s.value = e.target.value; s.dispatchEvent(new Event("change")); syncInputs(); });
+  $("d-pkg").addEventListener("change", e => { const wasBuild = A.packages[inp.pkg] && A.packages[inp.pkg].w; inp.pkg = +e.target.value; if (wasBuild && !A.packages[inp.pkg].w) inp.scope = 0; syncInputs(); changed(); });
+  $("d-level").addEventListener("change", e => { inp.level = +e.target.value; syncInputs(); changed(); });
+  $("d-loc").addEventListener("change", e => { inp.loc = +e.target.value; syncInputs(); changed(); });
+  $("d-to-calc").addEventListener("click", () => showTab("calc"));
+  let rw = 0; if (window.ResizeObserver) new ResizeObserver(() => { const w = pd.clientWidth; if (w && w !== rw) { rw = w; renderDash(); } }).observe(pd);
+})();
+
+$("btn-dash").addEventListener("click", () => showTab("dash"));
 
 /* ---------------- copy summary ---------------- */
 function summaryText() {
@@ -1477,7 +1873,8 @@ const LET = "ؠ-ٟٮ-ۓۺ-ۿ";           // Arabic letters (word boundaries)
 const HAS_AR = /[؀-ۿ]/;
 const PUNCT = { "،": ",", "؛": ";", "؟": "?", "«": "“", "»": "”", "←": "→" };
 const ATTRS = ["placeholder", "title", "aria-label", "label"];
-let DICT = Object.assign({}, UI), RX = null;
+const UI2 = {"لوحة المؤشرات": "Dashboard", "مؤشرات التقدير الحالي ورسومه البيانية. أي تغيير هنا ينعكس على الحاسبة، واضغط على أي عمود أو نقطة لاعتمادها": "Indicators and charts for the current estimate. Any change here applies to the calculator; tap any bar or point to select it", "العودة إلى الحاسبة": "Back to calculator", "مكونات التكلفة": "Cost composition", "مقسّمة حسب مكونات التكلفة. اضغط على أي شريط لاعتماده": "Split by cost component. Tap any bar to select it", "عرض الجدول": "Show table", "التكلفة حسب الدولة": "Cost by country", "نفس المشروع في كل دولة، في المدن الرئيسية. اضغط على أي دولة لاعتمادها": "The same project in each country, in the main cities. Tap a country to select it", "أثر سنة التنفيذ": "Effect of execution year", "حساسية التقدير": "Estimate sensitivity", "الإجمالي عند تغيير عامل واحد مع تثبيت بقية المدخلات. اضغط على أي شريط لاعتماده": "Total when one factor changes and all other inputs stay fixed. Tap any bar to select it", "المبنى والموقع": "Building and site", "الاحتياطي والتصعيد": "Contingency and escalation", "تكلفة المتر المربع": "Cost per m²", "المساحة المعتمدة": "Area used", "حصة الأجهزة والتأثيث": "Equipment and furniture share", "من الإجمالي التقديري": "of the estimated total", "على مساحة": "over", "التصعيد السنوي": "Annual escalation", "من سنة الأساس": "from base year", "اضغط على أي سنة لاعتمادها": "Tap any year to select it", "عن التقدير الحالي": "vs. current estimate", "عن سنة": "vs.", "مقارنة مع": "vs.", "مليار": "bn", "مليون": "M", "ألف": "k"};
+let DICT = Object.assign({}, UI, UI2), RX = null;
 // unit names are plural after a number ("100 beds") and singular after "per", "—" or "(" ("per bed")
 const SG = { "beds": "bed", "emergency beds": "emergency bed", "day beds": "day bed", "clinics": "clinic", "mobile clinics": "mobile clinic",
   "operating rooms": "operating room", "dental chairs": "dental chair", "dialysis chairs": "dialysis chair", "stations": "station",
