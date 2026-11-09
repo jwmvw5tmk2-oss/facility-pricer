@@ -449,6 +449,26 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
 .d-tip .r b{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
 .d-tip .r span{color:var(--muted)}
 #btn-dash{white-space:nowrap}
+.d-tile.m2{position:relative;overflow:hidden;background:color-mix(in srgb,var(--brass-soft) 55%,var(--panel))}
+.d-tile.m2 .val{color:var(--ink)}
+.d-m2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:1000px){.d-m2{grid-template-columns:minmax(0,1fr)}}
+.d-m2 h3{font-size:.84rem;color:var(--muted);font-weight:600;margin:14px 0 6px}
+.d-m2-side h3:first-child{margin-top:0}
+.d-m2-head{display:flex;align-items:baseline;gap:8px;line-height:1.05}
+.d-m2-head .num{font-size:clamp(2.2rem,3.2vw,3rem);font-weight:700;color:var(--pine);font-variant-numeric:proportional-nums}
+.d-m2-head small{font-size:.8rem;color:var(--muted)}
+.d-m2-note{font-size:.8rem;color:var(--muted);margin-top:6px;max-width:75ch}
+.d-fall{display:grid;gap:2px}
+.d-fall .d-bar{cursor:default;grid-template-columns:minmax(9rem,15rem) minmax(0,1fr) 5.2rem}
+.d-fall .d-bar .t{position:relative}
+.d-fall .d-bar .f{position:absolute;top:2px;height:16px;border-radius:4px;background:var(--d-line);opacity:.55}
+.d-fall .d-bar.sel .f{opacity:1;background:var(--d-line)}
+.d-fall .d-bar.f-sub .f{background:var(--brass);opacity:1}
+.d-fall .d-bar.f-tot .f{background:var(--pine);opacity:1}
+.d-fall .d-bar.f-sub,.d-fall .d-bar.f-tot{font-weight:700;border-top:1px solid var(--line)}
+.d-fall .d-bar.sel{font-weight:700}
+@media (max-width:640px){.d-fall .d-bar{grid-template-columns:minmax(0,1fr) auto}}
 @media (max-width:640px){
   .d-bar,.d-stack .d-bar,.d-multi .d-bar{grid-template-columns:minmax(0,1fr) auto;row-gap:4px}
   .d-bar .t{grid-column:1/-1;grid-row:2}
@@ -716,6 +736,23 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
       <p class="d-desc" id="d-desc"></p>
       <div class="d-kpis" id="d-kpis"></div>
       <div class="d-grid">
+        <article class="card d-card d-span" id="d-m2-card">
+          <h2>سعر البناء بالمتر المربع</h2>
+          <p class="hint d-sub" id="d-m2-sub"></p>
+          <div class="d-m2">
+            <div class="d-m2-main">
+              <div class="d-m2-head"><span class="num" id="d-m2-val"></span><small>ر.س / م²</small></div>
+              <p class="d-m2-note" id="d-m2-note"></p>
+              <h3>من سعر البناء إلى التكلفة الشاملة للمتر المربع</h3>
+              <div class="d-fall" id="d-fall"></div>
+            </div>
+            <div class="d-m2-side">
+              <h3>حسب مستوى التسعير</h3><div class="d-bars" id="d-m2-lvl"></div>
+              <h3>حسب الدولة (المدن الرئيسية)</h3><div class="d-bars" id="d-m2-ctry"></div>
+            </div>
+          </div>
+          <details class="d-tv"><summary>عرض الجدول</summary><div class="tablewrap"><table id="d-m2-tv"></table></div></details>
+        </article>
         <article class="card d-card" id="d-mix-card">
           <h2>مكونات التكلفة</h2>
           <p class="hint d-sub" id="d-mix-sub"></p>
@@ -1186,15 +1223,58 @@ function renderDash() {
   // KPI row
   const share = col.total > 0 ? (col.e + col.ad + col.ff) / col.total : 0;
   const perM2 = R.area > 0 ? col.total / R.area : 0;
+  const kb = R.pk.w ? k : 0, bldRate = (C, lvl, lf) => C.rates[lvl] * R.t.cf * A.scope.bld[kb] * lf;   // building works incl. finishes and MEP, per m²
+  const bldM2 = bldRate(R.C, inp.level, R.loc.f);
   const tile = (lab, val, cur, sub, extra, cls) => `<div class="card d-tile ${cls || ""}"><div class="lab">${esc(lab)}</div>
     <div class="val"><span class="num" ${cls === "hero" ? 'id="d-total"' : ""}>${esc(val)}</span>${cur ? `<small>${esc(cur)}</small>` : ""}</div>${sub ? `<div class="sub">${sub}</div>` : ""}${extra || ""}</div>`;
   $("d-kpis").innerHTML =
     tile("الإجمالي التقديري", fmt(col.total), "ر.س", `ما يعادل ${numSpan(col.usd)} دولار<br>المدى المتوقع ${numSpan(col.total * 0.7)} – ${numSpan(col.total * 1.5)} ر.س`, "", "hero") +
     tile(`سعر الوحدة (${unit})`, fmt(col.perUnit), "ر.س", `${numSpan(R.n)} ${esc(unit)}`) +
-    tile("تكلفة المتر المربع", perM2 > 0 ? fmt(perM2) : "—", perM2 > 0 ? "ر.س / م²" : "", `على مساحة ${numSpan(R.area)} م²`) +
-    tile("المساحة المعتمدة", fmt(R.area), "م²", `${numSpan(R.gfaC)} م² لكل ${esc(unit)}`) +
+    tile("سعر البناء للمتر المربع", fmt(bldM2), "ر.س / م²", "شامل التشطيبات والأنظمة الكهروميكانيكية", "", "m2") +
+    tile("التكلفة الشاملة للمتر المربع", perM2 > 0 ? fmt(perM2) : "—", perM2 > 0 ? "ر.س / م²" : "", `على مساحة ${numSpan(R.area)} م² (${numSpan(R.gfaC)} م² لكل ${esc(unit)})`) +
     tile("حصة الأجهزة والتأثيث", pct(share), "", "من الإجمالي التقديري", `<div class="d-meter" aria-hidden="true"><span style="width:${(share * 100).toFixed(1)}%"></span></div>`);
   countUp($("d-total"), dashPrevTotal, col.total); dashPrevTotal = col.total;
+
+  // building rate per m² and the build-up to the all-in cost per m²
+  {
+    const ar = R.area > 0 ? R.area : 1, cont = A.scope.cont, S = A.scope;
+    const sel = R.pk.w ? col : computeProject(Object.assign({}, inp, { pkg: Math.max(0, A.packages.findIndex(p => p.w && p.e && p.f)) }), A).cols[0];
+    const bc = (sel.b + sel.x + sel.s) * cont[kb], eqf = (sel.e + sel.ad + sel.ff) * (1 + cont[0]);
+    const steps = [
+      ["أعمال المبنى شاملة التشطيبات", sel.b / ar, "step", "إنشائي ومعماري وتشطيبات وكهروميكانيكي وغازات طبية"],
+      ["أعمال الموقع والبنية التحتية", sel.x / ar, "step", `${pct(A.ext * S.ext[kb] / Math.max(S.bld[kb], 1e-9))} من أعمال المبنى`],
+      ["التصميم والإشراف", sel.s / ar, "step", `${pct(S.soft[kb])} من الأعمال`],
+      ["الاحتياطي", bc / ar, "step", `${pct(cont[kb])} من أعمال البناء`],
+      ["تكلفة البناء الكاملة للمتر المربع", (sel.b + sel.x + sel.s + bc) / ar, "sub", "دون الأجهزة والتأثيث"],
+      ["الأجهزة الطبية والتأثيث", eqf / ar, "step", "مع احتياطيها"],
+      ["التصعيد حتى سنة التنفيذ", sel.escv / ar, "step", `سنة التنفيذ ${inp.year}`],
+      ["التكلفة الشاملة للمتر المربع", sel.total / ar, "tot", "كل البنود"]
+    ].filter(r => r[2] !== "step" || r[1] > 0.5);
+    const fmax = Math.max(...steps.map(r => r[1]), 1);
+    let cum = 0;
+    $("d-fall").innerHTML = steps.map((r, i) => {
+      const start = r[2] === "step" ? cum : 0, w = r[1];
+      if (r[2] === "step") cum += w;
+      return `<div class="d-bar f-${r[2]} ${i === 0 ? "sel" : ""}" tabindex="0" ${tipAttr(r[0], [[fmt(w) + " ر.س / م²", r[3]]])}>
+        <span class="l">${esc(r[0])}</span><span class="t"><span class="f" style="inset-inline-start:${(start / fmax * 100).toFixed(2)}%;width:${(w / fmax * 100).toFixed(2)}%"></span></span><span class="v num">${r[2] === "step" && i > 0 ? "+" : ""}${fmt(w)}</span></div>`;
+    }).join("");
+    $("d-m2-val").textContent = fmt(bldM2);
+    $("d-m2-sub").textContent = `${R.t.ar} — ${R.C.name} — مستوى ${R.lvl.name} — ${R.loc.name} — ${R.pk.w ? SC[k] : "بناء جديد"}`;
+    $("d-m2-note").innerHTML = `سعر البناء المرجعي ${numSpan(R.rate)} ر.س/م² × معامل التعقيد ${R.t.cf.toFixed(2)}` +
+      (S.bld[kb] !== 1 ? ` × معامل نطاق العمل ${S.bld[kb].toFixed(2)}` : "") + (R.loc.f !== 1 ? ` × معامل الموقع ${R.loc.f.toFixed(2)}` : "") +
+      `. بأسعار سنة الأساس ${A.baseYear}` + (R.escF > 1 ? `، ويعادل ${numSpan(bldM2 * R.escF)} ر.س/م² في سنة التنفيذ ${inp.year}` : "") + "." +
+      (kb ? ` سعر البناء الجديد لنفس المنشأة ${numSpan(R.rate * R.t.cf * S.bld[0] * R.loc.f)} ر.س/م².` : "") +
+      (R.pk.w ? "" : " النطاق المختار لا يشمل البناء، فالسعر هنا مرجعي لمبنى جديد.");
+    const lv = A.levels.map((l, i) => ({ i, name: l.name, v: bldRate(R.C, i, R.loc.f) }));
+    const lmax = Math.max(...lv.map(x => x.v), 1);
+    $("d-m2-lvl").innerHTML = lv.map(x => barRow(x.name, x.v, lmax, x.i === inp.level, `level:${x.i}`, tipAttr(x.name, [[fmt(x.v) + " ر.س / م²", "سعر البناء للمتر المربع"]]), fmt(x.v))).join("");
+    const cv = A.countries.map((C, i) => ({ i, name: C.name, v: bldRate(C, inp.level, C.locations[0].f) })).sort((a, b) => b.v - a.v);
+    const cmax2 = Math.max(...cv.map(x => x.v), 1);
+    $("d-m2-ctry").innerHTML = cv.map(x => barRow(x.name, x.v, cmax2, x.i === inp.country, `country:${x.i}`, tipAttr(x.name, [[fmt(x.v) + " ر.س / م²", "سعر البناء للمتر المربع"]]), fmt(x.v))).join("");
+    $("d-m2-tv").innerHTML = `<thead><tr><th>البند</th><th class="n">ر.س / م²</th></tr></thead><tbody>` +
+      steps.map(r => `<tr class="${r[2] === "tot" ? "total" : r[2] === "sub" ? "subtotal" : ""}"><td>${esc(r[0])}</td><td class="n">${fmt(r[1])}</td></tr>`).join("") +
+      A.countries.map((C, i) => `<tr><td>${esc(C.name)} — ${esc(A.levels.map(l => l.name).join(" / "))}</td><td class="n">${[0, 1, 2].map(j => fmt(bldRate(C, j, C.locations[0].f))).join(" / ")}</td></tr>`).join("") + "</tbody>";
+  }
 
   // cost mix: tall segmented bar + rows (the rows are its table view)
   const parts = PARTS.map((p, i) => ({ i, name: p.name, v: Math.max(0, p.v(col)) }));
@@ -1873,7 +1953,7 @@ const LET = "ؠ-ٟٮ-ۓۺ-ۿ";           // Arabic letters (word boundaries)
 const HAS_AR = /[؀-ۿ]/;
 const PUNCT = { "،": ",", "؛": ";", "؟": "?", "«": "“", "»": "”", "←": "→" };
 const ATTRS = ["placeholder", "title", "aria-label", "label"];
-const UI2 = {"لوحة المؤشرات": "Dashboard", "مؤشرات التقدير الحالي ورسومه البيانية. أي تغيير هنا ينعكس على الحاسبة، واضغط على أي عمود أو نقطة لاعتمادها": "Indicators and charts for the current estimate. Any change here applies to the calculator; tap any bar or point to select it", "العودة إلى الحاسبة": "Back to calculator", "مكونات التكلفة": "Cost composition", "مقسّمة حسب مكونات التكلفة. اضغط على أي شريط لاعتماده": "Split by cost component. Tap any bar to select it", "عرض الجدول": "Show table", "التكلفة حسب الدولة": "Cost by country", "نفس المشروع في كل دولة، في المدن الرئيسية. اضغط على أي دولة لاعتمادها": "The same project in each country, in the main cities. Tap a country to select it", "أثر سنة التنفيذ": "Effect of execution year", "حساسية التقدير": "Estimate sensitivity", "الإجمالي عند تغيير عامل واحد مع تثبيت بقية المدخلات. اضغط على أي شريط لاعتماده": "Total when one factor changes and all other inputs stay fixed. Tap any bar to select it", "المبنى والموقع": "Building and site", "الاحتياطي والتصعيد": "Contingency and escalation", "تكلفة المتر المربع": "Cost per m²", "المساحة المعتمدة": "Area used", "حصة الأجهزة والتأثيث": "Equipment and furniture share", "من الإجمالي التقديري": "of the estimated total", "على مساحة": "over", "التصعيد السنوي": "Annual escalation", "من سنة الأساس": "from base year", "اضغط على أي سنة لاعتمادها": "Tap any year to select it", "عن التقدير الحالي": "vs. current estimate", "عن سنة": "vs.", "مقارنة مع": "vs.", "مليار": "bn", "مليون": "M", "ألف": "k"};
+const UI2 = {"سعر البناء بالمتر المربع": "Building cost per m²", "سعر البناء للمتر المربع": "Building cost per m²", "شامل التشطيبات والأنظمة الكهروميكانيكية": "Including finishes and MEP systems", "التكلفة الشاملة للمتر المربع": "All-in cost per m²", "من سعر البناء إلى التكلفة الشاملة للمتر المربع": "From building cost to all-in cost per m²", "حسب مستوى التسعير": "By pricing level", "حسب الدولة (المدن الرئيسية)": "By country (main cities)", "أعمال المبنى شاملة التشطيبات": "Building works incl. finishes", "إنشائي ومعماري وتشطيبات وكهروميكانيكي وغازات طبية": "Structure, architecture, finishes, MEP and medical gases", "أعمال الموقع والبنية التحتية": "Site works and infrastructure", "من أعمال المبنى": "of building works", "من الأعمال": "of works", "من أعمال البناء": "of construction works", "تكلفة البناء الكاملة للمتر المربع": "Full construction cost per m²", "دون الأجهزة والتأثيث": "Excluding equipment and furniture", "الأجهزة الطبية والتأثيث": "Medical equipment and furniture", "مع احتياطيها": "with their contingency", "كل البنود": "All items", "سعر البناء المرجعي": "Reference building rate", "معامل نطاق العمل": "scope factor", "بأسعار سنة الأساس": "At base-year prices", "ويعادل": "equal to", "في سنة التنفيذ": "in execution year", "النطاق المختار لا يشمل البناء، فالسعر هنا مرجعي لمبنى جديد": "The selected scope excludes construction, so this is the reference rate for a new building", "بناء جديد": "New build", "سعر البناء الجديد لنفس المنشأة": "New-build rate for the same facility", "لوحة المؤشرات": "Dashboard", "مؤشرات التقدير الحالي ورسومه البيانية. أي تغيير هنا ينعكس على الحاسبة، واضغط على أي عمود أو نقطة لاعتمادها": "Indicators and charts for the current estimate. Any change here applies to the calculator; tap any bar or point to select it", "العودة إلى الحاسبة": "Back to calculator", "مكونات التكلفة": "Cost composition", "مقسّمة حسب مكونات التكلفة. اضغط على أي شريط لاعتماده": "Split by cost component. Tap any bar to select it", "عرض الجدول": "Show table", "التكلفة حسب الدولة": "Cost by country", "نفس المشروع في كل دولة، في المدن الرئيسية. اضغط على أي دولة لاعتمادها": "The same project in each country, in the main cities. Tap a country to select it", "أثر سنة التنفيذ": "Effect of execution year", "حساسية التقدير": "Estimate sensitivity", "الإجمالي عند تغيير عامل واحد مع تثبيت بقية المدخلات. اضغط على أي شريط لاعتماده": "Total when one factor changes and all other inputs stay fixed. Tap any bar to select it", "المبنى والموقع": "Building and site", "الاحتياطي والتصعيد": "Contingency and escalation", "تكلفة المتر المربع": "Cost per m²", "المساحة المعتمدة": "Area used", "حصة الأجهزة والتأثيث": "Equipment and furniture share", "من الإجمالي التقديري": "of the estimated total", "على مساحة": "over", "التصعيد السنوي": "Annual escalation", "من سنة الأساس": "from base year", "اضغط على أي سنة لاعتمادها": "Tap any year to select it", "عن التقدير الحالي": "vs. current estimate", "عن سنة": "vs.", "مقارنة مع": "vs.", "مليار": "bn", "مليون": "M", "ألف": "k"};
 let DICT = Object.assign({}, UI, UI2), RX = null;
 // unit names are plural after a number ("100 beds") and singular after "per", "—" or "(" ("per bed")
 const SG = { "beds": "bed", "emergency beds": "emergency bed", "day beds": "day bed", "clinics": "clinic", "mobile clinics": "mobile clinic",
