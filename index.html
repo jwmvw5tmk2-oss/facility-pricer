@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>try{var t=localStorage.getItem("hcp-theme");if(t!=="light"&&t!=="dark"&&t!=="neon")t="neon";document.documentElement.setAttribute("data-theme",t)}catch(e){document.documentElement.setAttribute("data-theme","neon")}</script>
+<script>try{var l=localStorage.getItem("hcp-lite");if(l===null)l=(matchMedia("(pointer:coarse)").matches||(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)?"1":"0";if(l==="1")document.documentElement.classList.add("lite")}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0B4D38">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -532,11 +533,12 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
 :root[data-theme="dark"] .d-donut svg{filter:drop-shadow(0 0 12px rgba(95,192,146,.28))}
 @media (prefers-reduced-motion:no-preference){
   .tab-ink{transition:transform .45s cubic-bezier(.2,.8,.2,1),width .45s cubic-bezier(.2,.8,.2,1),opacity .2s}
-  .summary::before,.d-tile.hero::before{animation:nSpin2 7s linear infinite}
-  .d-tile,.summary{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .14s ease-out,box-shadow .22s ease,border-color .22s ease}
+  .d-tile,.summary{transition:transform .14s ease-out,box-shadow .22s ease,border-color .22s ease}
+  .d-tile.tilt-on,.summary.tilt-on{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))}
 }
 @media (prefers-reduced-motion:no-preference) and (hover:hover){
-  .d-tile:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-2px)}
+  .d-tile:hover{transform:translateY(-2px)}
+  .d-tile.tilt-on:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-2px)}
   .pane-in{animation-name:paneInBlur}
 }
 /* ============ ثيم «نيون زجاجي» — خلفية معدنية داكنة بخطوط ضوء زرقاء، وبطاقات زجاجية بحواف مضيئة ============ */
@@ -656,14 +658,12 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
 .rip{position:absolute;border-radius:50%;pointer-events:none;background:radial-gradient(circle,currentColor,transparent 65%);opacity:.28;transform:scale(0)}
 @property --ang{syntax:"<angle>";inherits:false;initial-value:0deg}
 @media (prefers-reduced-motion:no-preference){
-  :root[data-theme="neon"] body::after{animation:nAurora 28s ease-in-out infinite alternate}
   @keyframes nAurora{to{transform:translate3d(6%,4%,0) rotate(6deg) scale(1.08)}}
-  :root[data-theme="neon"] .summary::before,:root[data-theme="neon"] .d-tile.hero::before{animation:nSpin2 7s linear infinite}
   @keyframes nSpin2{to{--ang:360deg}}
   :root[data-theme="neon"] .tab-ink{transition:transform .45s cubic-bezier(.2,.8,.2,1),width .45s cubic-bezier(.2,.8,.2,1)}
   :root[data-theme="neon"] .d-tile,:root[data-theme="neon"] .summary{transition:transform .14s ease-out,box-shadow .22s ease,border-color .22s ease}
-  :root[data-theme="neon"] .d-tile,:root[data-theme="neon"] .summary{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))}
-  :root[data-theme="neon"] .d-tile:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-3px)}
+  :root[data-theme="neon"] .d-tile:hover{transform:translateY(-3px)}
+  :root[data-theme="neon"] .d-tile.tilt-on:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-3px)}
   .rip{animation:ripple .65s ease-out forwards}
   @keyframes ripple{to{transform:scale(1);opacity:0}}
   .n-ring::before{animation:nSpin 1.4s linear infinite}
@@ -696,7 +696,7 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--o1:rgba(95,192,146,.16);--o2:rgba(221,181,78,.10);--o3:rgba(95,192,146,.10)}}
 :root[data-theme="dark"]{--o1:rgba(95,192,146,.16);--o2:rgba(221,181,78,.10);--o3:rgba(95,192,146,.10)}
 :root[data-theme="neon"]{--o1:rgba(47,140,255,.34);--o2:rgba(0,220,255,.22);--o3:rgba(90,110,255,.26)}
-.orb{position:fixed;z-index:-1;pointer-events:none;border-radius:50%;filter:blur(36px);width:42vmax;height:42vmax;opacity:.9}
+.orb{position:fixed;z-index:-1;pointer-events:none;border-radius:50%;width:42vmax;height:42vmax;opacity:.9}
 .orb.o1{left:-12vmax;top:8vh;background:radial-gradient(circle,var(--o1),transparent 65%);--k:26;--s:-.06}
 .orb.o2{right:-14vmax;top:42vh;background:radial-gradient(circle,var(--o2),transparent 65%);--k:-34;--s:-.09}
 .orb.o3{left:30vw;bottom:-20vmax;background:radial-gradient(circle,var(--o3),transparent 65%);--k:18;--s:-.04}
@@ -726,9 +726,7 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
 
 .d-mix-hint{display:none}
 @media (prefers-reduced-motion:no-preference){
-  body::before{translate:0 calc(var(--sy,0)*-.03px);scale:1.06}
-  .orb{will-change:transform;translate:calc(var(--px,0)*var(--k,20)*1px) calc(var(--py,0)*var(--k,20)*1px + var(--sy,0)*var(--s,-.05)*1px);transition:translate .6s ease-out;animation:orbDrift 22s ease-in-out infinite alternate}
-  .orb.o2{animation-duration:29s;animation-direction:alternate-reverse}.orb.o3{animation-duration:35s}
+  .orb{transition:translate .6s ease-out}
   @keyframes orbDrift{to{transform:translate3d(4vmax,-3vmax,0) scale(1.12)}}
   .cursor-glow{will-change:transform;transition:transform .28s ease-out,opacity .4s}
   .shock{animation:shock .75s ease-out forwards}
@@ -737,17 +735,14 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
     transition-duration:.15s,.15s,.15s,.22s,.14s,.42s,.2s,.2s;transition-timing-function:ease,ease,ease,ease,ease-out,cubic-bezier(.34,1.56,.64,1),ease,ease}
   .btn:active,.tab:active,.lang-btn:active,.chip:active span,.d-tile:active,.d-seg .blk:active{scale:.96}
   .d-bar:active,.bar-row:active{scale:.985}
-  .card:not(.inputs):not(.d-tile){translate:0 calc(var(--sp,0)*12px);scale:calc(1 - var(--sp,0)*var(--sp,0)*.02)}
-  .gate-card{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .14s ease-out}
+  .gate-card{transition:transform .14s ease-out}
+  .gate-card.tilt-on{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))}
   .delta{animation:deltaUp 2s ease-out forwards}
   @keyframes deltaUp{0%{opacity:0;transform:translateY(8px)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
   .flash{animation:flash .85s ease-out}
   @keyframes flash{0%{box-shadow:0 0 0 0 var(--brass-line)}100%{box-shadow:0 0 0 20px transparent}}
-  .d-bar .f::after,.d-meter span::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);transform:translateX(-130%);animation:shimmer 3.6s ease-in-out infinite}
-  .d-bar:nth-child(2n) .f::after{animation-delay:1.1s}.d-bar:nth-child(3n) .f::after{animation-delay:2.2s}
+  .d-bar.sel .f::after,.d-meter span::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);transform:translateX(-130%);animation:shimmer 3.6s ease-in-out infinite}
   @keyframes shimmer{60%,100%{transform:translateX(130%)}}
-  .card>h2::before{animation:barGlow 3.6s ease-in-out infinite}
-  @keyframes barGlow{50%{box-shadow:0 0 12px var(--brass-line)}}
   .chip input:checked+span{animation:chipPop .28s ease-out,chipRing .65s ease-out}
   @keyframes chipRing{from{box-shadow:0 0 0 0 var(--brass-line)}to{box-shadow:0 0 0 14px transparent}}
   .d-hold .d-arc,.d-hold .ln.draw,.d-hold .wash.fade,.d-hold .d-seg.d-rev,.d-hold .d-spark .ln{animation-play-state:paused}
@@ -759,6 +754,22 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
 }
 @media print{.orb,.cursor-glow,.shock,.delta,.d-spark{display:none!important}}
 @media (max-width:640px){.top .actions #btn-export{flex:1 1 100%;order:9}}
+/* ============ الأداء: الحركات المستمرة والتمرير المتوازي على سطح المكتب فقط، والوضع الخفيف افتراضي على الجوال ============ */
+@media (prefers-reduced-motion:no-preference) and (hover:hover) and (pointer:fine){
+  :root:not(.lite) .summary::before,:root:not(.lite) .d-tile.hero::before{animation:nSpin2 7s linear infinite}
+}
+/* الوضع الخفيف: بلا ضبابية خلف البطاقات (أثقل شيء أثناء التمرير) وبلا حركات مستمرة ولا ظلال مرشِّحات */
+:root.lite{--blur:none}
+:root.lite[data-theme="neon"]{--panel:rgba(11,24,48,.84)}
+:root.lite[data-theme="dark"]{--panel:rgba(15,33,26,.92)}
+:root.lite[data-theme="light"]{--panel:rgba(255,255,255,.95)}
+:root.lite .card,:root.lite .top,:root.lite .tabs,:root.lite .d-tip,:root.lite .cmdk,:root.lite .cmdk-back{-webkit-backdrop-filter:none;backdrop-filter:none}
+:root.lite .orb,:root.lite body::after{animation:none;transition:none;will-change:auto}
+:root.lite .tabs{background:var(--panel-solid)}   /* بلا ضبابية: خلفية صلبة كي لا يظهر النص من تحت الشريط الثابت */
+:root.lite .d-bar .f::after,:root.lite .d-meter span::after{display:none}
+:root.lite .d-seg,:root.lite .d-donut svg,:root.lite .d-line .ln,:root.lite .d-spark .ln,:root.lite .d-spark .dot,
+:root.lite .kpi.main .value,:root.lite .d-tile.hero .val .num,:root.lite .d-m2-head .num{filter:none}
+:root.lite .summary::before,:root.lite .d-tile.hero::before,:root.lite .d-spark .dot{animation:none}
 @media (prefers-reduced-motion:reduce){ .d-bar .f,.d-seg .blk{transition:none} }
 </style>
 <style id="fit-one-screen">
@@ -1708,6 +1719,8 @@ function releaseHeld(card) {   // تُطلَق الأعمدة والرسوم ا�
     A.levels.forEach((l, i) => c.push({ g: "مستوى التسعير", t: l.name, cur: i === inp.level, run: () => { inp.level = i; syncInputs(); changed(); } }));
     curC().locations.forEach((l, i) => c.push({ g: "موقع المشروع", t: l.name, cur: i === inp.loc, run: () => { inp.loc = i; syncInputs(); changed(); } }));
     c.push({ g: "سنة التنفيذ", t: "السنة التالية (+1)", run: () => yr(1) }, { g: "سنة التنفيذ", t: "السنة السابقة (−1)", run: () => yr(-1) });
+    const lt = document.documentElement.classList.contains("lite");
+    [["وضع خفيف (أسرع)", true], ["وضع كامل (تأثيرات أكثر)", false]].forEach(([n, v]) => c.push({ g: "الأداء", t: n, cur: lt === v, run: () => { if (window.__setLite) window.__setLite(v); } }));
     const th = document.documentElement.getAttribute("data-theme");
     [["light", "فاتح"], ["dark", "داكن"], ["neon", "نيون زجاجي"]].forEach(([k, n]) => c.push({ g: "المظهر", t: n, cur: th === k, run: () => { if (window.__setTheme) window.__setTheme(k); } }));
     return c;
@@ -2403,7 +2416,7 @@ const LET = "ؠ-ٟٮ-ۓۺ-ۿ";           // Arabic letters (word boundaries)
 const HAS_AR = /[؀-ۿ]/;
 const PUNCT = { "،": ",", "؛": ";", "؟": "?", "«": "“", "»": "”", "←": "→" };
 const ATTRS = ["placeholder", "title", "aria-label", "label"];
-const UI2 = {"الثيم النيون الزجاجي": "Neon glass theme", "نيون زجاجي": "Neon glass", "فاتح": "Light", "داكن": "Dark", "بحث وأوامر": "Search & commands", "اكتب للبحث: دولة، نوع منشأة، سنة، أو صفحة…": "Type to search: country, facility type, year or page…", "↑ ↓ للتنقل": "↑ ↓ to move", "Enter للتنفيذ": "Enter to run", "Esc للإغلاق": "Esc to close", "ما لقيت نتيجة": "No results", "الحالي": "Current", "انتقال": "Go to", "السنة التالية (+1)": "Next year (+1)", "السنة السابقة (−1)": "Previous year (−1)", "تبديل الوضع الليلي والنهاري": "Toggle dark / light mode", "المظهر": "Appearance", "سعر البناء بالمتر المربع": "Building cost per m²", "سعر البناء للمتر المربع": "Building cost per m²", "شامل التشطيبات والأنظمة الكهروميكانيكية": "Including finishes and MEP systems", "التكلفة الشاملة للمتر المربع": "All-in cost per m²", "من سعر البناء إلى التكلفة الشاملة للمتر المربع": "From building cost to all-in cost per m²", "حسب مستوى التسعير": "By pricing level", "حسب الدولة (المدن الرئيسية)": "By country (main cities)", "أعمال المبنى شاملة التشطيبات": "Building works incl. finishes", "إنشائي ومعماري وتشطيبات وكهروميكانيكي وغازات طبية": "Structure, architecture, finishes, MEP and medical gases", "أعمال الموقع والبنية التحتية": "Site works and infrastructure", "من أعمال المبنى": "of building works", "من الأعمال": "of works", "من أعمال البناء": "of construction works", "تكلفة البناء الكاملة للمتر المربع": "Full construction cost per m²", "دون الأجهزة والتأثيث": "Excluding equipment and furniture", "الأجهزة الطبية والتأثيث": "Medical equipment and furniture", "مع احتياطيها": "with their contingency", "كل البنود": "All items", "سعر البناء المرجعي": "Reference building rate", "معامل نطاق العمل": "scope factor", "بأسعار سنة الأساس": "At base-year prices", "ويعادل": "equal to", "في سنة التنفيذ": "in execution year", "النطاق المختار لا يشمل البناء، فالسعر هنا مرجعي لمبنى جديد": "The selected scope excludes construction, so this is the reference rate for a new building", "بناء جديد": "New build", "سعر البناء الجديد لنفس المنشأة": "New-build rate for the same facility", "لوحة المؤشرات": "Dashboard", "مؤشرات التقدير الحالي ورسومه البيانية. أي تغيير هنا ينعكس على الحاسبة، واضغط على أي عمود أو نقطة لاعتمادها": "Indicators and charts for the current estimate. Any change here applies to the calculator; tap any bar or point to select it", "العودة إلى الحاسبة": "Back to calculator", "مكونات التكلفة": "Cost composition", "مقسّمة حسب مكونات التكلفة. اضغط على أي شريط لاعتماده": "Split by cost component. Tap any bar to select it", "عرض الجدول": "Show table", "التكلفة حسب الدولة": "Cost by country", "نفس المشروع في كل دولة، في المدن الرئيسية. اضغط على أي دولة لاعتمادها": "The same project in each country, in the main cities. Tap a country to select it", "أثر سنة التنفيذ": "Effect of execution year", "حساسية التقدير": "Estimate sensitivity", "الإجمالي عند تغيير عامل واحد مع تثبيت بقية المدخلات. اضغط على أي شريط لاعتماده": "Total when one factor changes and all other inputs stay fixed. Tap any bar to select it", "المبنى والموقع": "Building and site", "الاحتياطي والتصعيد": "Contingency and escalation", "تكلفة المتر المربع": "Cost per m²", "المساحة المعتمدة": "Area used", "حصة الأجهزة والتأثيث": "Equipment and furniture share", "من الإجمالي التقديري": "of the estimated total", "على مساحة": "over", "التصعيد السنوي": "Annual escalation", "من سنة الأساس": "from base year", "اضغط على أي سنة لاعتمادها": "Tap any year to select it", "عن التقدير الحالي": "vs. current estimate", "عن سنة": "vs.", "مقارنة مع": "vs.", "مليار": "bn", "مليون": "M", "ألف": "k"};
+const UI2 = {"الأداء": "Performance", "وضع خفيف (أسرع)": "Light mode (faster)", "وضع كامل (تأثيرات أكثر)": "Full effects mode", "الثيم النيون الزجاجي": "Neon glass theme", "نيون زجاجي": "Neon glass", "فاتح": "Light", "داكن": "Dark", "بحث وأوامر": "Search & commands", "اكتب للبحث: دولة، نوع منشأة، سنة، أو صفحة…": "Type to search: country, facility type, year or page…", "↑ ↓ للتنقل": "↑ ↓ to move", "Enter للتنفيذ": "Enter to run", "Esc للإغلاق": "Esc to close", "ما لقيت نتيجة": "No results", "الحالي": "Current", "انتقال": "Go to", "السنة التالية (+1)": "Next year (+1)", "السنة السابقة (−1)": "Previous year (−1)", "تبديل الوضع الليلي والنهاري": "Toggle dark / light mode", "المظهر": "Appearance", "سعر البناء بالمتر المربع": "Building cost per m²", "سعر البناء للمتر المربع": "Building cost per m²", "شامل التشطيبات والأنظمة الكهروميكانيكية": "Including finishes and MEP systems", "التكلفة الشاملة للمتر المربع": "All-in cost per m²", "من سعر البناء إلى التكلفة الشاملة للمتر المربع": "From building cost to all-in cost per m²", "حسب مستوى التسعير": "By pricing level", "حسب الدولة (المدن الرئيسية)": "By country (main cities)", "أعمال المبنى شاملة التشطيبات": "Building works incl. finishes", "إنشائي ومعماري وتشطيبات وكهروميكانيكي وغازات طبية": "Structure, architecture, finishes, MEP and medical gases", "أعمال الموقع والبنية التحتية": "Site works and infrastructure", "من أعمال المبنى": "of building works", "من الأعمال": "of works", "من أعمال البناء": "of construction works", "تكلفة البناء الكاملة للمتر المربع": "Full construction cost per m²", "دون الأجهزة والتأثيث": "Excluding equipment and furniture", "الأجهزة الطبية والتأثيث": "Medical equipment and furniture", "مع احتياطيها": "with their contingency", "كل البنود": "All items", "سعر البناء المرجعي": "Reference building rate", "معامل نطاق العمل": "scope factor", "بأسعار سنة الأساس": "At base-year prices", "ويعادل": "equal to", "في سنة التنفيذ": "in execution year", "النطاق المختار لا يشمل البناء، فالسعر هنا مرجعي لمبنى جديد": "The selected scope excludes construction, so this is the reference rate for a new building", "بناء جديد": "New build", "سعر البناء الجديد لنفس المنشأة": "New-build rate for the same facility", "لوحة المؤشرات": "Dashboard", "مؤشرات التقدير الحالي ورسومه البيانية. أي تغيير هنا ينعكس على الحاسبة، واضغط على أي عمود أو نقطة لاعتمادها": "Indicators and charts for the current estimate. Any change here applies to the calculator; tap any bar or point to select it", "العودة إلى الحاسبة": "Back to calculator", "مكونات التكلفة": "Cost composition", "مقسّمة حسب مكونات التكلفة. اضغط على أي شريط لاعتماده": "Split by cost component. Tap any bar to select it", "عرض الجدول": "Show table", "التكلفة حسب الدولة": "Cost by country", "نفس المشروع في كل دولة، في المدن الرئيسية. اضغط على أي دولة لاعتمادها": "The same project in each country, in the main cities. Tap a country to select it", "أثر سنة التنفيذ": "Effect of execution year", "حساسية التقدير": "Estimate sensitivity", "الإجمالي عند تغيير عامل واحد مع تثبيت بقية المدخلات. اضغط على أي شريط لاعتماده": "Total when one factor changes and all other inputs stay fixed. Tap any bar to select it", "المبنى والموقع": "Building and site", "الاحتياطي والتصعيد": "Contingency and escalation", "تكلفة المتر المربع": "Cost per m²", "المساحة المعتمدة": "Area used", "حصة الأجهزة والتأثيث": "Equipment and furniture share", "من الإجمالي التقديري": "of the estimated total", "على مساحة": "over", "التصعيد السنوي": "Annual escalation", "من سنة الأساس": "from base year", "اضغط على أي سنة لاعتمادها": "Tap any year to select it", "عن التقدير الحالي": "vs. current estimate", "عن سنة": "vs.", "مقارنة مع": "vs.", "مليار": "bn", "مليون": "M", "ألف": "k"};
 let DICT = Object.assign({}, UI, UI2), RX = null;
 // unit names are plural after a number ("100 beds") and singular after "per", "—" or "(" ("per bed")
 const SG = { "beds": "bed", "emergency beds": "emergency bed", "day beds": "day bed", "clinics": "clinic", "mobile clinics": "mobile clinic",
@@ -2820,9 +2833,17 @@ boot();
   const root = document.documentElement;
   const motion = () => !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
   const fine = () => !!(window.matchMedia && matchMedia("(hover:hover) and (pointer:fine)").matches);
+  const lite = () => root.classList.contains("lite");
+  let orbs = [], ox = 0, oy = 0, osy = 0;
+  const ORB_K = [[26, -.06], [-34, -.09], [18, -.04]];
+  function placeOrbs() {   // الكرات تتحرك بتعديل مباشر (بدون متغيرات CSS عامة تُجبر المتصفح على إعادة حساب كل العناصر)
+    if (lite() || !motion()) return;
+    orbs.forEach((o, i) => { o.style.translate = `${(ox * ORB_K[i][0]).toFixed(1)}px ${(oy * ORB_K[i][0] + osy * ORB_K[i][1]).toFixed(1)}px`; });
+  }
+  window.__setLite = on => { root.classList.toggle("lite", !!on); try { localStorage.setItem("hcp-lite", on ? "1" : "0"); } catch (e) {} if (on) orbs.forEach(o => o.style.removeProperty("translate")); else placeOrbs(); };
   const SEL = ".card, .d-tile, .btn, .tab, .lang-btn, .gate-card", TILT = ".d-tile, .summary, .gate-card";
   let cur = [], raf = 0, last = null;
-  const clear = el => { ["--mx", "--my", "--rx", "--ry"].forEach(p => el.style.removeProperty(p)); };
+  const clear = el => { ["--mx", "--my", "--rx", "--ry"].forEach(p => el.style.removeProperty(p)); el.classList.remove("tilt-on"); };
   let pressing = false;
   document.addEventListener("pointerdown", e => { if (e.pointerType === "touch") pressing = true; last = e; if (!raf) raf = requestAnimationFrame(frame); }, { passive: true });
   const rel = () => { pressing = false; setTimeout(() => { if (!pressing) { cur.forEach(clear); cur = []; } }, 380); };
@@ -2833,8 +2854,8 @@ boot();
   function frame() {
     raf = 0; const e = last; if (!e) return;
     if (!motion()) { cur.forEach(clear); cur = []; return; }
-    if (e.pointerType !== "touch") {   // عمق الخلفية يتبع الماوس
-      root.style.setProperty("--px", ((e.clientX / innerWidth - .5) * 2).toFixed(3)); root.style.setProperty("--py", ((e.clientY / innerHeight - .5) * 2).toFixed(3));
+    if (e.pointerType !== "touch" && !lite()) {   // عمق الخلفية يتبع الماوس
+      ox = (e.clientX / innerWidth - .5) * 2; oy = (e.clientY / innerHeight - .5) * 2; placeOrbs();
       const gl = document.querySelector(".cursor-glow"); if (gl) { gl.classList.add("on"); gl.style.transform = `translate3d(${e.clientX}px,${e.clientY}px,0)`; }
     }
     if (!fine() && !pressing) { cur.forEach(clear); cur = []; return; }
@@ -2844,7 +2865,7 @@ boot();
     hit.forEach(el => {
       const r = el.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
       el.style.setProperty("--mx", x.toFixed(0) + "px"); el.style.setProperty("--my", y.toFixed(0) + "px");
-      if (el.matches(TILT) && r.width > 0) { el.style.setProperty("--ry", ((x / r.width - .5) * 6).toFixed(2) + "deg"); el.style.setProperty("--rx", ((.5 - y / r.height) * 5).toFixed(2) + "deg"); }
+      if (el.matches(TILT) && r.width > 0) { el.classList.add("tilt-on"); el.style.setProperty("--ry", ((x / r.width - .5) * 6).toFixed(2) + "deg"); el.style.setProperty("--rx", ((.5 - y / r.height) * 5).toFixed(2) + "deg"); }
     });
     cur = hit;
   }
@@ -2883,7 +2904,6 @@ boot();
     if (!p || !motion()) return;
     p.classList.remove("pane-in"); void p.offsetWidth; p.classList.add("pane-in"); setTimeout(() => p.classList.remove("pane-in"), 700);
     if (p.id !== "p-dash") cards(p);
-    if (window.__watchCards) window.__watchCards();
   }
   function init() {
     const app = document.querySelector(".app"); if (!app) return;
@@ -2899,7 +2919,7 @@ boot();
   }
   /* طبقة العمق: كرات ضوء تتبع الماوس والتمرير والإمالة، موجة عند اللمس، تمرير مواز للبطاقات، سحب بين الأقسام، وربط الحلقة بالشريط */
   function depth(app) {
-    ["o1", "o2", "o3"].forEach(c => { const d = document.createElement("div"); d.className = "orb " + c; d.setAttribute("aria-hidden", "true"); document.body.appendChild(d); });
+    ["o1", "o2", "o3"].forEach(c => { const d = document.createElement("div"); d.className = "orb " + c; d.setAttribute("aria-hidden", "true"); document.body.appendChild(d); orbs.push(d); });
     const g = document.createElement("div"); g.className = "cursor-glow"; g.setAttribute("aria-hidden", "true"); document.body.appendChild(g);
     // موجة تنتشر من نقطة اللمس أو النقر
     document.addEventListener("pointerdown", e => {
@@ -2908,23 +2928,20 @@ boot();
       document.body.appendChild(s); setTimeout(() => s.remove(), 800);
     }, { passive: true });
     // تمرير مواز: البطاقات تتحرك وتتقلّص قليلاً قرب حافة الشاشة، والخلفية تتزحزح مع التمرير
-    const vis = new Set(); let sraf = 0;
-    const vio = "IntersectionObserver" in window ? new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) vis.add(en.target); else vis.delete(en.target); }), { rootMargin: "25% 0px" }) : null;
-    window.__watchCards = () => { if (vio) document.querySelectorAll(".card:not(.inputs):not(.d-tile)").forEach(el => vio.observe(el)); };
-    window.__watchCards();
+    let sraf = 0;
     function sframe() {
-      sraf = 0; const y = window.scrollY || 0;
-      root.style.setProperty("--sy", y.toFixed(0)); root.classList.toggle("scrolled", y > 24);
-      if (!motion()) return; const vh = innerHeight;
-      vis.forEach(el => { const r = el.getBoundingClientRect(), c = r.top + r.height / 2; el.style.setProperty("--sp", Math.max(-1, Math.min(1, (c - vh / 2) / (vh / 2 + r.height / 2))).toFixed(3)); });
+      sraf = 0; const y = window.scrollY || 0; osy = y;
+      const sc = y > 24; if (sc !== root.classList.contains("scrolled")) root.classList.toggle("scrolled", sc);
+      if (lite() || !motion() || !fine()) return;   // التمرير المتوازي لسطح المكتب فقط
+      placeOrbs();
     }
     window.addEventListener("scroll", () => { if (!sraf) sraf = requestAnimationFrame(sframe); }, { passive: true });
     // إمالة الجهاز (أندرويد): الكرات والخلفية تتحرك مع الإمالة. في آيفون تحتاج إذناً صريحاً فلا نطلبه
     if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission !== "function" && !fine()) {
       let gr = 0;
       window.addEventListener("deviceorientation", e => {
-        if (!motion() || e.gamma == null || gr) return;
-        gr = requestAnimationFrame(() => { gr = 0; root.style.setProperty("--px", Math.max(-1, Math.min(1, e.gamma / 30)).toFixed(3)); root.style.setProperty("--py", Math.max(-1, Math.min(1, ((e.beta || 45) - 45) / 30)).toFixed(3)); });
+        if (lite() || !motion() || e.gamma == null || gr) return;
+        gr = requestAnimationFrame(() => { gr = 0; ox = Math.max(-1, Math.min(1, e.gamma / 30)); oy = Math.max(-1, Math.min(1, ((e.beta || 45) - 45) / 30)); placeOrbs(); });
       }, { passive: true });
     }
     // سحب أفقي بين الأقسام (باللمس)
