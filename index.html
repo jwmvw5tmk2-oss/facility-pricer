@@ -479,6 +479,41 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
   .d-axis .t span:first-child{transform:none}
 }
 @media print{ .d-filters,.d-tip,#d-to-calc,.d-tv summary{display:none!important} .d-grid{grid-template-columns:1fr 1fr} }
+/* ---------- حركة اللوحة ولوحة الأوامر: كل الحركات تتوقف عند تفعيل «تقليل الحركة» في الجهاز ---------- */
+.d-head-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.d-head-btns kbd{font:inherit;font-size:.72rem;padding:1px 6px;border:1px solid var(--line-2);border-radius:6px;color:var(--muted);margin-inline-start:6px}
+.cmdk-back{position:fixed;inset:0;z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:12vh 16px 16px;background:rgba(5,16,11,.45);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.cmdk{width:100%;max-width:560px;background:var(--panel-solid);color:var(--ink);border:1px solid var(--line-2);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,.55);overflow:hidden}
+.cmdk-in{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;color:inherit;font:inherit;font-size:1rem;padding:14px 16px;outline:none}
+.cmdk-list{list-style:none;margin:0;padding:6px;max-height:min(50vh,380px);overflow:auto}
+.cmdk-list li{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:.92rem}
+.cmdk-list li small{color:var(--muted);font-size:.74rem;min-width:6em;flex:none}
+.cmdk-list li[aria-selected="true"]{background:var(--pine-soft)}
+.cmdk-list li .cur{margin-inline-start:auto;color:var(--brass);font-weight:700}
+.cmdk-foot{display:flex;gap:14px;flex-wrap:wrap;padding:8px 14px;border-top:1px solid var(--line);font-size:.74rem;color:var(--muted)}
+.cmdk-empty{padding:16px;text-align:center;color:var(--muted);font-size:.9rem}
+@media (prefers-reduced-motion:no-preference){
+  .d-tile,.d-card{transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+  .d-meter span{transition:width .6s cubic-bezier(.2,.7,.2,1)}
+  .d-seg .blk{transition:filter .15s,flex-grow .55s cubic-bezier(.2,.7,.2,1)}
+  .d-pre{opacity:0;transform:translateY(16px)}
+  .d-pre.d-in{opacity:1;transform:none;transition:opacity .5s ease var(--dl,0ms),transform .5s cubic-bezier(.2,.7,.2,1) var(--dl,0ms)}
+  .d-seg.d-rev{animation:dRevR .7s cubic-bezier(.2,.7,.2,1) backwards}
+  [dir="ltr"] .d-seg.d-rev{animation-name:dRevL}
+  @keyframes dRevR{from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0 0 0 0)}}
+  @keyframes dRevL{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+  .d-line .ln.draw{stroke-dasharray:1;stroke-dashoffset:1;animation:dDraw 1.1s ease-out .15s forwards}
+  .d-line .wash.fade{animation:dFade .9s ease .5s backwards}
+  @keyframes dDraw{to{stroke-dashoffset:0}}
+  @keyframes dFade{from{opacity:0}to{opacity:1}}
+  .cmdk-back{animation:dFade .15s ease-out}
+  .cmdk{animation:cmdkIn .18s ease-out}
+  @keyframes cmdkIn{from{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:none}}
+}
+@media (prefers-reduced-motion:no-preference) and (hover:hover){
+  .d-tile:hover,.d-card:hover{transform:translateY(-2px);border-color:var(--brass-line);box-shadow:var(--shadow),0 14px 34px -18px var(--brass-line)}
+}
+@media print{ .d-pre{opacity:1!important;transform:none!important} .cmdk-back,#d-cmdk{display:none!important} }
 @media (prefers-reduced-motion:reduce){ .d-bar .f,.d-seg .blk{transition:none} }
 </style>
 <style id="fit-one-screen">
@@ -722,7 +757,10 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
           <h2>لوحة المؤشرات</h2>
           <p>مؤشرات التقدير الحالي ورسومه البيانية. أي تغيير هنا ينعكس على الحاسبة، واضغط على أي عمود أو نقطة لاعتمادها.</p>
         </div>
-        <button type="button" class="btn ghost" id="d-to-calc">العودة إلى الحاسبة</button>
+        <div class="d-head-btns">
+          <button type="button" class="btn ghost" id="d-cmdk" aria-haspopup="dialog" title="Ctrl+K">بحث وأوامر<kbd dir="ltr">Ctrl K</kbd></button>
+          <button type="button" class="btn ghost" id="d-to-calc">العودة إلى الحاسبة</button>
+        </div>
       </div>
       <div class="card d-filters">
         <label class="field"><span>الدولة</span><select id="d-country"></select></label>
@@ -1192,6 +1230,8 @@ function niceTicks(max, n) {
 }
 const tipAttr = (head, rows) => `data-tip="${esc(JSON.stringify({ h: head, r: rows }))}"`;
 let dashPrevTotal = null;
+let dashWasHidden = true, dashPrevK = null, dashPrevM2 = null, dashRenderedW = 0;   // للحركة: أول ظهور للوحة، والقيم السابقة
+const dashPrevW = new Map();
 
 function dashFilters() {
   const C = curC();
@@ -1213,7 +1253,8 @@ function barRow(lab, v, max, sel, act, tip, valText) {
 }
 
 function renderDash() {
-  const pd = $("p-dash"); if (!pd || pd.hidden) return;
+  const pd = $("p-dash"); if (!pd || pd.hidden) { dashWasHidden = true; return; }
+  dashRenderedW = pd.clientWidth;
   dashFilters();
   const R = computeProject(inp, A), k = inp.scope, col = R.cols[k], SC = scopeNames(R.pk), unit = R.t.unit;
   const VC = R.cols.slice(0, SC.length);
@@ -1233,7 +1274,12 @@ function renderDash() {
     tile("سعر البناء للمتر المربع", fmt(bldM2), "ر.س / م²", "شامل التشطيبات والأنظمة الكهروميكانيكية", "", "m2") +
     tile("التكلفة الشاملة للمتر المربع", perM2 > 0 ? fmt(perM2) : "—", perM2 > 0 ? "ر.س / م²" : "", `على مساحة ${numSpan(R.area)} م² (${numSpan(R.gfaC)} م² لكل ${esc(unit)})`) +
     tile("حصة الأجهزة والتأثيث", pct(share), "", "من الإجمالي التقديري", `<div class="d-meter" aria-hidden="true"><span style="width:${(share * 100).toFixed(1)}%"></span></div>`);
-  countUp($("d-total"), dashPrevTotal, col.total); dashPrevTotal = col.total;
+  countUp($("d-total"), dashWasHidden ? 0 : dashPrevTotal, col.total); dashPrevTotal = col.total;
+  {   // بقية المؤشرات تعدّ بنفس الطريقة
+    const kEls = $("d-kpis").querySelectorAll(".d-tile:not(.hero) .val .num"), kNow = [col.perUnit, bldM2, perM2];
+    kNow.forEach((v, i) => { if (kEls[i] && v > 0) countUp(kEls[i], dashWasHidden ? 0 : dashPrevK ? dashPrevK[i] : null, v); });
+    dashPrevK = kNow;
+  }
 
   // building rate per m² and the build-up to the all-in cost per m²
   {
@@ -1258,7 +1304,7 @@ function renderDash() {
       return `<div class="d-bar f-${r[2]} ${i === 0 ? "sel" : ""}" tabindex="0" ${tipAttr(r[0], [[fmt(w) + " ر.س / م²", r[3]]])}>
         <span class="l">${esc(r[0])}</span><span class="t"><span class="f" style="inset-inline-start:${(start / fmax * 100).toFixed(2)}%;width:${(w / fmax * 100).toFixed(2)}%"></span></span><span class="v num">${r[2] === "step" && i > 0 ? "+" : ""}${fmt(w)}</span></div>`;
     }).join("");
-    $("d-m2-val").textContent = fmt(bldM2);
+    countUp($("d-m2-val"), dashWasHidden ? 0 : dashPrevM2, bldM2); dashPrevM2 = bldM2;
     $("d-m2-sub").textContent = `${R.t.ar} — ${R.C.name} — مستوى ${R.lvl.name} — ${R.loc.name} — ${R.pk.w ? SC[k] : "بناء جديد"}`;
     $("d-m2-note").innerHTML = `سعر البناء المرجعي ${numSpan(R.rate)} ر.س/م² × معامل التعقيد ${R.t.cf.toFixed(2)}` +
       (S.bld[kb] !== 1 ? ` × معامل نطاق العمل ${S.bld[kb].toFixed(2)}` : "") + (R.loc.f !== 1 ? ` × معامل الموقع ${R.loc.f.toFixed(2)}` : "") +
@@ -1325,7 +1371,128 @@ function renderDash() {
   $("d-lvl").innerHTML = lv.map(x => barRow(x.name, x.v, smx(lv), x.i === inp.level, `level:${x.i}`, tipAttr(x.name, [[fmt(x.v) + " ر.س", "الإجمالي التقديري"], [rel(x.v, col.total), "عن التقدير الحالي"]]))).join("");
   $("d-locs").innerHTML = lc.map(x => barRow(x.name, x.v, smx(lc), x.i === inp.loc, `loc:${x.i}`, tipAttr(x.name, [[fmt(x.v) + " ر.س", "الإجمالي التقديري"], [rel(x.v, col.total), "عن التقدير الحالي"]]))).join("");
   $("d-pkgs").innerHTML = pk.map(x => barRow(x.name, x.v, smx(pk), x.i === inp.pkg, `pkg:${x.i}`, tipAttr(x.name, [[fmt(x.v) + " ر.س", "الإجمالي التقديري"], [rel(x.v, col.total), "عن التقدير الحالي"]]))).join("");
+  motionPass();
 }
+
+/* ---------------- حركة اللوحة (تتوقف مع «تقليل الحركة») ---------------- */
+const motionOK = () => !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+let motionFitT = 0, revealIO = null;
+function fitMixLabels() {
+  document.querySelectorAll("#d-mix .blk").forEach(b => { const t = b.querySelector("b"); if (t) t.style.visibility = (b.clientWidth >= t.scrollWidth + 16) ? "" : "hidden"; });
+}
+function motionPass() {
+  const pd = $("p-dash"), first = dashWasHidden; dashWasHidden = false;
+  if (!pd || !motionOK()) { dashPrevW.clear(); return; }
+  // 1) الأعمدة والعدّادات الشريطية: كل واحد ينتقل من قيمته السابقة، أو ينمو من الصفر أول مرة
+  const next = new Map(), moves = [];
+  pd.querySelectorAll(".d-bar .f, .d-meter span").forEach((el, i) => {
+    const bar = el.closest(".d-bar"), tile = el.closest(".d-tile"), host = el.closest("[id]");
+    const lab = bar ? (bar.querySelector(".l") || {}).textContent : tile ? (tile.querySelector(".lab") || {}).textContent : "";
+    const key = (host ? host.id : "") + "|" + lab, target = el.style.width, prev = dashPrevW.get(key);
+    next.set(key, target);
+    if (prev !== target) moves.push([el, prev, target, i]);
+  });
+  moves.forEach(m => { m[0].style.transition = "none"; m[0].style.width = m[1] == null ? "0%" : m[1]; });
+  void pd.offsetWidth;
+  moves.forEach(m => { m[0].style.transition = ""; m[0].style.transitionDelay = m[1] == null ? Math.min(m[3], 14) * 35 + "ms" : "0ms"; m[0].style.width = m[2]; });
+  // 2) شريط المكونات: الحصص تتحرك بين القيم القديمة والجديدة
+  const segs = [];
+  pd.querySelectorAll("#d-mix .blk").forEach(el => {
+    let h = ""; try { h = JSON.parse(el.getAttribute("data-tip")).h; } catch (e) {}
+    const key = "seg|" + h, target = el.style.flexGrow, prev = dashPrevW.get(key);
+    next.set(key, target);
+    if (prev != null && prev !== target) segs.push([el, prev, target]);
+  });
+  segs.forEach(m => { m[0].style.transition = "none"; m[0].style.flexGrow = m[1]; });
+  if (segs.length) { void pd.offsetWidth; segs.forEach(m => { m[0].style.transition = ""; m[0].style.flexGrow = m[2]; });
+    clearTimeout(motionFitT); motionFitT = setTimeout(fitMixLabels, 620); }
+  dashPrevW.clear(); next.forEach((v, k) => dashPrevW.set(k, v));
+  if (!first) return;
+  // 3) أول ظهور: الشريط يتكشّف، والخط يترسم، والبطاقات تظهر متتابعة عند وصولها للشاشة
+  pd.querySelectorAll(".d-seg").forEach(el => { el.classList.remove("d-rev"); void el.offsetWidth; el.classList.add("d-rev"); });
+  const ln = pd.querySelector("#d-line .ln"), wash = pd.querySelector("#d-line .wash");
+  if (ln) { ln.setAttribute("pathLength", "1"); ln.classList.add("draw"); }
+  if (wash) wash.classList.add("fade");
+  if (revealIO) revealIO.disconnect();
+  if (!("IntersectionObserver" in window)) return;
+  revealIO = new IntersectionObserver(es => { let n = 0;
+    es.forEach(e => { if (!e.isIntersecting) return; const el = e.target; revealIO.unobserve(el);
+      el.style.setProperty("--dl", Math.min(n++, 8) * 70 + "ms"); el.classList.add("d-in");
+      setTimeout(() => { el.classList.remove("d-pre", "d-in"); el.style.removeProperty("--dl"); }, 1100); });
+  }, { threshold: 0.08 });
+  pd.querySelectorAll(".d-filters, .d-tile, .d-card").forEach(el => { el.classList.add("d-pre"); revealIO.observe(el); });
+}
+
+/* ---------------- لوحة الأوامر (Ctrl+K) ---------------- */
+(() => {
+  const norm = s => String(s == null ? "" : s).toLowerCase().replace(/[ً-ٰٟـ]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه");
+  const app = () => document.querySelector(".app");
+  let root = null, input = null, list = null, shown = [], sel = 0, opener = null;
+  const yr = d => { inp.year = Math.min(2100, Math.max(2000, (+inp.year || A.baseYear) + d)); syncInputs(); changed(); };
+  function commands() {
+    const c = [];
+    document.querySelectorAll(".tab[data-tab]").forEach(b => c.push({ g: "انتقال", t: b.textContent.replace(/\s+/g, " ").trim(), run: () => showTab(b.dataset.tab) }));
+    A.countries.forEach((x, i) => c.push({ g: "الدولة", t: x.name, cur: i === inp.country, run: () => { if (i !== inp.country) setCountry(i); } }));
+    A.types.forEach((x, i) => c.push({ g: "نوع المنشأة", t: x.ar, cur: i === inp.type, run: () => { const s = $("in-type"); s.value = String(i); s.dispatchEvent(new Event("change")); syncInputs(); } }));
+    A.packages.forEach((p, i) => c.push({ g: "نطاق العمل", t: p.name, cur: i === inp.pkg, run: () => { const wasBuild = A.packages[inp.pkg] && A.packages[inp.pkg].w; inp.pkg = i; if (wasBuild && !A.packages[i].w) inp.scope = 0; syncInputs(); changed(); } }));
+    A.levels.forEach((l, i) => c.push({ g: "مستوى التسعير", t: l.name, cur: i === inp.level, run: () => { inp.level = i; syncInputs(); changed(); } }));
+    curC().locations.forEach((l, i) => c.push({ g: "موقع المشروع", t: l.name, cur: i === inp.loc, run: () => { inp.loc = i; syncInputs(); changed(); } }));
+    c.push({ g: "سنة التنفيذ", t: "السنة التالية (+1)", run: () => yr(1) }, { g: "سنة التنفيذ", t: "السنة السابقة (−1)", run: () => yr(-1) });
+    c.push({ g: "المظهر", t: "تبديل الوضع الليلي والنهاري", run: () => { const b = document.querySelector(".app .theme-btn"); if (b) b.click(); } });
+    return c;
+  }
+  function draw() {
+    list.replaceChildren();
+    if (!shown.length) { const e = document.createElement("li"); e.className = "cmdk-empty"; e.setAttribute("role", "presentation"); e.textContent = "ما لقيت نتيجة"; list.appendChild(e); return; }
+    shown.forEach((c, i) => {
+      const li = document.createElement("li"), g = document.createElement("small"), t = document.createElement("span");
+      li.id = "cmdk-" + i; li.setAttribute("role", "option"); li.setAttribute("aria-selected", String(i === sel));
+      g.textContent = c.g; t.textContent = c.t; li.append(g, t);
+      if (c.cur) { const k = document.createElement("span"); k.className = "cur"; k.textContent = "✓"; k.setAttribute("aria-label", "الحالي"); li.appendChild(k); }
+      li.addEventListener("pointermove", () => { if (sel !== i) { sel = i; mark(); } });
+      li.addEventListener("click", () => run(i));
+      list.appendChild(li);
+    });
+    mark();
+  }
+  function mark() {
+    list.querySelectorAll("li[role=option]").forEach((li, i) => li.setAttribute("aria-selected", String(i === sel)));
+    const cur = $("cmdk-" + sel); if (cur) { input.setAttribute("aria-activedescendant", cur.id); cur.scrollIntoView({ block: "nearest" }); }
+  }
+  function filter() {
+    const toks = norm(input.value).split(/\s+/).filter(Boolean), all = commands();
+    shown = (toks.length ? all.filter(c => { const h = norm(c.g + " " + c.t); return toks.every(t => h.includes(t)); }) : all).slice(0, 40);
+    sel = 0; draw();
+  }
+  function open() {
+    const a = app(); if (!a || a.hidden) return;
+    if (!root) {
+      root = document.createElement("div"); root.className = "cmdk-back"; root.hidden = true;
+      root.innerHTML = '<div class="cmdk" role="dialog" aria-modal="true" aria-label="بحث وأوامر"><input class="cmdk-in" type="text" role="combobox" aria-expanded="true" aria-controls="cmdk-list" aria-autocomplete="list" placeholder="اكتب للبحث: دولة، نوع منشأة، سنة، أو صفحة…" autocomplete="off" spellcheck="false"><ul id="cmdk-list" class="cmdk-list" role="listbox"></ul><div class="cmdk-foot"><span>↑ ↓ للتنقل</span><span>Enter للتنفيذ</span><span>Esc للإغلاق</span></div></div>';
+      document.body.appendChild(root);
+      input = root.querySelector(".cmdk-in"); list = root.querySelector(".cmdk-list");
+      input.addEventListener("input", filter);
+      root.addEventListener("pointerdown", e => { if (e.target === root) close(); });
+      root.addEventListener("keydown", e => {
+        if (e.key === "Escape") { e.preventDefault(); close(); }
+        else if (e.key === "ArrowDown") { e.preventDefault(); if (shown.length) { sel = (sel + 1) % shown.length; mark(); } }
+        else if (e.key === "ArrowUp") { e.preventDefault(); if (shown.length) { sel = (sel - 1 + shown.length) % shown.length; mark(); } }
+        else if (e.key === "Enter") { e.preventDefault(); run(sel); }
+        else if (e.key === "Tab") { e.preventDefault(); input.focus(); }
+      });
+    }
+    root.setAttribute("dir", a.getAttribute("dir") || "rtl"); root.setAttribute("lang", a.getAttribute("lang") || "ar");
+    opener = document.activeElement; input.value = ""; root.hidden = false; filter(); input.focus();
+  }
+  function close() { if (!root || root.hidden) return; root.hidden = true; if (opener && opener.focus) try { opener.focus(); } catch (e) {} }
+  function run(i) { const c = shown[i]; if (!c) return; close(); c.run(); }
+  document.addEventListener("keydown", e => {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey || !(e.code === "KeyK" || String(e.key).toLowerCase() === "k")) return;
+    const a = app(); if (!a || a.hidden) return;
+    e.preventDefault(); if (root && !root.hidden) close(); else open();
+  });
+  const b = $("d-cmdk"); if (b) b.addEventListener("click", open);
+})();
 
 function countUp(el, from, to) {
   if (!el) return;
@@ -1441,7 +1608,8 @@ function hideTip() { dTip.hidden = true; }
   $("d-level").addEventListener("change", e => { inp.level = +e.target.value; syncInputs(); changed(); });
   $("d-loc").addEventListener("change", e => { inp.loc = +e.target.value; syncInputs(); changed(); });
   $("d-to-calc").addEventListener("click", () => showTab("calc"));
-  let rw = 0; if (window.ResizeObserver) new ResizeObserver(() => { const w = pd.clientWidth; if (w && w !== rw) { rw = w; renderDash(); } }).observe(pd);
+  // يعيد الرسم عند تغيّر العرض فعلاً فقط (فرق صغير مثل ظهور شريط التمرير لا يقطع حركة الأعمدة)
+  if (window.ResizeObserver) new ResizeObserver(() => { const w = pd.clientWidth; if (w && Math.abs(w - dashRenderedW) > 24) renderDash(); }).observe(pd);
 })();
 
 $("btn-dash").addEventListener("click", () => showTab("dash"));
@@ -1953,7 +2121,7 @@ const LET = "ؠ-ٟٮ-ۓۺ-ۿ";           // Arabic letters (word boundaries)
 const HAS_AR = /[؀-ۿ]/;
 const PUNCT = { "،": ",", "؛": ";", "؟": "?", "«": "“", "»": "”", "←": "→" };
 const ATTRS = ["placeholder", "title", "aria-label", "label"];
-const UI2 = {"سعر البناء بالمتر المربع": "Building cost per m²", "سعر البناء للمتر المربع": "Building cost per m²", "شامل التشطيبات والأنظمة الكهروميكانيكية": "Including finishes and MEP systems", "التكلفة الشاملة للمتر المربع": "All-in cost per m²", "من سعر البناء إلى التكلفة الشاملة للمتر المربع": "From building cost to all-in cost per m²", "حسب مستوى التسعير": "By pricing level", "حسب الدولة (المدن الرئيسية)": "By country (main cities)", "أعمال المبنى شاملة التشطيبات": "Building works incl. finishes", "إنشائي ومعماري وتشطيبات وكهروميكانيكي وغازات طبية": "Structure, architecture, finishes, MEP and medical gases", "أعمال الموقع والبنية التحتية": "Site works and infrastructure", "من أعمال المبنى": "of building works", "من الأعمال": "of works", "من أعمال البناء": "of construction works", "تكلفة البناء الكاملة للمتر المربع": "Full construction cost per m²", "دون الأجهزة والتأثيث": "Excluding equipment and furniture", "الأجهزة الطبية والتأثيث": "Medical equipment and furniture", "مع احتياطيها": "with their contingency", "كل البنود": "All items", "سعر البناء المرجعي": "Reference building rate", "معامل نطاق العمل": "scope factor", "بأسعار سنة الأساس": "At base-year prices", "ويعادل": "equal to", "في سنة التنفيذ": "in execution year", "النطاق المختار لا يشمل البناء، فالسعر هنا مرجعي لمبنى جديد": "The selected scope excludes construction, so this is the reference rate for a new building", "بناء جديد": "New build", "سعر البناء الجديد لنفس المنشأة": "New-build rate for the same facility", "لوحة المؤشرات": "Dashboard", "مؤشرات التقدير الحالي ورسومه البيانية. أي تغيير هنا ينعكس على الحاسبة، واضغط على أي عمود أو نقطة لاعتمادها": "Indicators and charts for the current estimate. Any change here applies to the calculator; tap any bar or point to select it", "العودة إلى الحاسبة": "Back to calculator", "مكونات التكلفة": "Cost composition", "مقسّمة حسب مكونات التكلفة. اضغط على أي شريط لاعتماده": "Split by cost component. Tap any bar to select it", "عرض الجدول": "Show table", "التكلفة حسب الدولة": "Cost by country", "نفس المشروع في كل دولة، في المدن الرئيسية. اضغط على أي دولة لاعتمادها": "The same project in each country, in the main cities. Tap a country to select it", "أثر سنة التنفيذ": "Effect of execution year", "حساسية التقدير": "Estimate sensitivity", "الإجمالي عند تغيير عامل واحد مع تثبيت بقية المدخلات. اضغط على أي شريط لاعتماده": "Total when one factor changes and all other inputs stay fixed. Tap any bar to select it", "المبنى والموقع": "Building and site", "الاحتياطي والتصعيد": "Contingency and escalation", "تكلفة المتر المربع": "Cost per m²", "المساحة المعتمدة": "Area used", "حصة الأجهزة والتأثيث": "Equipment and furniture share", "من الإجمالي التقديري": "of the estimated total", "على مساحة": "over", "التصعيد السنوي": "Annual escalation", "من سنة الأساس": "from base year", "اضغط على أي سنة لاعتمادها": "Tap any year to select it", "عن التقدير الحالي": "vs. current estimate", "عن سنة": "vs.", "مقارنة مع": "vs.", "مليار": "bn", "مليون": "M", "ألف": "k"};
+const UI2 = {"بحث وأوامر": "Search & commands", "اكتب للبحث: دولة، نوع منشأة، سنة، أو صفحة…": "Type to search: country, facility type, year or page…", "↑ ↓ للتنقل": "↑ ↓ to move", "Enter للتنفيذ": "Enter to run", "Esc للإغلاق": "Esc to close", "ما لقيت نتيجة": "No results", "الحالي": "Current", "انتقال": "Go to", "السنة التالية (+1)": "Next year (+1)", "السنة السابقة (−1)": "Previous year (−1)", "تبديل الوضع الليلي والنهاري": "Toggle dark / light mode", "المظهر": "Appearance", "سعر البناء بالمتر المربع": "Building cost per m²", "سعر البناء للمتر المربع": "Building cost per m²", "شامل التشطيبات والأنظمة الكهروميكانيكية": "Including finishes and MEP systems", "التكلفة الشاملة للمتر المربع": "All-in cost per m²", "من سعر البناء إلى التكلفة الشاملة للمتر المربع": "From building cost to all-in cost per m²", "حسب مستوى التسعير": "By pricing level", "حسب الدولة (المدن الرئيسية)": "By country (main cities)", "أعمال المبنى شاملة التشطيبات": "Building works incl. finishes", "إنشائي ومعماري وتشطيبات وكهروميكانيكي وغازات طبية": "Structure, architecture, finishes, MEP and medical gases", "أعمال الموقع والبنية التحتية": "Site works and infrastructure", "من أعمال المبنى": "of building works", "من الأعمال": "of works", "من أعمال البناء": "of construction works", "تكلفة البناء الكاملة للمتر المربع": "Full construction cost per m²", "دون الأجهزة والتأثيث": "Excluding equipment and furniture", "الأجهزة الطبية والتأثيث": "Medical equipment and furniture", "مع احتياطيها": "with their contingency", "كل البنود": "All items", "سعر البناء المرجعي": "Reference building rate", "معامل نطاق العمل": "scope factor", "بأسعار سنة الأساس": "At base-year prices", "ويعادل": "equal to", "في سنة التنفيذ": "in execution year", "النطاق المختار لا يشمل البناء، فالسعر هنا مرجعي لمبنى جديد": "The selected scope excludes construction, so this is the reference rate for a new building", "بناء جديد": "New build", "سعر البناء الجديد لنفس المنشأة": "New-build rate for the same facility", "لوحة المؤشرات": "Dashboard", "مؤشرات التقدير الحالي ورسومه البيانية. أي تغيير هنا ينعكس على الحاسبة، واضغط على أي عمود أو نقطة لاعتمادها": "Indicators and charts for the current estimate. Any change here applies to the calculator; tap any bar or point to select it", "العودة إلى الحاسبة": "Back to calculator", "مكونات التكلفة": "Cost composition", "مقسّمة حسب مكونات التكلفة. اضغط على أي شريط لاعتماده": "Split by cost component. Tap any bar to select it", "عرض الجدول": "Show table", "التكلفة حسب الدولة": "Cost by country", "نفس المشروع في كل دولة، في المدن الرئيسية. اضغط على أي دولة لاعتمادها": "The same project in each country, in the main cities. Tap a country to select it", "أثر سنة التنفيذ": "Effect of execution year", "حساسية التقدير": "Estimate sensitivity", "الإجمالي عند تغيير عامل واحد مع تثبيت بقية المدخلات. اضغط على أي شريط لاعتماده": "Total when one factor changes and all other inputs stay fixed. Tap any bar to select it", "المبنى والموقع": "Building and site", "الاحتياطي والتصعيد": "Contingency and escalation", "تكلفة المتر المربع": "Cost per m²", "المساحة المعتمدة": "Area used", "حصة الأجهزة والتأثيث": "Equipment and furniture share", "من الإجمالي التقديري": "of the estimated total", "على مساحة": "over", "التصعيد السنوي": "Annual escalation", "من سنة الأساس": "from base year", "اضغط على أي سنة لاعتمادها": "Tap any year to select it", "عن التقدير الحالي": "vs. current estimate", "عن سنة": "vs.", "مقارنة مع": "vs.", "مليار": "bn", "مليون": "M", "ألف": "k"};
 let DICT = Object.assign({}, UI, UI2), RX = null;
 // unit names are plural after a number ("100 beds") and singular after "per", "—" or "(" ("per bed")
 const SG = { "beds": "bed", "emergency beds": "emergency bed", "day beds": "day bed", "clinics": "clinic", "mobile clinics": "mobile clinic",
