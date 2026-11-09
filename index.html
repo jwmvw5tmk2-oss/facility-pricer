@@ -515,6 +515,30 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
 }
 @media print{ .d-pre{opacity:1!important;transform:none!important} .cmdk-back,#d-cmdk{display:none!important} }
 
+/* ============ تفاعلات لكل الثيمات (فاتح وداكن ونيون): بقعة ضوء تتبع المؤشر، ميل خفيف، مؤشر تبويب منزلق، وحافة ضوئية دوّارة ============ */
+:root{--spot:rgba(11,77,56,.08)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--spot:rgba(95,192,146,.16)}}
+:root[data-theme="dark"]{--spot:rgba(95,192,146,.16)}
+:root[data-theme="neon"]{--spot:rgba(77,163,255,.20)}
+.card,.gate-card{background-image:radial-gradient(260px circle at var(--mx,-400px) var(--my,-400px),var(--spot),transparent 70%)}
+.btn,.btn.danger,#btn-export{background-image:radial-gradient(120px circle at var(--mx,-200px) var(--my,-200px),rgba(255,255,255,.28),transparent 70%)}
+.btn.ghost,.btn.warn-ghost,.lang-btn{background-image:radial-gradient(120px circle at var(--mx,-200px) var(--my,-200px),var(--spot),transparent 70%)}
+.tab-ink{display:block;position:absolute;left:0;bottom:0;height:3px;border-radius:3px;pointer-events:none;width:0;opacity:0;
+  background:linear-gradient(90deg,var(--pine),var(--brass));box-shadow:0 0 10px var(--brass-line)}
+.tabs.has-ink .tab[aria-selected="true"]{border-bottom-color:transparent}
+.summary::before,.d-tile.hero::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:conic-gradient(from var(--ang,0deg),transparent 0 55%,var(--brass) 76%,transparent 92%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+:root[data-theme="dark"] .d-donut svg{filter:drop-shadow(0 0 12px rgba(95,192,146,.28))}
+@media (prefers-reduced-motion:no-preference){
+  .tab-ink{transition:transform .45s cubic-bezier(.2,.8,.2,1),width .45s cubic-bezier(.2,.8,.2,1),opacity .2s}
+  .summary::before,.d-tile.hero::before{animation:nSpin2 7s linear infinite}
+  .d-tile,.summary{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .14s ease-out,box-shadow .22s ease,border-color .22s ease}
+}
+@media (prefers-reduced-motion:no-preference) and (hover:hover){
+  .d-tile:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-2px)}
+  .pane-in{animation-name:paneInBlur}
+}
 /* ============ ثيم «نيون زجاجي» — خلفية معدنية داكنة بخطوط ضوء زرقاء، وبطاقات زجاجية بحواف مضيئة ============ */
 :root[data-theme="neon"]{
   --paper:#03060d; --grid-minor:transparent; --grid-major:transparent; --glow:rgba(30,120,255,.14); --glow-2:rgba(0,200,255,.08);
@@ -586,7 +610,6 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
 :root[data-theme="neon"] .theme-btn{color:#5CE1E6}
 :root[data-theme="neon"] .linkbtn{color:#8ccaff}
 /* تبويبات: مؤشر مضيء ينزلق بين التبويبات */
-.tab-ink{display:none}
 :root[data-theme="neon"] .tab-ink{display:block;position:absolute;left:0;bottom:0;height:3px;border-radius:3px;pointer-events:none;
   background:linear-gradient(90deg,#2f8cff,#5CE1E6);box-shadow:0 0 14px rgba(92,225,230,.95),0 0 34px rgba(47,140,255,.7)}
 :root[data-theme="neon"] .tab[aria-selected="true"]{color:#fff;text-shadow:0 0 16px rgba(92,225,230,.75);border-bottom-color:transparent}
@@ -656,7 +679,6 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
   @keyframes chipPop{40%{transform:scale(.94)}}
 }
 @media (prefers-reduced-motion:no-preference) and (hover:hover){
-  :root[data-theme="neon"] .pane-in{animation-name:paneInBlur}
   @keyframes paneInBlur{from{opacity:0;filter:blur(10px);transform:translateY(12px) scale(.992)}to{opacity:1;filter:none;transform:none}}
 }
 @media (max-width:640px){:root[data-theme="neon"]{--blur:blur(12px) saturate(160%)}}
@@ -2699,7 +2721,6 @@ boot();
   const root = document.documentElement;
   const motion = () => !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
   const fine = () => !!(window.matchMedia && matchMedia("(hover:hover) and (pointer:fine)").matches);
-  const neon = () => root.getAttribute("data-theme") === "neon";
   const SEL = ".card, .d-tile, .btn, .tab, .lang-btn", TILT = ".d-tile, .summary";
   let cur = [], raf = 0, last = null;
   const clear = el => { ["--mx", "--my", "--rx", "--ry"].forEach(p => el.style.removeProperty(p)); };
@@ -2707,7 +2728,7 @@ boot();
   document.addEventListener("pointerleave", () => { cur.forEach(clear); cur = []; }, true);
   function frame() {
     raf = 0; const e = last; if (!e) return;
-    if (!neon() || !motion() || !fine()) { cur.forEach(clear); cur = []; return; }
+    if (!motion() || !fine()) { cur.forEach(clear); cur = []; return; }
     const t = e.target, hit = [], a = t && t.closest ? t.closest(SEL) : null;
     if (a) { hit.push(a); const c = a.parentElement && a.parentElement.closest(".card"); if (c && c !== a) hit.push(c); }
     cur.forEach(el => { if (!hit.includes(el)) clear(el); });
@@ -2733,8 +2754,8 @@ boot();
     let k = tabs.querySelector(".tab-ink");
     if (!k) { k = document.createElement("span"); k.className = "tab-ink"; k.setAttribute("aria-hidden", "true"); tabs.appendChild(k); }
     const t = tabs.querySelector('.tab[aria-selected="true"]');
-    if (!t || !t.offsetWidth) { k.style.opacity = "0"; return; }
-    k.style.opacity = "1"; k.style.width = t.offsetWidth + "px"; k.style.transform = `translateX(${t.offsetLeft}px)`;
+    if (!t || !t.offsetWidth) { k.style.opacity = "0"; tabs.classList.remove("has-ink"); return; }
+    tabs.classList.add("has-ink"); k.style.opacity = "1"; k.style.width = t.offsetWidth + "px"; k.style.transform = `translateX(${t.offsetLeft}px)`;
   }
   // ظهور الصفحة (انتقال ضبابي) وظهور البطاقات تباعاً عند وصولها للشاشة
   let io = null, ioT = 0;
