@@ -598,6 +598,7 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
 :root[data-theme="neon"] select:focus,:root[data-theme="neon"] input:focus,:root[data-theme="neon"] textarea:focus{outline:0;border-color:#6bb4ff;box-shadow:0 0 0 3px rgba(77,163,255,.28),0 0 26px -4px rgba(77,163,255,.6)}
 /* أزرار */
 .btn,.tab,.lang-btn{position:relative;overflow:hidden}
+.tab{flex:none}   /* بدون هذا تتقلّص التبويبات ويُقطع نصها بسبب overflow المستخدم للتموّج */
 :root[data-theme="neon"] .btn{border:1px solid rgba(140,200,255,.55);color:#fff;
   background-image:radial-gradient(120px circle at var(--mx,-200px) var(--my,-200px),rgba(255,255,255,.3),transparent 70%),linear-gradient(135deg,#3b9bff,#1a64ff);
   box-shadow:0 10px 28px -10px rgba(47,140,255,.85),inset 0 1px 0 rgba(255,255,255,.35)}
