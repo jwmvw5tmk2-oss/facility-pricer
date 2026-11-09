@@ -598,6 +598,7 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
 :root[data-theme="neon"] select:focus,:root[data-theme="neon"] input:focus,:root[data-theme="neon"] textarea:focus{outline:0;border-color:#6bb4ff;box-shadow:0 0 0 3px rgba(77,163,255,.28),0 0 26px -4px rgba(77,163,255,.6)}
 /* أزرار */
 .btn,.tab,.lang-btn{position:relative;overflow:hidden}
+.tab{flex:none}   /* بدون هذا تتقلّص التبويبات ويُقطع نصها بسبب overflow المستخدم للتموّج */
 :root[data-theme="neon"] .btn{border:1px solid rgba(140,200,255,.55);color:#fff;
   background-image:radial-gradient(120px circle at var(--mx,-200px) var(--my,-200px),rgba(255,255,255,.3),transparent 70%),linear-gradient(135deg,#3b9bff,#1a64ff);
   box-shadow:0 10px 28px -10px rgba(47,140,255,.85),inset 0 1px 0 rgba(255,255,255,.35)}
@@ -672,14 +673,14 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
   .g-view:not([hidden]){animation:gIn .5s cubic-bezier(.2,.7,.2,1) backwards}
   @keyframes gIn{from{opacity:0;filter:blur(8px);transform:translateY(8px)}to{opacity:1;filter:none;transform:none}}
   .pane-in{animation:paneIn .5s cubic-bezier(.2,.7,.2,1) backwards}
-  @keyframes paneIn{from{opacity:0;transform:translateY(12px) scale(.992)}to{opacity:1;transform:none}}
+  @keyframes paneIn{from{opacity:0;transform:translateX(calc(var(--pdir,0)*34px)) translateY(12px) scale(.992)}to{opacity:1;transform:none}}
   .d-arc{animation:dArc .9s cubic-bezier(.2,.7,.2,1) backwards}
   @keyframes dArc{from{stroke-dasharray:0 var(--c)}}
   .chip input:checked+span{animation:chipPop .28s ease-out}
   @keyframes chipPop{40%{transform:scale(.94)}}
 }
 @media (prefers-reduced-motion:no-preference) and (hover:hover){
-  @keyframes paneInBlur{from{opacity:0;filter:blur(10px);transform:translateY(12px) scale(.992)}to{opacity:1;filter:none;transform:none}}
+  @keyframes paneInBlur{from{opacity:0;filter:blur(10px);transform:translateX(calc(var(--pdir,0)*34px)) translateY(12px) scale(.992)}to{opacity:1;filter:none;transform:none}}
 }
 @media (max-width:640px){:root[data-theme="neon"]{--blur:blur(12px) saturate(160%)}}
 @media print{
@@ -687,6 +688,77 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
   :root[data-theme="neon"] h1,:root[data-theme="neon"] .card>h2,:root[data-theme="neon"] .page-head h2,:root[data-theme="neon"] .kpi.main .value,:root[data-theme="neon"] .d-tile.hero .val .num,:root[data-theme="neon"] .d-m2-head .num{
     background:none!important;-webkit-text-fill-color:currentColor!important;color:#111!important;filter:none!important}
 }
+/* ============ المستوى الثاني من التفاعل: لمس وتمرير وعمق وربط بين الرسوم ============ */
+.kpi,.d-tile{position:relative}
+.d-line svg{touch-action:pan-y}
+.d-bar .f,.d-meter span{position:relative;overflow:hidden}
+:root{--o1:rgba(11,77,56,.13);--o2:rgba(184,137,43,.13);--o3:rgba(11,77,56,.09)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--o1:rgba(95,192,146,.16);--o2:rgba(221,181,78,.10);--o3:rgba(95,192,146,.10)}}
+:root[data-theme="dark"]{--o1:rgba(95,192,146,.16);--o2:rgba(221,181,78,.10);--o3:rgba(95,192,146,.10)}
+:root[data-theme="neon"]{--o1:rgba(47,140,255,.34);--o2:rgba(0,220,255,.22);--o3:rgba(90,110,255,.26)}
+.orb{position:fixed;z-index:-1;pointer-events:none;border-radius:50%;filter:blur(36px);width:42vmax;height:42vmax;opacity:.9}
+.orb.o1{left:-12vmax;top:8vh;background:radial-gradient(circle,var(--o1),transparent 65%);--k:26;--s:-.06}
+.orb.o2{right:-14vmax;top:42vh;background:radial-gradient(circle,var(--o2),transparent 65%);--k:-34;--s:-.09}
+.orb.o3{left:30vw;bottom:-20vmax;background:radial-gradient(circle,var(--o3),transparent 65%);--k:18;--s:-.04}
+.cursor-glow{position:fixed;left:0;top:0;width:440px;height:440px;margin:-220px 0 0 -220px;border-radius:50%;pointer-events:none;z-index:-1;opacity:0;
+  background:radial-gradient(circle,var(--spot),transparent 68%)}
+.cursor-glow.on{opacity:1}
+.shock{position:fixed;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;pointer-events:none;z-index:300;border:2px solid var(--brass);
+  box-shadow:0 0 18px var(--brass),inset 0 0 12px var(--brass-line)}
+.delta{position:absolute;top:8px;inset-inline-end:12px;padding:1px 9px;border-radius:999px;font-size:.72rem;font-weight:700;pointer-events:none;direction:ltr;z-index:2}
+.delta.up{background:var(--warn-soft);color:var(--warn)}
+.delta.down{background:var(--ok-soft);color:var(--ok)}
+.d-tile .delta{top:56px}
+.d-spark{position:absolute;inset-inline-end:16px;top:12px;width:120px;height:34px;overflow:visible;pointer-events:none}
+.d-spark .ln{fill:none;stroke:var(--brass);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px var(--brass-line))}
+.d-spark .dot{fill:var(--brass);filter:drop-shadow(0 0 6px var(--brass));transform-box:fill-box;transform-origin:center}
+#d-mix-card[data-hl] .d-arc,#d-mix-card[data-hl] .blk,#d-mix-card[data-hl] .d-rows .r,#d-mix-card[data-hl] .d-legend span{opacity:.3}
+#d-mix-card[data-hl="0"] [data-k="0"]{opacity:1}
+#d-mix-card[data-hl="0"] .d-arc[data-k="0"]{stroke-width:19}
+#d-mix-card[data-hl="1"] [data-k="1"]{opacity:1}
+#d-mix-card[data-hl="1"] .d-arc[data-k="1"]{stroke-width:19}
+#d-mix-card[data-hl="2"] [data-k="2"]{opacity:1}
+#d-mix-card[data-hl="2"] .d-arc[data-k="2"]{stroke-width:19}
+#d-mix-card[data-hl="3"] [data-k="3"]{opacity:1}
+#d-mix-card[data-hl="3"] .d-arc[data-k="3"]{stroke-width:19}
+#d-mix-card[data-hl="4"] [data-k="4"]{opacity:1}
+#d-mix-card[data-hl="4"] .d-arc[data-k="4"]{stroke-width:19}
+
+.d-mix-hint{display:none}
+@media (prefers-reduced-motion:no-preference){
+  body::before{translate:0 calc(var(--sy,0)*-.03px);scale:1.06}
+  .orb{will-change:transform;translate:calc(var(--px,0)*var(--k,20)*1px) calc(var(--py,0)*var(--k,20)*1px + var(--sy,0)*var(--s,-.05)*1px);transition:translate .6s ease-out;animation:orbDrift 22s ease-in-out infinite alternate}
+  .orb.o2{animation-duration:29s;animation-direction:alternate-reverse}.orb.o3{animation-duration:35s}
+  @keyframes orbDrift{to{transform:translate3d(4vmax,-3vmax,0) scale(1.12)}}
+  .cursor-glow{will-change:transform;transition:transform .28s ease-out,opacity .4s}
+  .shock{animation:shock .75s ease-out forwards}
+  @keyframes shock{to{transform:scale(10);opacity:0;border-width:1px}}
+  .btn,.tab,.lang-btn,.chip span,.d-bar,.bar-row,.d-tile,.d-seg .blk{transition-property:background,border-color,color,box-shadow,transform,scale,opacity,filter;
+    transition-duration:.15s,.15s,.15s,.22s,.14s,.42s,.2s,.2s;transition-timing-function:ease,ease,ease,ease,ease-out,cubic-bezier(.34,1.56,.64,1),ease,ease}
+  .btn:active,.tab:active,.lang-btn:active,.chip:active span,.d-tile:active,.d-seg .blk:active{scale:.96}
+  .d-bar:active,.bar-row:active{scale:.985}
+  .card:not(.inputs):not(.d-tile){translate:0 calc(var(--sp,0)*12px);scale:calc(1 - var(--sp,0)*var(--sp,0)*.02)}
+  .gate-card{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .14s ease-out}
+  .delta{animation:deltaUp 2s ease-out forwards}
+  @keyframes deltaUp{0%{opacity:0;transform:translateY(8px)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
+  .flash{animation:flash .85s ease-out}
+  @keyframes flash{0%{box-shadow:0 0 0 0 var(--brass-line)}100%{box-shadow:0 0 0 20px transparent}}
+  .d-bar .f::after,.d-meter span::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);transform:translateX(-130%);animation:shimmer 3.6s ease-in-out infinite}
+  .d-bar:nth-child(2n) .f::after{animation-delay:1.1s}.d-bar:nth-child(3n) .f::after{animation-delay:2.2s}
+  @keyframes shimmer{60%,100%{transform:translateX(130%)}}
+  .card>h2::before{animation:barGlow 3.6s ease-in-out infinite}
+  @keyframes barGlow{50%{box-shadow:0 0 12px var(--brass-line)}}
+  .chip input:checked+span{animation:chipPop .28s ease-out,chipRing .65s ease-out}
+  @keyframes chipRing{from{box-shadow:0 0 0 0 var(--brass-line)}to{box-shadow:0 0 0 14px transparent}}
+  .d-hold .d-arc,.d-hold .ln.draw,.d-hold .wash.fade,.d-hold .d-seg.d-rev,.d-hold .d-spark .ln{animation-play-state:paused}
+  .d-spark .ln{stroke-dasharray:1;stroke-dashoffset:1;animation:dDraw 1.2s ease-out .3s forwards}
+  .d-spark .dot{animation:dotPulse 2.2s ease-in-out infinite}
+  @keyframes dotPulse{50%{transform:scale(1.5);opacity:.7}}
+  #d-mix-card[data-hl] .d-arc,#d-mix-card[data-hl] .blk,#d-mix-card[data-hl] .d-rows .r,#d-mix-card[data-hl] .d-legend span{transition:opacity .2s,stroke-width .2s}
+  html.scrolled .tabs{box-shadow:var(--shadow),0 14px 40px -14px var(--brass-line)}
+}
+@media print{.orb,.cursor-glow,.shock,.delta,.d-spark{display:none!important}}
+@media (max-width:640px){.top .actions #btn-export{flex:1 1 100%;order:9}}
 @media (prefers-reduced-motion:reduce){ .d-bar .f,.d-seg .blk{transition:none} }
 </style>
 <style id="fit-one-screen">
@@ -1455,6 +1527,14 @@ function renderDash() {
     kNow.forEach((v, i) => { if (kEls[i] && v > 0) countUp(kEls[i], dashWasHidden ? 0 : dashPrevK ? dashPrevK[i] : null, v); });
     dashPrevK = kNow;
   }
+  {   // خط مصغّر لأثر السنوات داخل بطاقة الإجمالي
+    const host = $("d-total").closest(".d-tile"), n = 11, y0 = A.baseYear, W = 120, H = 34;
+    const sv = Array.from({ length: n }, (_, i) => computeProject(Object.assign({}, inp, { year: y0 + i }), A).cols[k].total);
+    const lo = Math.min(...sv), hi = Math.max(...sv), rtl = (document.querySelector(".app").getAttribute("dir") || "rtl") === "rtl";
+    const sel = Math.min(n - 1, Math.max(0, (Number(inp.year) || y0) - y0));
+    const X = i => (rtl ? W - i * W / (n - 1) : i * W / (n - 1)), Y = v => H - 4 - (hi > lo ? (v - lo) / (hi - lo) : .5) * (H - 10);
+    if (host) host.insertAdjacentHTML("beforeend", `<svg class="d-spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline class="ln" pathLength="1" points="${sv.map((v, i) => X(i).toFixed(1) + "," + Y(v).toFixed(1)).join(" ")}"/><circle class="dot" r="3.2" cx="${X(sel).toFixed(1)}" cy="${Y(sv[sel]).toFixed(1)}"/></svg>`);
+  }
 
   // building rate per m² and the build-up to the all-in cost per m²
   {
@@ -1503,17 +1583,17 @@ function renderDash() {
   $("d-mix-sub").textContent = `${SC[k]} — ${R.pk.name}`;
   $("d-mix").setAttribute("aria-label", parts.filter(p => p.v > 0).map(p => `${p.name} ${pct(p.v / tot)}`).join("، "));
   $("d-mix").innerHTML = parts.filter(p => p.v > 0).map(p =>
-    `<span class="blk" tabindex="0" style="flex:${(p.v / tot).toFixed(4)} 1 0;background:${PART_COL[p.i]};color:${PART_INK[p.i]}" ${tipAttr(p.name, [[fmt(p.v) + " ر.س", pct(p.v / tot), PART_COL[p.i]]])}><b>${pct(p.v / tot)}</b></span>`).join("");
-  const legend = parts.map(p => `<span><i style="background:${PART_COL[p.i]}"></i>${esc(p.name)}</span>`).join("");
+    `<span class="blk" tabindex="0" data-k="${p.i}" style="flex:${(p.v / tot).toFixed(4)} 1 0;background:${PART_COL[p.i]};color:${PART_INK[p.i]}" ${tipAttr(p.name, [[fmt(p.v) + " ر.س", pct(p.v / tot), PART_COL[p.i]]])}><b>${pct(p.v / tot)}</b></span>`).join("");
+  const legend = parts.map(p => `<span data-k="${p.i}"><i style="background:${PART_COL[p.i]}"></i>${esc(p.name)}</span>`).join("");
   $("d-legend").innerHTML = legend; $("d-legend2").innerHTML = legend;
   {   // حلقة المكونات: تنمو عند كل تحديث، وتتوهج في الثيم النيون
     const Rr = 52, Cc = 2 * Math.PI * Rr; let off = 0;
     const arcs = parts.filter(p => p.v > 0).map(p => { const len = p.v / tot * Cc;
-      const a = `<circle class="d-arc" cx="70" cy="70" r="${Rr}" fill="none" stroke="${PART_COL[p.i]}" stroke-width="14" tabindex="0" style="--len:${Math.max(len - 2.5, 0.5).toFixed(2)};--c:${Cc.toFixed(2)};stroke-dashoffset:${(-off).toFixed(2)}" ${tipAttr(p.name, [[fmt(p.v) + " ر.س", pct(p.v / tot), PART_COL[p.i]]])}/>`;
+      const a = `<circle class="d-arc" cx="70" cy="70" r="${Rr}" fill="none" stroke="${PART_COL[p.i]}" stroke-width="14" tabindex="0" data-k="${p.i}" data-n="${esc(p.name)}" data-p="${pct(p.v / tot)}" style="--len:${Math.max(len - 2.5, 0.5).toFixed(2)};--c:${Cc.toFixed(2)};stroke-dashoffset:${(-off).toFixed(2)}" ${tipAttr(p.name, [[fmt(p.v) + " ر.س", pct(p.v / tot), PART_COL[p.i]]])}/>`;
       off += len; return a; }).join("");
     $("d-donut").innerHTML = `<svg viewBox="0 0 140 140" role="img" aria-label="${esc(trD("مكونات التكلفة"))}"><circle cx="70" cy="70" r="${Rr}" fill="none" stroke="var(--d-mute)" stroke-opacity=".25" stroke-width="14"/><g transform="rotate(-90 70 70)">${arcs}</g><text x="70" y="67" text-anchor="middle" class="dn-v">${esc(fmtC(col.total))}</text><text x="70" y="83" text-anchor="middle" class="dn-l">${esc(trD("ر.س"))}</text></svg>`;
   }
-  $("d-mix-rows").innerHTML = parts.map(p => `<div class="r"><i style="background:${PART_COL[p.i]}"></i><span>${esc(p.name)}</span><span class="a">${fmt(p.v)}</span><span class="p">${pct(p.v / tot)}</span></div>`).join("") +
+  $("d-mix-rows").innerHTML = parts.map(p => `<div class="r" data-k="${p.i}"><i style="background:${PART_COL[p.i]}"></i><span>${esc(p.name)}</span><span class="a">${fmt(p.v)}</span><span class="p">${pct(p.v / tot)}</span></div>`).join("") +
     `<div class="r tot"><i></i><span>الإجمالي التقديري (ر.س)</span><span class="a">${fmt(col.total)}</span><span class="p">100%</span></div>`;
   requestAnimationFrame(() => document.querySelectorAll("#d-mix .blk").forEach(b => { const t = b.querySelector("b"); t.style.visibility = (b.clientWidth >= t.scrollWidth + 16) ? "" : "hidden"; }));
 
@@ -1576,7 +1656,11 @@ function motionPass() {
   });
   moves.forEach(m => { m[0].style.transition = "none"; m[0].style.width = m[1] == null ? "0%" : m[1]; });
   void pd.offsetWidth;
-  moves.forEach(m => { m[0].style.transition = ""; m[0].style.transitionDelay = m[1] == null ? Math.min(m[3], 14) * 35 + "ms" : "0ms"; m[0].style.width = m[2]; });
+  const lazy = first && "IntersectionObserver" in window;
+  moves.forEach(m => {
+    if (lazy && m[1] == null && m[0].closest(".d-card, .d-tile")) { m[0].dataset.to = m[2]; return; }   // تنمو عند وصول البطاقة للشاشة
+    m[0].style.transition = ""; m[0].style.transitionDelay = m[1] == null ? Math.min(m[3], 14) * 35 + "ms" : "0ms"; m[0].style.width = m[2];
+  });
   // 2) شريط المكونات: الحصص تتحرك بين القيم القديمة والجديدة
   const segs = [];
   pd.querySelectorAll("#d-mix .blk").forEach(el => {
@@ -1598,11 +1682,15 @@ function motionPass() {
   if (revealIO) revealIO.disconnect();
   if (!("IntersectionObserver" in window)) return;
   revealIO = new IntersectionObserver(es => { let n = 0;
-    es.forEach(e => { if (!e.isIntersecting) return; const el = e.target; revealIO.unobserve(el);
+    es.forEach(e => { if (!e.isIntersecting) return; const el = e.target; revealIO.unobserve(el); releaseHeld(el);
       el.style.setProperty("--dl", Math.min(n++, 8) * 70 + "ms"); el.classList.add("d-in");
       setTimeout(() => { el.classList.remove("d-pre", "d-in"); el.style.removeProperty("--dl"); }, 1100); });
   }, { threshold: 0.08 });
-  pd.querySelectorAll(".d-filters, .d-tile, .d-card").forEach(el => { el.classList.add("d-pre"); revealIO.observe(el); });
+  pd.querySelectorAll(".d-filters, .d-tile, .d-card").forEach(el => { el.classList.add("d-pre", "d-hold"); revealIO.observe(el); });
+}
+function releaseHeld(card) {   // تُطلَق الأعمدة والرسوم المحجوزة حين تظهر البطاقة
+  card.classList.remove("d-hold"); let i = 0;
+  card.querySelectorAll("[data-to]").forEach(b => { b.style.transition = ""; b.style.transitionDelay = Math.min(i++, 10) * 40 + "ms"; b.style.width = b.dataset.to; delete b.dataset.to; });
 }
 
 /* ---------------- لوحة الأوامر (Ctrl+K) ---------------- */
@@ -1677,10 +1765,21 @@ function motionPass() {
   const b = $("d-cmdk"); if (b) b.addEventListener("click", open);
 })();
 
+function flashDelta(el, from, to) {   // شارة صغيرة تُظهر نسبة تغيّر الإجمالي (ارتفاع التكلفة أو انخفاضها)
+  if (!(from > 0) || !(to >= 0)) return;
+  const p = (to - from) / from * 100; if (Math.abs(p) < 0.05) return;
+  const host = el.closest(".kpi, .d-tile"); if (!host) return;
+  host.querySelectorAll(".delta").forEach(d => d.remove());
+  const b = document.createElement("span"); b.className = "delta " + (p > 0 ? "up" : "down"); b.setAttribute("aria-hidden", "true");
+  b.textContent = (p > 0 ? "▲ +" : "▼ −") + Math.abs(p).toFixed(Math.abs(p) < 10 ? 1 : 0) + "%";
+  host.appendChild(b); setTimeout(() => b.remove(), 2100);
+  host.classList.remove("flash"); void host.offsetWidth; host.classList.add("flash"); setTimeout(() => host.classList.remove("flash"), 900);
+}
 function countUp(el, from, to) {
   if (!el) return;
   const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (from == null || reduce || from === to) { el._cu = null; el.textContent = fmt(to); return; }
+  if (el.id === "k-total" || el.id === "d-total") flashDelta(el, from, to);
   const t0 = performance.now(), d = 450, tok = el._cu = {};   // الحركة الأحدث تلغي السابقة
   const step = now => { const p = Math.min(1, (now - t0) / d), e = 1 - Math.pow(1 - p, 3);
     if (!el.isConnected || el._cu !== tok) return; el.textContent = fmt(from + (to - from) * e); if (p < 1) requestAnimationFrame(step); };
@@ -2721,14 +2820,24 @@ boot();
   const root = document.documentElement;
   const motion = () => !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
   const fine = () => !!(window.matchMedia && matchMedia("(hover:hover) and (pointer:fine)").matches);
-  const SEL = ".card, .d-tile, .btn, .tab, .lang-btn", TILT = ".d-tile, .summary";
+  const SEL = ".card, .d-tile, .btn, .tab, .lang-btn, .gate-card", TILT = ".d-tile, .summary, .gate-card";
   let cur = [], raf = 0, last = null;
   const clear = el => { ["--mx", "--my", "--rx", "--ry"].forEach(p => el.style.removeProperty(p)); };
-  document.addEventListener("pointermove", e => { if (e.pointerType === "touch") return; last = e; if (!raf) raf = requestAnimationFrame(frame); }, { passive: true });
+  let pressing = false;
+  document.addEventListener("pointerdown", e => { if (e.pointerType === "touch") pressing = true; last = e; if (!raf) raf = requestAnimationFrame(frame); }, { passive: true });
+  const rel = () => { pressing = false; setTimeout(() => { if (!pressing) { cur.forEach(clear); cur = []; } }, 380); };
+  document.addEventListener("pointerup", rel, { passive: true }); document.addEventListener("pointercancel", rel, { passive: true });
+  document.addEventListener("pointermove", e => { if (e.pointerType === "touch" && !pressing) return; last = e; if (!raf) raf = requestAnimationFrame(frame); }, { passive: true });
   document.addEventListener("pointerleave", () => { cur.forEach(clear); cur = []; }, true);
+  document.documentElement.addEventListener("pointerleave", () => { const gl = document.querySelector(".cursor-glow"); if (gl) gl.classList.remove("on"); });
   function frame() {
     raf = 0; const e = last; if (!e) return;
-    if (!motion() || !fine()) { cur.forEach(clear); cur = []; return; }
+    if (!motion()) { cur.forEach(clear); cur = []; return; }
+    if (e.pointerType !== "touch") {   // عمق الخلفية يتبع الماوس
+      root.style.setProperty("--px", ((e.clientX / innerWidth - .5) * 2).toFixed(3)); root.style.setProperty("--py", ((e.clientY / innerHeight - .5) * 2).toFixed(3));
+      const gl = document.querySelector(".cursor-glow"); if (gl) { gl.classList.add("on"); gl.style.transform = `translate3d(${e.clientX}px,${e.clientY}px,0)`; }
+    }
+    if (!fine() && !pressing) { cur.forEach(clear); cur = []; return; }
     const t = e.target, hit = [], a = t && t.closest ? t.closest(SEL) : null;
     if (a) { hit.push(a); const c = a.parentElement && a.parentElement.closest(".card"); if (c && c !== a) hit.push(c); }
     cur.forEach(el => { if (!hit.includes(el)) clear(el); });
@@ -2774,16 +2883,89 @@ boot();
     if (!p || !motion()) return;
     p.classList.remove("pane-in"); void p.offsetWidth; p.classList.add("pane-in"); setTimeout(() => p.classList.remove("pane-in"), 700);
     if (p.id !== "p-dash") cards(p);
+    if (window.__watchCards) window.__watchCards();
   }
   function init() {
     const app = document.querySelector(".app"); if (!app) return;
     const tabs = app.querySelector(".tabs");
-    if (tabs) { new MutationObserver(ink).observe(tabs, { attributes: true, subtree: true, attributeFilter: ["aria-selected"] }); }
+    let prevTab = null;
+    const onTabs = () => { const t = tabs && tabs.querySelector('.tab[aria-selected="true"]'); if (t && prevTab && t !== prevTab) root.style.setProperty("--pdir", t.offsetLeft > prevTab.offsetLeft ? 1 : -1); if (t) prevTab = t; ink(); };
+    if (tabs) { new MutationObserver(onTabs).observe(tabs, { attributes: true, subtree: true, attributeFilter: ["aria-selected"] }); }
     app.querySelectorAll('[role="tabpanel"]').forEach(p => new MutationObserver(() => { if (!p.hidden) { paneIn(p); ink(); } }).observe(p, { attributes: true, attributeFilter: ["hidden"] }));
     new MutationObserver(() => { if (!app.hidden) { setTimeout(ink, 60); setTimeout(ink, 500); const v = app.querySelector('[role="tabpanel"]:not([hidden])'); if (v) paneIn(v); } }).observe(app, { attributes: true, attributeFilter: ["hidden"] });
     window.addEventListener("resize", ink);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(ink);
-    ink();
+    ink(); depth(app);
+  }
+  /* طبقة العمق: كرات ضوء تتبع الماوس والتمرير والإمالة، موجة عند اللمس، تمرير مواز للبطاقات، سحب بين الأقسام، وربط الحلقة بالشريط */
+  function depth(app) {
+    ["o1", "o2", "o3"].forEach(c => { const d = document.createElement("div"); d.className = "orb " + c; d.setAttribute("aria-hidden", "true"); document.body.appendChild(d); });
+    const g = document.createElement("div"); g.className = "cursor-glow"; g.setAttribute("aria-hidden", "true"); document.body.appendChild(g);
+    // موجة تنتشر من نقطة اللمس أو النقر
+    document.addEventListener("pointerdown", e => {
+      if (!motion() || (e.target.closest && e.target.closest("input,select,textarea,.cmdk-back"))) return;
+      const s = document.createElement("i"); s.className = "shock"; s.setAttribute("aria-hidden", "true"); s.style.left = e.clientX + "px"; s.style.top = e.clientY + "px";
+      document.body.appendChild(s); setTimeout(() => s.remove(), 800);
+    }, { passive: true });
+    // تمرير مواز: البطاقات تتحرك وتتقلّص قليلاً قرب حافة الشاشة، والخلفية تتزحزح مع التمرير
+    const vis = new Set(); let sraf = 0;
+    const vio = "IntersectionObserver" in window ? new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) vis.add(en.target); else vis.delete(en.target); }), { rootMargin: "25% 0px" }) : null;
+    window.__watchCards = () => { if (vio) document.querySelectorAll(".card:not(.inputs):not(.d-tile)").forEach(el => vio.observe(el)); };
+    window.__watchCards();
+    function sframe() {
+      sraf = 0; const y = window.scrollY || 0;
+      root.style.setProperty("--sy", y.toFixed(0)); root.classList.toggle("scrolled", y > 24);
+      if (!motion()) return; const vh = innerHeight;
+      vis.forEach(el => { const r = el.getBoundingClientRect(), c = r.top + r.height / 2; el.style.setProperty("--sp", Math.max(-1, Math.min(1, (c - vh / 2) / (vh / 2 + r.height / 2))).toFixed(3)); });
+    }
+    window.addEventListener("scroll", () => { if (!sraf) sraf = requestAnimationFrame(sframe); }, { passive: true });
+    // إمالة الجهاز (أندرويد): الكرات والخلفية تتحرك مع الإمالة. في آيفون تحتاج إذناً صريحاً فلا نطلبه
+    if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission !== "function" && !fine()) {
+      let gr = 0;
+      window.addEventListener("deviceorientation", e => {
+        if (!motion() || e.gamma == null || gr) return;
+        gr = requestAnimationFrame(() => { gr = 0; root.style.setProperty("--px", Math.max(-1, Math.min(1, e.gamma / 30)).toFixed(3)); root.style.setProperty("--py", Math.max(-1, Math.min(1, ((e.beta || 45) - 45) / 30)).toFixed(3)); });
+      }, { passive: true });
+    }
+    // سحب أفقي بين الأقسام (باللمس)
+    let sx = 0, sy = 0, st = 0, ok = false;
+    const goTab = d => { const list = [...document.querySelectorAll(".tabs .tab[data-tab]")].filter(b => b.offsetParent); const i = list.findIndex(b => b.getAttribute("aria-selected") === "true"); const n = list[i + d]; if (n) n.click(); };
+    document.addEventListener("touchstart", e => {
+      if (e.touches.length !== 1 || app.hidden) { ok = false; return; }
+      const t = e.touches[0]; ok = !(e.target.closest && e.target.closest("input,select,textarea,.tablewrap,.d-line,.tabs,.cmdk-back,summary"));
+      sx = t.clientX; sy = t.clientY; st = Date.now();
+    }, { passive: true });
+    document.addEventListener("touchend", e => {
+      if (!ok) return; ok = false;
+      const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      if (Date.now() - st > 650 || Math.abs(dx) < 80 || Math.abs(dy) > Math.abs(dx) * 0.5) return;
+      const rtl = (app.getAttribute("dir") || "rtl") === "rtl"; goTab((rtl ? dx > 0 : dx < 0) ? 1 : -1);
+    }, { passive: true });
+    // ربط الحلقة بالشريط وبالصفوف: التمرير أو اللمس على جزء يُبرزه في الكل
+    const card = document.getElementById("d-mix-card");
+    if (card) {
+      const on = k => {
+        card.dataset.hl = k;
+        const a = card.querySelector(`.d-arc[data-k="${k}"]`), v = card.querySelector(".dn-v"), l = card.querySelector(".dn-l");
+        if (a && v && l) { if (v.dataset.o == null) { v.dataset.o = v.textContent; l.dataset.o = l.textContent; } v.textContent = a.dataset.p; l.textContent = a.dataset.n; }
+      };
+      const off = () => {
+        delete card.dataset.hl;
+        const v = card.querySelector(".dn-v"), l = card.querySelector(".dn-l");
+        if (v && v.dataset.o != null) { v.textContent = v.dataset.o; delete v.dataset.o; } if (l && l.dataset.o != null) { l.textContent = l.dataset.o; delete l.dataset.o; }
+      };
+      const kOf = e => e.target.closest && e.target.closest("[data-k]");
+      let pin = null;   // باللمس: الضغطة تثبّت الإبراز حتى تضغط على جزء آخر أو خارج الحلقة
+      card.addEventListener("pointerover", e => { if (pin != null || e.pointerType === "touch") return; const t = kOf(e); if (t) on(t.dataset.k); });
+      card.addEventListener("pointerout", e => { if (pin != null || e.pointerType === "touch") return; const t = kOf(e); if (t && !(e.relatedTarget && t.contains(e.relatedTarget))) off(); });
+      card.addEventListener("click", e => {
+        const t = kOf(e);
+        if (t && pin !== t.dataset.k) { pin = t.dataset.k; on(pin); } else { pin = null; off(); }
+      });
+      document.addEventListener("pointerdown", e => { if (pin != null && !(e.target.closest && e.target.closest("#d-mix-card"))) { pin = null; off(); } }, { passive: true });
+      card.addEventListener("focusin", e => { if (pin != null) return; const t = kOf(e); if (t) on(t.dataset.k); });
+      card.addEventListener("focusout", () => { if (pin == null) off(); });
+    }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
