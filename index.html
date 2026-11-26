@@ -771,6 +771,50 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
 :root.lite .kpi.main .value,:root.lite .d-tile.hero .val .num,:root.lite .d-m2-head .num{filter:none}
 :root.lite .summary::before,:root.lite .d-tile.hero::before,:root.lite .d-spark .dot{animation:none}
 @media (prefers-reduced-motion:reduce){ .d-bar .f,.d-seg .blk{transition:none} }
+
+/* ---------- bill of quantities ---------- */
+.bq-actions{display:flex;flex-wrap:wrap;gap:8px}
+.bq-kpis{margin-bottom:10px}
+.bq-basis{font-size:.8rem;color:var(--muted);margin:0 2px 12px;max-width:120ch}
+.bq-drv-box{margin-bottom:12px;padding:12px 16px}
+.bq-drv-box>summary{font-size:.9rem}
+.bq-drv-box>.hint{margin:6px 0 10px}
+.bq-drv{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px 14px}
+.bq-d span:first-child{font-size:.78rem}
+.bq-d-in{display:flex;gap:6px;align-items:center}
+.bq-d input{padding:5px 8px}
+.bq-d small{font-size:.7rem;line-height:1.4}
+.bq-d.ed input{border-color:var(--brass);background:var(--brass-soft)}
+.bq-tools{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto auto;gap:10px 14px;align-items:end;padding:10px 16px;margin-bottom:12px}
+@media (max-width:760px){.bq-tools{grid-template-columns:minmax(0,1fr)}}
+.bq-chk{display:flex;gap:6px;align-items:center;font-size:.82rem;white-space:nowrap;padding-bottom:9px}
+.bq-card{padding:0;overflow:hidden}
+.bq-card .tablewrap{border:0;border-radius:0;max-height:none}
+.bq-table td,.bq-table th{vertical-align:middle;padding:5px 10px}
+.bq-table .en{font-size:.7rem}
+.bq-table input[type=number]{width:7.5em;padding:4px 7px;text-align:left}
+.bq-table td.n:nth-child(4) input{width:5.5em}
+.bq-table .bq-name{min-width:16em;padding:4px 7px}
+.bq-table select{padding:4px 6px;font-size:.78rem}
+.bq-table tr.bq-dep td{background:var(--pine-soft)!important;color:var(--ink);border-top:1px solid var(--line-2)}
+.bq-table tr.bq-dep b{color:var(--pine)}
+.bq-table tr.ed td{background:var(--brass-soft)!important}
+.bq-table tr.off td{opacity:.5}
+.bq-table tr.off td:nth-child(2){text-decoration:line-through}
+.bq-table tr.added td{background:color-mix(in srgb,var(--ok-soft) 70%,transparent)!important}
+.bq-table tfoot td{font-weight:700;background:var(--pine-soft)}
+.bq-was{display:block;font-size:.68rem;color:var(--muted);text-decoration:line-through}
+.bq-cat{font-size:.72rem;border-radius:999px;padding:1px 8px;white-space:nowrap;border:1px solid var(--line-2);color:var(--muted)}
+.bq-cat.c-me{color:var(--pine);border-color:var(--pine)}
+.bq-cat.c-mf{color:var(--brass);border-color:var(--brass-line)}
+.linkbtn.danger{color:var(--warn)}
+.bq-none{margin-bottom:12px}
+@media print{
+  body.print-boq #p-boq .bq-actions,body.print-boq #p-boq .bq-tools,body.print-boq #p-boq .bq-drv-box,body.print-boq #p-boq td:last-child,body.print-boq #p-boq th:last-child{display:none!important}
+  #p-boq .bq-table input,#p-boq .bq-table select{border:0;background:none;box-shadow:none;padding:0;width:auto;appearance:none;-webkit-appearance:none}
+  #p-boq .bq-was{display:none}
+  #p-boq tr{break-inside:avoid}
+}
 </style>
 <style id="fit-one-screen">
 /* ===== calculator on one screen (desktop): the inputs panel fills the column height, results stack beside it; fitCalc scales only if needed ===== */
@@ -932,6 +976,7 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
   <nav class="tabs" role="tablist" aria-label="أقسام البرنامج">
     <button class="tab" role="tab" id="t-calc" data-tab="calc" aria-selected="true">الحاسبة</button>
     <button class="tab" role="tab" id="t-dash" data-tab="dash" aria-selected="false">لوحة المؤشرات</button>
+    <button class="tab" role="tab" id="t-boq" data-tab="boq" aria-selected="false">جدول الكميات</button>
     <button class="tab" role="tab" id="t-ref" data-tab="ref" aria-selected="false">جدول سعر السرير</button>
     <button class="tab" role="tab" id="t-brk" data-tab="brk" aria-selected="false">تفصيل التكلفة</button>
     <button class="tab" role="tab" id="t-as" data-tab="as" aria-selected="false">الافتراضات</button>
@@ -1085,6 +1130,40 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
       </div>
     </section>
 
+    <!-- ================= BILL OF QUANTITIES ================= -->
+    <section id="p-boq" role="tabpanel" aria-labelledby="t-boq" hidden>
+      <div class="page-head">
+        <div>
+          <h2>جدول كميات التجهيزات</h2>
+          <p id="bq-desc"></p>
+        </div>
+        <div class="bq-actions">
+          <button type="button" class="btn ghost" id="bq-to-calc">العودة إلى الحاسبة</button>
+          <button type="button" class="btn ghost" id="bq-reset">استعادة الجدول القياسي</button>
+          <button type="button" class="btn ghost" id="bq-print">طباعة الجدول</button>
+          <button type="button" class="btn" id="bq-export">تصدير إلى Excel</button>
+        </div>
+      </div>
+      <div class="card bq-none" id="bq-none" hidden>
+        <h2>لا يوجد جدول كميات لنوع <span id="bq-none-type"></span></h2>
+        <p class="hint">يُسعَّر هذا النوع بطريقة سعر الوحدة كما في السابق. جداول الكميات متاحة حالياً للمستشفيات والمراكز الطبية، وتُضاف بقية الأنواع تباعاً.</p>
+      </div>
+      <div class="d-kpis bq-kpis" id="bq-kpis"></div>
+      <p class="bq-basis" id="bq-basis"></p>
+      <details class="card bq-drv-box" id="bq-drv-box">
+        <summary>مدخلات التخطيط (أعداد الأقسام والغرف التي تُبنى عليها الكميات)</summary>
+        <p class="hint">محسوبة من عدد الوحدات بنسب وزارة الصحة السعودية وFGI. عدّل أي رقم ليتغير الجدول كله تلقائياً.</p>
+        <div class="bq-drv" id="bq-drv"></div>
+      </details>
+      <div class="card bq-tools" id="bq-tools">
+        <label class="field"><span>بحث في البنود</span><input type="text" id="bq-search" placeholder="مثال: جهاز تنفس" autocomplete="off"></label>
+        <label class="field"><span>الفئة</span><select id="bq-cat"></select></label>
+        <label class="bq-chk"><input type="checkbox" id="bq-edonly"> البنود المعدلة فقط</label>
+        <span class="hint" id="bq-count"></span>
+      </div>
+      <div class="card bq-card" id="bq-card"><div class="tablewrap"><table class="bq-table" id="bq-table"></table></div></div>
+    </section>
+
     <!-- ================= REFERENCE TABLE ================= -->
     <section id="p-ref" role="tabpanel" aria-labelledby="t-ref" hidden>
       <div class="page-head">
@@ -1169,6 +1248,613 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel-2) 60%,tran
 </div>
 
 <script>
+/* HFCE equipment library: bill of quantities for furnishing and equipping health facilities.
+   Prices: SAR, mid pricing level (CE/FDA, delivered, installed and commissioned, 2026 base year).
+   Quantities: planning ratios after Saudi MOH design guidelines, FGI Guidelines and the
+   international Health Facility Guidelines (iHFG), applied per department. */
+(function () {
+  const CATS = {
+    me: { ar: "أجهزة طبية رئيسية", en: "Major medical equipment", grp: "e" },
+    mm: { ar: "أجهزة طبية متوسطة وصغيرة", en: "Medium and minor medical equipment", grp: "e" },
+    mf: { ar: "أثاث طبي", en: "Medical furniture", grp: "e" },
+    gf: { ar: "أثاث عام", en: "General furniture", grp: "f" },
+    it: { ar: "تقنية المعلومات والاتصالات", en: "IT and communications", grp: "f" }
+  };
+  // id: [Arabic name, English name, category, unit price SAR, unit]
+  const I = {
+    // ---- beds and patient furniture
+    bed_e: ["سرير مريض كهربائي ثلاثي الحركة مع مرتبة", "Electric hospital bed, 3-function, with mattress", "mf", 18000],
+    bed_icu: ["سرير عناية مركزة كهربائي مع مرتبة هوائية", "ICU electric bed with air mattress", "mf", 48000],
+    bed_ped: ["سرير أطفال بحواجز جانبية", "Paediatric cot bed with side rails", "mf", 9500],
+    bed_psy: ["سرير نفسي مقاوم للعبث مع مرتبة", "Anti-ligature psychiatric bed with mattress", "mf", 9000],
+    bed_burn: ["سرير حروق بالهواء المتدفق", "Air-fluidised burns bed", "me", 185000],
+    bed_iso: ["سرير عزل كهربائي مع مرتبة", "Electric isolation bed with mattress", "mf", 20000],
+    bed_tfc: ["سرير أطفال للتغذية العلاجية", "Therapeutic feeding cot", "mf", 3500],
+    bassinet: ["سرير مولود (باسينيت)", "Newborn bassinet", "mf", 3500],
+    otable: ["طاولة طعام فوق السرير", "Overbed table", "mf", 1300],
+    bcab: ["خزانة جانبية للسرير", "Bedside cabinet", "mf", 2200],
+    recl: ["كرسي مريض متعدد الأوضاع", "Patient recliner chair", "mf", 4200],
+    ivp: ["حامل محاليل متنقل", "IV pole, mobile", "mf", 650],
+    vchair: ["كرسي مرافق", "Visitor chair", "gf", 650],
+    // ---- monitoring and life support
+    mon_icu: ["جهاز مراقبة مريض متعدد القياسات للعناية المركزة", "ICU multi-parameter patient monitor", "me", 58000],
+    mon_vs: ["جهاز قياس العلامات الحيوية", "Vital signs monitor", "mm", 12500],
+    mon_mid: ["جهاز مراقبة مريض متوسط", "Patient monitor, mid-acuity", "mm", 32000],
+    mon_neo: ["جهاز مراقبة حديثي الولادة", "Neonatal patient monitor", "mm", 38000],
+    mon_tr: ["جهاز مراقبة نقل المرضى", "Transport monitor", "mm", 42000],
+    cms: ["محطة مراقبة مركزية", "Central monitoring station", "me", 125000],
+    vent_icu: ["جهاز تنفس صناعي للعناية المركزة", "ICU ventilator", "me", 145000],
+    vent_tr: ["جهاز تنفس صناعي للنقل", "Transport ventilator", "me", 72000],
+    vent_neo: ["جهاز تنفس صناعي لحديثي الولادة", "Neonatal ventilator", "me", 185000],
+    niv: ["جهاز تنفس غير باضع (BiPAP)", "Non-invasive ventilator (BiPAP)", "mm", 48000],
+    hfnc: ["جهاز أكسجين عالي التدفق", "High-flow nasal oxygen system", "mm", 32000],
+    cpap_neo: ["جهاز CPAP لحديثي الولادة", "Neonatal CPAP", "mm", 45000],
+    inf: ["مضخة محاليل", "Infusion pump", "mm", 9000],
+    syr: ["مضخة حقن", "Syringe pump", "mm", 8000],
+    defib: ["جهاز صدمات كهربائية مع شاشة مراقبة", "Defibrillator-monitor", "mm", 46000],
+    aed: ["جهاز صدمات آلي (AED)", "Automated external defibrillator", "mm", 9500],
+    ecg: ["جهاز تخطيط قلب 12 قناة", "ECG, 12-lead", "mm", 23000],
+    pend_icu: ["وحدة إمداد سقفية للعناية المركزة", "ICU ceiling supply pendant", "me", 88000],
+    gas_set: ["طقم منفذ أكسجين وشفط (منظم وقارورة)", "Oxygen flowmeter and suction regulator set", "mm", 2100],
+    suc_p: ["جهاز شفط متنقل", "Portable suction unit", "mm", 6500],
+    abg: ["جهاز تحليل غازات الدم", "Blood gas analyser", "me", 88000],
+    vlaryn: ["منظار حنجرة بالفيديو", "Video laryngoscope", "mm", 32000],
+    bladder: ["جهاز مسح المثانة", "Bladder scanner", "mm", 48000],
+    pulseox: ["جهاز قياس الأكسجين المحمول", "Handheld pulse oximeter", "mm", 1600],
+    gluco: ["جهاز قياس السكر", "Glucometer", "mm", 450],
+    neb: ["جهاز بخار (نيبولايزر)", "Nebuliser", "mm", 1400],
+    bpm: ["جهاز ضغط دم حائطي", "Wall-mounted sphygmomanometer", "mm", 1300],
+    diag: ["طقم فحص تشخيصي حائطي (منظار أذن وعين)", "Wall diagnostic set (oto/ophthalmoscope)", "mm", 5200],
+    exlight: ["كشاف فحص متنقل", "Examination light, mobile", "mm", 4800],
+    scale: ["ميزان مريض رقمي مع مقياس طول", "Digital patient scale with height rod", "mm", 3800],
+    scale_inf: ["ميزان أطفال رقمي", "Digital infant scale", "mm", 2600],
+    warmer_pt: ["جهاز تدفئة المريض", "Patient warming system", "mm", 22000],
+    blwarm: ["جهاز تدفئة الدم والمحاليل", "Blood and fluid warmer", "mm", 14000],
+    lift: ["رافعة مرضى", "Patient lift", "mm", 26000],
+    vein: ["جهاز كشف الأوردة", "Vein viewer", "mm", 28000],
+    dopp: ["جهاز دوبلر محمول", "Handheld Doppler", "mm", 4500],
+    // ---- trolleys and transport
+    crash: ["عربة إنعاش مجهزة", "Crash cart, equipped", "mf", 9500],
+    medtrol: ["عربة أدوية", "Medication trolley", "mf", 6500],
+    dress: ["عربة غيارات وعلاج", "Dressing and treatment trolley", "mf", 3600],
+    linen: ["عربة بياضات", "Linen trolley", "mf", 2600],
+    instr: ["طاولة أدوات جراحية", "Instrument table", "mf", 4200],
+    mayo: ["طاولة مايو", "Mayo table", "mf", 2800],
+    wchair: ["كرسي متحرك", "Wheelchair", "mf", 1900],
+    str_tr: ["نقالة نقل مرضى هيدروليكية", "Hydraulic transfer stretcher", "mf", 14000],
+    str_er: ["نقالة طوارئ متعددة الأوضاع", "Emergency multi-position stretcher", "mf", 26000],
+    couch: ["سرير فحص", "Examination couch", "mf", 3800],
+    couch_gyn: ["سرير فحص نسائي", "Gynaecological examination couch", "mf", 22000],
+    screen: ["ستارة فاصلة متنقلة", "Mobile privacy screen", "mf", 1600],
+    stool: ["كرسي فحص للطبيب", "Doctor examination stool", "mf", 900],
+    medfr: ["ثلاجة أدوية طبية", "Medical refrigerator", "mm", 19000],
+    narc: ["خزانة أدوية مخدرة", "Controlled-drug cabinet", "mf", 9500],
+    // ---- emergency
+    resus: ["وحدة إنعاش متكاملة (سقفية)", "Resuscitation bay pendant system", "me", 95000],
+    splint: ["طقم جبائر ونقل إصابات", "Trauma splint and immobilisation set", "mm", 9000],
+    suture: ["طقم خياطة وإجراءات صغرى", "Minor procedures and suture set", "mm", 6000],
+    pocus: ["جهاز موجات صوتية محمول", "Point-of-care ultrasound", "me", 125000],
+    // ---- surgery
+    anes: ["جهاز تخدير متكامل", "Anaesthesia workstation", "me", 245000],
+    ortab: ["طاولة عمليات كهروهيدروليكية", "Electro-hydraulic operating table", "me", 225000],
+    orlight: ["كشاف عمليات LED مزدوج مع كاميرا", "Double LED surgical light with camera", "me", 165000],
+    pend_or: ["وحدات إمداد سقفية للتخدير والجراحة", "Anaesthesia and surgical ceiling pendants", "me", 185000],
+    esu: ["جهاز كي كهربائي جراحي", "Electrosurgical unit", "me", 88000],
+    mon_or: ["جهاز مراقبة للتخدير", "Anaesthesia patient monitor", "me", 68000],
+    lapa: ["برج مناظير جراحية متكامل 4K", "Laparoscopy tower, 4K", "me", 950000],
+    instset: ["أطقم أدوات جراحية عامة وتخصصية", "General and specialty surgical instrument sets", "mm", 260000],
+    tourn: ["جهاز رباط ضاغط (تورنيكيه)", "Pneumatic tourniquet", "mm", 38000],
+    carm: ["جهاز أشعة سي آرم", "Mobile C-arm", "me", 680000],
+    warmcab: ["خزانة تدفئة محاليل وبطانيات", "Fluid and blanket warming cabinet", "mm", 36000],
+    micro_or: ["مجهر جراحي", "Surgical microscope", "me", 650000],
+    hlm: ["جهاز القلب والرئة الصناعي", "Heart-lung machine", "me", 1250000],
+    iabp: ["جهاز البالون الأبهري", "Intra-aortic balloon pump", "me", 320000],
+    cellsav: ["جهاز استرجاع الدم", "Cell saver", "me", 220000],
+    str_pacu: ["نقالة إفاقة متعددة الأوضاع", "Recovery stretcher", "mf", 32000],
+    // ---- maternity and neonatal
+    delbed: ["سرير ولادة كهربائي", "Electric delivery bed", "me", 88000],
+    ctg: ["جهاز مراقبة الجنين (CTG)", "Fetal monitor (CTG)", "mm", 46000],
+    iwarm: ["جهاز تدفئة الرضيع (المهد الدافئ)", "Infant radiant warmer", "mm", 56000],
+    resusc: ["وحدة إنعاش حديثي الولادة", "Neonatal resuscitation unit", "me", 92000],
+    vac: ["جهاز شفط الولادة", "Vacuum extractor", "mm", 16000],
+    delset: ["طقم أدوات ولادة", "Delivery instrument set", "mm", 9000],
+    incu: ["حاضنة أطفال", "Infant incubator", "me", 98000],
+    incu_tr: ["حاضنة نقل مع جهاز تنفس", "Transport incubator with ventilator", "me", 260000],
+    photo: ["جهاز علاج ضوئي للصفراء", "Phototherapy unit", "mm", 26000],
+    bili: ["جهاز قياس الصفراء عبر الجلد", "Transcutaneous bilirubinometer", "mm", 32000],
+    breastp: ["جهاز شفط حليب الأم", "Breast pump, hospital grade", "mm", 9000],
+    // ---- imaging
+    xr_dr: ["جهاز أشعة سينية رقمي ثابت (DR)", "Digital radiography room (DR)", "me", 920000],
+    xr_mob: ["جهاز أشعة متنقل رقمي", "Mobile digital X-ray", "me", 460000],
+    us_gen: ["جهاز موجات صوتية عام متقدم", "General ultrasound, high-end", "me", 360000],
+    us_mid: ["جهاز موجات صوتية متوسط", "Ultrasound, mid-range", "me", 220000],
+    echo: ["جهاز إيكو القلب", "Echocardiography system", "me", 480000],
+    ct: ["جهاز أشعة مقطعية 64–128 شريحة", "CT scanner, 64–128 slice", "me", 3000000],
+    mri: ["جهاز رنين مغناطيسي 1.5 تسلا", "MRI 1.5T", "me", 7550000],
+    mammo: ["جهاز ماموجرام رقمي مع توموسنثيسيس", "Digital mammography with tomosynthesis", "me", 1250000],
+    fluoro: ["جهاز أشعة تلفزيونية (فلوروسكوبي)", "Fluoroscopy system", "me", 1850000],
+    dexa: ["جهاز قياس كثافة العظام", "Bone densitometer (DEXA)", "me", 460000],
+    opg: ["جهاز أشعة بانورامية للأسنان", "Dental panoramic X-ray (OPG)", "me", 260000],
+    pacs: ["نظام أرشفة الصور الطبية (PACS)", "PACS", "it", 650000],
+    cr_print: ["طابعة أفلام أشعة جافة", "Dry film printer", "mm", 55000],
+    leadap: ["مرايل رصاص وواقيات إشعاع", "Lead aprons and radiation shields", "mm", 9000],
+    // ---- cardiology
+    cath: ["جهاز قسطرة قلبية أحادي المستوى", "Single-plane cardiac cath lab", "me", 5000000],
+    stress: ["جهاز اختبار الجهد", "Exercise stress test system", "me", 125000],
+    holter: ["جهاز هولتر لتخطيط القلب", "Holter ECG recorder", "mm", 22000],
+    abpm: ["جهاز ضغط 24 ساعة", "Ambulatory BP monitor", "mm", 15000],
+    // ---- endoscopy
+    endo: ["برج مناظير الجهاز الهضمي مع المناظير", "GI endoscopy tower with scopes", "me", 1250000],
+    bronch: ["منظار قصبات مرن", "Flexible bronchoscope system", "me", 260000],
+    aer: ["جهاز غسيل وتعقيم المناظير", "Endoscope reprocessor (AER)", "me", 230000],
+    scopecab: ["خزانة تجفيف وحفظ المناظير", "Endoscope drying cabinet", "mm", 85000],
+    // ---- dialysis
+    hd: ["جهاز غسيل كلوي", "Haemodialysis machine", "me", 88000],
+    hdchair: ["كرسي غسيل كلوي كهربائي", "Electric dialysis chair", "mf", 19000],
+    ro: ["محطة معالجة مياه الغسيل (RO) مع التوزيع", "Dialysis RO water plant with loop", "me", 480000],
+    // ---- laboratory and blood bank
+    chem: ["جهاز كيمياء حيوية آلي", "Automated clinical chemistry analyser", "me", 650000],
+    immuno: ["جهاز مناعة وهرمونات آلي", "Automated immunoassay analyser", "me", 520000],
+    hema: ["جهاز تحليل دم شامل خماسي", "5-part haematology analyser", "me", 185000],
+    coag: ["جهاز تخثر الدم", "Coagulation analyser", "mm", 125000],
+    elec: ["جهاز أملاح الدم", "Electrolyte analyser", "mm", 48000],
+    urin: ["جهاز تحليل البول", "Urine analyser", "mm", 62000],
+    hba1c: ["جهاز السكر التراكمي", "HbA1c analyser", "mm", 62000],
+    esr: ["جهاز سرعة الترسيب", "ESR analyser", "mm", 28000],
+    bact: ["جهاز زراعة الدم", "Blood culture system", "me", 260000],
+    idast: ["جهاز تعريف البكتيريا والحساسية", "Microbial ID/AST system", "me", 460000],
+    pcr: ["جهاز PCR آلي", "Real-time PCR system", "me", 320000],
+    bsc: ["كابينة سلامة حيوية فئة II", "Biosafety cabinet class II", "mm", 72000],
+    cent: ["جهاز طرد مركزي", "Centrifuge", "mm", 26000],
+    micro: ["مجهر ثنائي العدسة", "Binocular microscope", "mm", 26000],
+    labfr: ["ثلاجة مختبر", "Laboratory refrigerator", "mm", 21000],
+    frz20: ["فريزر −20", "Freezer, −20 °C", "mm", 26000],
+    frz80: ["فريزر −80", "Ultra-low freezer, −80 °C", "mm", 95000],
+    labinc: ["حاضنة مختبر", "Laboratory incubator", "mm", 32000],
+    labac: ["معقم مختبر", "Laboratory autoclave", "mm", 85000],
+    wbath: ["حمام مائي", "Water bath", "mm", 9000],
+    bbfr: ["ثلاجة بنك الدم", "Blood bank refrigerator", "mm", 58000],
+    plfr: ["فريزر البلازما", "Plasma freezer", "mm", 85000],
+    plag: ["حاضنة وهزاز الصفائح", "Platelet incubator and agitator", "mm", 62000],
+    bbcent: ["جهاز طرد مركزي لأكياس الدم", "Blood bag centrifuge", "me", 125000],
+    xmatch: ["نظام توافق الدم (جل)", "Gel card crossmatch system", "mm", 65000],
+    donor: ["كرسي متبرع بالدم مع خلاط", "Blood donor chair with mixer", "mf", 18000],
+    apher: ["جهاز فصل مكونات الدم", "Apheresis machine", "me", 260000],
+    labbench: ["طاولات ورفوف المختبر", "Laboratory benches and shelving", "gf", 38000],
+    // ---- sterile services
+    ster_l: ["معقم بخاري كبير", "Large steam steriliser", "me", 650000],
+    ster_lt: ["معقم بلازما بدرجة حرارة منخفضة", "Low-temperature plasma steriliser", "me", 560000],
+    wd: ["جهاز غسيل وتطهير الأدوات", "Washer-disinfector", "me", 330000],
+    usc: ["جهاز تنظيف بالموجات فوق الصوتية", "Ultrasonic cleaner", "mm", 62000],
+    dryc: ["خزانة تجفيف", "Drying cabinet", "mm", 62000],
+    seal: ["جهاز لحام أكياس التعقيم", "Pouch sealer", "mm", 16000],
+    ster_s: ["معقم طاولة فئة B", "Benchtop steriliser, class B", "mm", 36000],
+    cssdrack: ["رفوف وعربات التعقيم", "CSSD racks and transport carts", "mf", 95000],
+    // ---- pharmacy
+    pharshelf: ["رفوف وأدراج الصيدلية", "Pharmacy shelving and drawers", "gf", 65000],
+    isol: ["كابينة تحضير الأدوية الكيميائية", "Cytotoxic compounding isolator", "me", 260000],
+    lamin: ["كابينة تدفق هوائي للتحضير المعقم", "Laminar airflow cabinet", "mm", 72000],
+    // ---- rehabilitation
+    pcouch: ["سرير علاج طبيعي كهربائي", "Electric treatment couch", "mf", 9500],
+    etx: ["جهاز علاج كهربائي متعدد", "Electrotherapy combination unit", "mm", 38000],
+    ustx: ["جهاز علاج بالموجات فوق الصوتية", "Therapeutic ultrasound", "mm", 26000],
+    swd: ["جهاز موجات قصيرة", "Shortwave diathermy", "mm", 46000],
+    tread: ["سير مشي علاجي", "Rehabilitation treadmill", "mm", 38000],
+    bike: ["دراجة تمارين علاجية", "Exercise bike", "mm", 22000],
+    pbars: ["متوازي المشي", "Parallel bars", "mf", 13000],
+    hotpack: ["جهاز كمادات ساخنة", "Hydrocollator", "mm", 16000],
+    traction: ["جهاز شد الفقرات", "Traction unit", "mm", 48000],
+    cpm: ["جهاز تحريك المفاصل المستمر", "CPM machine", "mm", 32000],
+    otset: ["تجهيزات العلاج الوظيفي", "Occupational therapy equipment set", "mm", 85000],
+    gym: ["تجهيزات صالة التأهيل (سلالم وأثقال ومرايا)", "Rehab gym equipment set", "mm", 65000],
+    hydro: ["حوض علاج مائي", "Hydrotherapy tank", "me", 260000],
+    // ---- dental
+    dunit: ["وحدة أسنان متكاملة", "Dental unit, complete", "me", 125000],
+    dxr: ["جهاز أشعة أسنان صغير", "Intraoral dental X-ray", "mm", 26000],
+    dset: ["أطقم أدوات وقبضات الأسنان", "Dental instruments and handpieces", "mm", 28000],
+    // ---- eye
+    slit: ["جهاز المصباح الشقي", "Slit lamp", "mm", 65000],
+    phaco: ["جهاز فاكو لإزالة الماء الأبيض", "Phacoemulsification system", "me", 460000],
+    oct: ["جهاز تصوير الشبكية المقطعي (OCT)", "Optical coherence tomography", "me", 380000],
+    fundus: ["كاميرا قاع العين", "Fundus camera", "me", 190000],
+    autoref: ["جهاز قياس النظر الآلي", "Autorefractometer", "mm", 72000],
+    laser_eye: ["جهاز ليزر العيون", "Ophthalmic laser", "me", 420000],
+    eyechart: ["وحدة فحص النظر (لوحة وكرسي)", "Refraction unit with chart and chair", "mm", 85000],
+    // ---- oncology and radiotherapy
+    chemochair: ["كرسي علاج كيميائي كهربائي", "Electric chemotherapy chair", "mf", 22000],
+    linac: ["معجّل خطي للعلاج الإشعاعي", "Linear accelerator", "me", 11000000],
+    ctsim: ["جهاز محاكاة مقطعية للعلاج الإشعاعي", "CT simulator", "me", 3200000],
+    tps: ["نظام تخطيط العلاج الإشعاعي", "Treatment planning system", "it", 1200000],
+    brachy: ["جهاز العلاج الإشعاعي الداخلي", "HDR brachytherapy", "me", 3100000],
+    dosim: ["أجهزة قياس الجرعات الإشعاعية", "Dosimetry and QA equipment", "me", 900000],
+    // ---- psychiatry
+    ect: ["جهاز العلاج بالجلسات الكهربائية", "ECT unit", "me", 150000],
+    psyfur: ["أثاث غرف مقاوم للعبث (لكل سرير)", "Anti-ligature room furniture (per bed)", "mf", 7500],
+    // ---- isolation and nutrition
+    hepa: ["وحدة تنقية هواء متنقلة HEPA", "Mobile HEPA air purifier", "mm", 18000],
+    o2conc: ["مكثف أكسجين", "Oxygen concentrator", "mm", 9000],
+    muac: ["طقم قياسات التغذية (أشرطة وموازين)", "Anthropometry kit", "mm", 4500],
+    tfcset: ["تجهيزات تحضير الحليب العلاجي", "Therapeutic milk preparation set", "mm", 18000],
+    // ---- burns
+    burn_dress: ["تجهيزات غرفة الغيارات للحروق", "Burns dressing room equipment", "me", 160000],
+    dermatome: ["جهاز أخذ الطعوم الجلدية", "Dermatome and mesher", "mm", 95000],
+    // ---- IVF
+    icsi: ["محطة الحقن المجهري (ICSI)", "ICSI micromanipulation workstation", "me", 480000],
+    ivfinc: ["حاضنة أجنة", "Embryo incubator", "me", 125000],
+    cryo: ["خزانات حفظ بالتبريد العميق", "Cryostorage dewars", "mm", 45000],
+    ivfhood: ["كابينة عمل لمختبر الأجنة", "IVF workstation hood", "me", 140000],
+    // ---- diabetes
+    retcam: ["كاميرا فحص الشبكية لمرضى السكري", "Non-mydriatic retinal camera", "me", 185000],
+    footcare: ["تجهيزات العناية بالقدم السكرية", "Diabetic foot care set", "mm", 45000],
+    // ---- mortuary
+    morg: ["ثلاجة موتى (لكل جثة)", "Mortuary refrigerator, per body", "me", 26000],
+    atable: ["طاولة تشريح", "Autopsy table", "me", 125000],
+    btrol: ["عربة نقل جثث", "Body trolley", "mf", 9500],
+    // ---- support services
+    kitchen: ["تجهيزات المطبخ (طبخ وتبريد وغسيل) لكل سرير", "Kitchen equipment, per bed", "mm", 6500],
+    foodtrol: ["عربة توزيع وجبات ساخنة وباردة", "Heated/cooled meal trolley", "mf", 26000],
+    laundry: ["تجهيزات المغسلة (غسالات ونشافات وكوي) لكل سرير", "Laundry equipment, per bed", "mm", 5500],
+    biomed: ["تجهيزات ورشة الهندسة الطبية", "Biomedical workshop equipment", "mm", 180000],
+    waste: ["عربات وحاويات النفايات الطبية", "Medical waste carts and bins", "mf", 2500],
+    hk: ["عربات وأدوات النظافة", "Housekeeping carts and equipment", "mf", 3200],
+    amb: ["سيارة إسعاف مجهزة بالكامل", "Ambulance, fully equipped", "me", 460000],
+    mobveh: ["مركبة عيادة متنقلة مع التحويل", "Mobile clinic vehicle with conversion", "me", 420000],
+    vacfr: ["ثلاجة لقاحات معتمدة من منظمة الصحة العالمية مع صناديق تبريد", "WHO-PQS vaccine refrigerator with cold boxes", "mm", 15000],
+    delbed_m: ["سرير ولادة يدوي", "Manual delivery bed", "mf", 18000],
+    ambu: ["طقم إنعاش يدوي (كبار وأطفال وحديثي ولادة)", "Manual resuscitator set (adult, paediatric, neonatal)", "mm", 2400],
+    hema_s: ["جهاز تحليل دم ثلاثي", "3-part haematology analyser", "mm", 48000],
+    chem_s: ["جهاز كيمياء نصف آلي", "Semi-automated chemistry analyser", "mm", 32000],
+    rdt: ["قارئ الفحوص السريعة وأجهزة الفحص في نقطة الرعاية", "Rapid test reader and point-of-care testing set", "mm", 12000],
+    phcshelf: ["رفوف صيدلية ومستودع صغيرة", "Small pharmacy and store shelving", "gf", 9000],
+    // ---- general furniture
+    desk: ["مكتب موظف مع كرسي", "Staff desk with chair", "gf", 3600],
+    mdesk: ["مكتب مدير مع كرسي وطاولة اجتماعات صغيرة", "Manager desk set", "gf", 9500],
+    meet: ["طاولة اجتماعات مع كراسي (10 أشخاص)", "Meeting table with chairs (10)", "gf", 14000],
+    wait3: ["كراسي انتظار ثلاثية", "Waiting chairs, 3-seat beam", "gf", 2600],
+    cabf: ["خزانة ملفات", "Filing cabinet", "gf", 1900],
+    locker: ["خزائن موظفين (4 أبواب)", "Staff lockers (4-door)", "gf", 2200],
+    nstat: ["كاونتر محطة التمريض مع الكراسي", "Nurse station counter with chairs", "gf", 32000],
+    recep: ["كاونتر استقبال مع الكراسي", "Reception counter with chairs", "gf", 35000],
+    dine: ["طاولة طعام مع 4 كراسي", "Dining table with 4 chairs", "gf", 2800],
+    oncall: ["أثاث غرفة مناوبة (سرير وخزانة ومكتب)", "On-call room furniture set", "gf", 7500],
+    shelf: ["رفوف تخزين معدنية", "Steel storage shelving", "gf", 1800],
+    classr: ["أثاث قاعة تدريب (لكل مقعد)", "Training room furniture, per seat", "gf", 1100],
+    // ---- IT and communications
+    pc: ["حاسب مكتبي مع شاشة", "Desktop computer with monitor", "it", 4800],
+    lapt: ["حاسب محمول", "Laptop", "it", 5800],
+    prn: ["طابعة شبكية متعددة الوظائف", "Network multifunction printer", "it", 9000],
+    lbl: ["طابعة ملصقات وأساور", "Label and wristband printer", "it", 3200],
+    ncall: ["نظام نداء التمريض (لكل سرير)", "Nurse call system, per bed", "it", 2600],
+    tv: ["تلفاز غرفة المريض", "Patient room TV", "it", 2200],
+    his: ["نظام معلومات المستشفى (HIS) لكل سرير", "Hospital information system, per bed", "it", 9000],
+    his_base: ["نظام معلومات المستشفى: الترخيص الأساسي والتشغيل", "HIS core licence and implementation", "it", 450000],
+    net: ["الأجهزة النشطة للشبكة (سويتشات ونقاط لاسلكية) لكل سرير", "Active network equipment, per bed", "it", 6000],
+    srv: ["غرفة الخوادم (خوادم وتخزين وطاقة احتياطية)", "Server room (servers, storage, UPS)", "it", 380000],
+    queue: ["نظام إدارة الطوابير", "Queue management system", "it", 65000],
+    ipph: ["هاتف شبكي", "IP phone", "it", 900],
+    projtr: ["شاشة عرض تفاعلية لقاعة التدريب", "Interactive display for training room", "it", 18000]
+  };
+  // department: [Arabic, English, driver, [[item, per driver unit, fixed, minimum, other driver]]]
+  const D = {
+    er: ["الطوارئ", "Emergency", "er", [
+      ["str_er", 1], ["mon_mid", 0.6], ["gas_set", 1], ["ivp", 1], ["inf", 0.5], ["syr", 0.25],
+      ["resus", 0, 0, 0, "resus"], ["mon_icu", 0, 0, 0, "resus"], ["vent_icu", 0, 0, 0, "resus"], ["defib", 0.1, 1], ["crash", 0.1, 1], ["ecg", 0.08, 1],
+      ["vent_tr", 0, 1], ["mon_tr", 0, 1], ["pocus", 0, 1], ["suc_p", 0.1, 1], ["splint", 0, 1], ["suture", 0.1, 1], ["vlaryn", 0, 1],
+      ["blwarm", 0, 1], ["warmer_pt", 0, 1], ["exlight", 0.2, 1], ["dress", 0.2, 1], ["medtrol", 0, 1], ["wchair", 0.25, 2], ["str_tr", 0.15, 2],
+      ["scale", 0, 1], ["medfr", 0, 1], ["narc", 0, 1], ["nstat", 0, 1], ["recep", 0, 1], ["wait3", 0.5, 4], ["pc", 0.3, 4], ["prn", 0, 2], ["lbl", 0, 1], ["ncall", 1]
+    ]],
+    opd: ["العيادات الخارجية", "Outpatient clinics", "opd", [
+      ["couch", 1], ["stool", 1], ["desk", 1], ["vchair", 2], ["diag", 1], ["bpm", 1], ["exlight", 0.5], ["screen", 1], ["pc", 1], ["ipph", 1],
+      ["couch_gyn", 0.08, 1], ["us_mid", 0.06, 1], ["ecg", 0.05, 1], ["scale", 0.15, 1], ["scale_inf", 0.08, 1], ["dress", 0.1, 1], ["aed", 0, 1], ["crash", 0, 1],
+      ["recep", 0.04, 1], ["wait3", 1.5, 4], ["queue", 0, 1], ["prn", 0.15, 1]
+    ]],
+    ward: ["أجنحة التنويم", "Inpatient wards", "ward", [
+      ["bed_e", 1], ["otable", 1], ["bcab", 1], ["recl", 0.5], ["vchair", 1], ["ivp", 1], ["gas_set", 1], ["mon_vs", 0.15], ["inf", 0.3], ["syr", 0.1],
+      ["ncall", 1], ["tv", 0.6], ["bed_iso", 0.05],
+      ["crash", 1, 0, 0, "nu"], ["defib", 1, 0, 0, "nu"], ["ecg", 1, 0, 0, "nu"], ["suc_p", 1, 0, 0, "nu"], ["medtrol", 1, 0, 0, "nu"], ["dress", 2, 0, 0, "nu"],
+      ["linen", 2, 0, 0, "nu"], ["wchair", 3, 0, 0, "nu"], ["str_tr", 1, 0, 0, "nu"], ["scale", 1, 0, 0, "nu"], ["lift", 0.5, 0, 0, "nu"], ["bladder", 0.5, 0, 0, "nu"],
+      ["pulseox", 2, 0, 0, "nu"], ["gluco", 3, 0, 0, "nu"], ["neb", 2, 0, 0, "nu"], ["exlight", 1, 0, 0, "nu"], ["vein", 0.5, 0, 0, "nu"], ["medfr", 1, 0, 0, "nu"], ["narc", 1, 0, 0, "nu"],
+      ["nstat", 1, 0, 0, "nu"], ["pc", 5, 0, 0, "nu"], ["prn", 1, 0, 0, "nu"], ["lbl", 1, 0, 0, "nu"], ["ipph", 3, 0, 0, "nu"], ["oncall", 1, 0, 0, "nu"], ["locker", 3, 0, 0, "nu"], ["dine", 1, 0, 0, "nu"]
+    ]],
+    psy: ["أجنحة الطب النفسي", "Psychiatric wards", "psy", [
+      ["bed_psy", 1], ["psyfur", 1], ["ncall", 0.3], ["mon_vs", 0.05],
+      ["crash", 1, 0, 0, "nu"], ["defib", 1, 0, 0, "nu"], ["ecg", 1, 0, 0, "nu"], ["suc_p", 1, 0, 0, "nu"], ["medtrol", 1, 0, 0, "nu"], ["dress", 1, 0, 0, "nu"],
+      ["linen", 2, 0, 0, "nu"], ["wchair", 1, 0, 0, "nu"], ["scale", 1, 0, 0, "nu"], ["medfr", 1, 0, 0, "nu"], ["narc", 1, 0, 0, "nu"],
+      ["nstat", 1, 0, 0, "nu"], ["pc", 4, 0, 0, "nu"], ["prn", 1, 0, 0, "nu"], ["ipph", 3, 0, 0, "nu"], ["dine", 4, 0, 0, "nu"], ["wait3", 4, 0, 0, "nu"], ["tv", 2, 0, 0, "nu"],
+      ["ect", 0, 1], ["str_tr", 0, 1]
+    ]],
+    icu: ["العناية المركزة", "Intensive care", "icu", [
+      ["bed_icu", 1], ["mon_icu", 1], ["vent_icu", 1], ["pend_icu", 1], ["inf", 3], ["syr", 4], ["bcab", 1], ["otable", 1], ["recl", 0.5], ["warmer_pt", 0.1], ["hfnc", 0.25], ["niv", 0.2],
+      ["ncall", 1], ["gas_set", 1],
+      ["cms", 1, 0, 0, "icuU"], ["defib", 1, 0, 0, "icuU"], ["crash", 1, 0, 0, "icuU"], ["ecg", 1, 0, 0, "icuU"], ["pocus", 1, 0, 0, "icuU"], ["abg", 1, 0, 0, "icuU"],
+      ["vent_tr", 1, 0, 0, "icuU"], ["mon_tr", 1, 0, 0, "icuU"], ["vlaryn", 1, 0, 0, "icuU"], ["lift", 1, 0, 0, "icuU"], ["suc_p", 1, 0, 0, "icuU"], ["blwarm", 1, 0, 0, "icuU"],
+      ["medtrol", 1, 0, 0, "icuU"], ["dress", 2, 0, 0, "icuU"], ["medfr", 1, 0, 0, "icuU"], ["narc", 1, 0, 0, "icuU"], ["nstat", 1, 0, 0, "icuU"], ["pc", 4, 0, 0, "icuU"],
+      ["prn", 1, 0, 0, "icuU"], ["ipph", 3, 0, 0, "icuU"], ["oncall", 1, 0, 0, "icuU"], ["locker", 2, 0, 0, "icuU"]
+    ]],
+    nicu: ["العناية المركزة لحديثي الولادة", "Neonatal intensive care", "nicu", [
+      ["incu", 0.75], ["iwarm", 0.25], ["mon_neo", 1], ["vent_neo", 0.35], ["cpap_neo", 0.35], ["inf", 1], ["syr", 3], ["photo", 0.35], ["gas_set", 1], ["recl", 0.5], ["ncall", 1],
+      ["incu_tr", 0, 1], ["bili", 0, 1], ["abg", 0, 1], ["breastp", 0.15, 1], ["scale_inf", 0, 2], ["cms", 0, 1], ["defib", 0, 1], ["crash", 0, 1], ["medfr", 0, 1], ["nstat", 0, 1], ["pc", 0.15, 2], ["prn", 0, 1]
+    ]],
+    or: ["غرف العمليات", "Operating theatres", "or", [
+      ["anes", 1], ["ortab", 1], ["orlight", 1], ["pend_or", 1], ["esu", 1], ["mon_or", 1], ["syr", 3], ["inf", 2], ["instr", 2], ["mayo", 1], ["warmer_pt", 1], ["suc_p", 0.5], ["instset", 1],
+      ["lapa", 0.35], ["carm", 0.25], ["tourn", 0.25], ["warmcab", 0.35], ["vlaryn", 0.25], ["blwarm", 0.5], ["defib", 0.25, 1], ["crash", 0, 1], ["xr_mob", 0, 1], ["pocus", 0, 1],
+      ["abg", 0, 1], ["str_tr", 1], ["nstat", 0, 1], ["pc", 1, 1], ["locker", 2], ["oncall", 0.25, 1]
+    ]],
+    pacu: ["الإفاقة والتحضير", "Recovery and pre-operative", "pacu", [
+      ["str_pacu", 1], ["mon_mid", 1], ["gas_set", 1], ["inf", 0.5], ["syr", 0.5], ["warmer_pt", 0.25], ["ncall", 1], ["defib", 0, 1], ["crash", 0, 1], ["suc_p", 0.15, 1], ["nstat", 0, 1], ["pc", 0.15, 1]
+    ]],
+    ldr: ["الولادة", "Labour and delivery", "ldr", [
+      ["delbed", 1], ["ctg", 1], ["iwarm", 1], ["resusc", 0.35], ["mon_mid", 1], ["inf", 1], ["syr", 0.5], ["gas_set", 2], ["vac", 0.35], ["delset", 2], ["exlight", 1], ["bassinet", 1], ["ncall", 1],
+      ["us_mid", 0, 1], ["defib", 0, 1], ["crash", 0, 1], ["scale_inf", 0, 1], ["medfr", 0, 1], ["nstat", 0, 1], ["pc", 0.25, 1], ["dopp", 0.5, 1]
+    ]],
+    nur: ["حضانة الأطفال الأصحاء", "Well-baby nursery", "nur", [
+      ["bassinet", 1], ["photo", 0.1, 1], ["iwarm", 0, 1], ["scale_inf", 0, 1], ["breastp", 0, 1]
+    ]],
+    cssd: ["التعقيم المركزي", "Central sterile services", "cssd", [
+      ["ster_l", 1], ["wd", 1], ["ster_lt", 0.35], ["usc", 0.35, 0, 1], ["dryc", 0.5, 0, 1], ["seal", 0.5, 0, 2], ["cssdrack", 0.5, 0, 1], ["pc", 0.5, 0, 2], ["lbl", 0, 1]
+    ]],
+    img: ["الأشعة التشخيصية", "Diagnostic imaging", "img", [
+      ["xr_dr", 1, 0, 0, "xray"], ["xr_mob", 1, 0, 0, "xmob"], ["us_gen", 1, 0, 0, "us"], ["ct", 1, 0, 0, "ct"], ["mri", 1, 0, 0, "mri"], ["mammo", 1, 0, 0, "mammo"],
+      ["fluoro", 1, 0, 0, "fluoro"], ["dexa", 1, 0, 0, "dexa"], ["echo", 1, 0, 0, "echo"], ["pacs", 1, 0, 0, "ct"], ["cr_print", 0, 1], ["leadap", 0, 2],
+      ["inf", 1, 0, 0, "ct"], ["str_tr", 0, 1], ["wchair", 0, 2], ["crash", 0, 1], ["recep", 0, 1], ["wait3", 0, 4], ["pc", 1, 2, 0, "xray"], ["pc", 1, 0, 0, "us"], ["prn", 0, 1]
+    ]],
+    lab: ["المختبر", "Laboratory", "lab", [
+      ["chem", 0.5, 0, 1], ["immuno", 0.5, 0, 1], ["hema", 0.5, 0, 1], ["coag", 0.25, 0, 1], ["elec", 0.25, 0, 1], ["urin", 0.25, 0, 1], ["hba1c", 0.25, 0, 1], ["esr", 0.25, 0, 1],
+      ["bact", 0.4], ["idast", 0.3], ["pcr", 0.2], ["bsc", 0.5, 0, 1], ["cent", 1, 1], ["micro", 1, 1], ["labfr", 1, 1], ["frz20", 0.5, 0, 1], ["frz80", 0.3],
+      ["labinc", 0.5, 0, 1], ["labac", 0.5, 0, 1], ["wbath", 0, 1], ["labbench", 1], ["pc", 2, 1], ["prn", 0.5, 0, 1], ["lbl", 0.5, 0, 1], ["couch", 0, 1], ["wait3", 0, 2]
+    ]],
+    bb: ["بنك الدم", "Blood bank", "bb", [
+      ["bbfr", 1], ["plfr", 0.5, 0, 1], ["plag", 0.5], ["bbcent", 0.5], ["xmatch", 1], ["donor", 1, 1], ["cent", 0, 1], ["micro", 0, 1], ["seal", 0, 1], ["pc", 0, 2]
+    ]],
+    pharm: ["الصيدلية", "Pharmacy", "pharm", [
+      ["pharshelf", 1], ["medfr", 1, 1], ["narc", 1], ["lamin", 0.5], ["pc", 2, 1], ["prn", 0.5, 0, 1], ["lbl", 0.5, 0, 1], ["desk", 1, 1], ["recep", 0, 1]
+    ]],
+    onc: ["العلاج الكيميائي النهاري", "Day chemotherapy", "chemo", [
+      ["chemochair", 1], ["inf", 1], ["mon_vs", 0.25], ["gas_set", 1], ["ncall", 1], ["isol", 0, 1], ["crash", 0, 1], ["defib", 0, 1], ["medfr", 0, 2], ["nstat", 0, 1], ["pc", 0.2, 1]
+    ]],
+    rt: ["العلاج الإشعاعي", "Radiotherapy", "linac", [
+      ["linac", 1], ["ctsim", 0, 1], ["tps", 0, 1], ["brachy", 0, 1], ["dosim", 0, 1], ["str_tr", 1], ["pc", 3, 2]
+    ]],
+    dial: ["الغسيل الكلوي", "Haemodialysis", "dial", [
+      ["hd", 1.1], ["hdchair", 1], ["mon_vs", 0.15], ["gas_set", 0.5], ["ro", 0.04, 0, 1], ["defib", 0, 1], ["crash", 0, 1], ["ecg", 0, 1], ["scale", 0, 1], ["wchair", 0.1, 1],
+      ["medfr", 0, 1], ["nstat", 0, 1], ["pc", 0.15, 1], ["tv", 1], ["ncall", 1]
+    ]],
+    endo: ["المناظير", "Endoscopy", "endo", [
+      ["endo", 1], ["aer", 1], ["scopecab", 1], ["mon_mid", 2], ["str_pacu", 2], ["esu", 0.5, 0, 1], ["bronch", 0, 1], ["suc_p", 1], ["crash", 0, 1], ["pc", 1, 1]
+    ]],
+    cath: ["القسطرة القلبية", "Cardiac catheterisation", "cath", [
+      ["cath", 1], ["iabp", 0.5, 0, 1], ["defib", 1], ["mon_or", 0.5], ["inf", 2], ["syr", 2], ["leadap", 1], ["str_pacu", 3], ["mon_mid", 3], ["pc", 2], ["crash", 0, 1]
+    ]],
+    card: ["تشخيص أمراض القلب", "Non-invasive cardiology", "card", [
+      ["echo", 1], ["stress", 0.5, 0, 1], ["holter", 1, 1], ["abpm", 1, 1], ["ecg", 1], ["couch", 1], ["pc", 1]
+    ]],
+    cts: ["جراحة القلب", "Cardiac surgery", "cts", [
+      ["hlm", 1], ["cellsav", 1], ["iabp", 0.5], ["echo", 0, 1], ["instset", 1]
+    ]],
+    burn: ["وحدة الحروق", "Burns unit", "burn", [
+      ["bed_burn", 0.5], ["mon_icu", 0.5], ["warmer_pt", 0.5], ["hydro", 0, 1], ["burn_dress", 0, 1], ["dermatome", 0, 1], ["hepa", 0.25]
+    ]],
+    iso: ["العزل", "Isolation", "iso", [
+      ["bed_iso", 1], ["mon_mid", 0.5], ["gas_set", 1], ["o2conc", 0.25], ["hepa", 0.5], ["inf", 0.5], ["ivp", 1], ["bcab", 1], ["vent_icu", 0.1], ["xr_mob", 0, 1], ["ncall", 1],
+      ["crash", 1, 0, 0, "nu"], ["defib", 1, 0, 0, "nu"], ["ecg", 1, 0, 0, "nu"], ["nstat", 1, 0, 0, "nu"], ["pc", 3, 0, 0, "nu"]
+    ]],
+    tfc: ["التغذية العلاجية", "Therapeutic feeding", "tfc", [
+      ["bed_tfc", 1], ["recl", 0.5], ["scale_inf", 0.1, 1], ["muac", 0.1, 1], ["tfcset", 0, 1], ["o2conc", 0.1, 1], ["mon_vs", 0.1, 1], ["gluco", 0, 2], ["nstat", 0, 1], ["pc", 0, 2]
+    ]],
+    physio: ["العلاج الطبيعي والتأهيل", "Physiotherapy and rehabilitation", "physio", [
+      ["pcouch", 1], ["etx", 0.35], ["ustx", 0.25], ["swd", 0.12], ["tread", 0.12, 1], ["bike", 0.12, 1], ["pbars", 0.08, 1], ["hotpack", 0, 1], ["traction", 0.08], ["cpm", 0.08],
+      ["otset", 0.06], ["gym", 0, 1], ["screen", 1], ["wchair", 0.2, 1], ["pc", 0.15, 1]
+    ]],
+    dental: ["الأسنان", "Dental", "dental", [
+      ["dunit", 1], ["dxr", 0.5, 0, 1], ["dset", 1], ["ster_s", 0.25, 0, 1], ["opg", 0, 1], ["stool", 1], ["pc", 1]
+    ]],
+    eye: ["العيون", "Ophthalmology", "eye", [
+      ["slit", 1], ["eyechart", 1], ["autoref", 0.35, 0, 1], ["oct", 0.15, 0, 1], ["fundus", 0.1, 0, 1], ["laser_eye", 0.1, 0, 1], ["phaco", 0, 0, 0], ["pc", 1]
+    ]],
+    eyeor: ["جراحة العيون", "Ophthalmic surgery", "eyeor", [
+      ["micro_or", 1], ["phaco", 1]
+    ]],
+    ivf: ["مختبر الإخصاب", "IVF laboratory", "ivf", [
+      ["icsi", 1], ["ivfinc", 3], ["ivfhood", 1], ["cryo", 2], ["micro", 1], ["us_gen", 1], ["frz80", 0.5]
+    ]],
+    dm: ["السكري والغدد", "Diabetes and endocrinology", "dm", [
+      ["retcam", 1], ["footcare", 1], ["hba1c", 1], ["scale", 2], ["couch", 2]
+    ]],
+    amb: ["الإسعاف", "Ambulance", "amb", [["amb", 1]]],
+    phc: ["تجهيزات الوحدة الصحية", "Health unit equipment", "phc", [
+      ["couch", 3], ["couch_gyn", 1], ["stool", 3], ["screen", 3], ["diag", 2], ["bpm", 2], ["scale", 1], ["scale_inf", 1], ["muac", 1], ["vacfr", 1], ["delbed_m", 1], ["bassinet", 1],
+      ["ambu", 1], ["dopp", 1], ["suc_p", 1], ["o2conc", 1], ["aed", 1], ["gluco", 2], ["neb", 1], ["exlight", 1], ["dress", 1], ["medfr", 1], ["ster_s", 1], ["delset", 2], ["wchair", 1], ["str_tr", 1],
+      ["phcshelf", 1], ["desk", 3], ["wait3", 4], ["cabf", 2], ["pc", 2], ["prn", 1]
+    ]],
+    labb: ["المختبر الأساسي", "Basic laboratory", "labb", [
+      ["hema_s", 1], ["chem_s", 1], ["urin", 0, 0, 0], ["rdt", 1], ["cent", 1], ["micro", 1], ["labfr", 1], ["wbath", 0, 1], ["labbench", 0.5, 0, 1], ["couch", 0, 1], ["pc", 1], ["lbl", 0, 1]
+    ]],
+    cssds: ["التعقيم", "Sterilisation room", "cssds", [
+      ["ster_s", 2], ["usc", 1], ["seal", 1], ["dryc", 1], ["cssdrack", 0.5, 0, 1]
+    ]],
+    mobile: ["العيادة المتنقلة", "Mobile clinic", "mobile", [
+      ["mobveh", 1], ["couch", 1], ["couch_gyn", 1], ["us_mid", 0.5], ["diag", 1], ["bpm", 1], ["scale", 1], ["scale_inf", 1], ["medfr", 1], ["aed", 1], ["gluco", 1], ["neb", 1], ["lapt", 1], ["dopp", 1]
+    ]],
+    mort: ["الثلاجات (المشرحة)", "Mortuary", "mort", [
+      ["morg", 1], ["atable", 0, 0, 0], ["btrol", 0.25, 0, 1]
+    ]],
+    supp: ["الخدمات المساندة (مطبخ ومغسلة وصيانة)", "Support services (kitchen, laundry, maintenance)", "beds", [
+      ["kitchen", 1], ["laundry", 1], ["foodtrol", 0.04, 0, 1], ["biomed", 0, 1], ["waste", 0.25, 0, 4], ["hk", 0.1, 0, 2], ["shelf", 0.3, 0, 6]
+    ]],
+    adm: ["الإدارة والخدمات العامة", "Administration and general areas", "staff", [
+      ["desk", 1], ["cabf", 0.5], ["pc", 1], ["ipph", 1], ["mdesk", 0.08, 0, 1], ["meet", 0.02, 0, 1], ["prn", 0.1, 0, 1], ["locker", 0.5],
+      ["dine", 0.06, 0, 2], ["wait3", 0.08, 0, 4], ["classr", 0.25, 0, 0, "teach"], ["projtr", 0.02, 0, 0, "teach"], ["recep", 0, 1]
+    ]],
+    ict: ["أنظمة المعلومات والشبكات", "Information systems and networks", "ictb", [
+      ["his", 1], ["net", 1], ["his_base", 1, 0, 0, "hisB"], ["srv", 1, 0, 0, "hisB"]
+    ]]
+  };
+  const ord = ["er", "opd", "ward", "psy", "iso", "tfc", "icu", "nicu", "nur", "or", "pacu", "ldr", "cts", "cath", "card", "endo", "eyeor", "eye", "dial", "onc", "rt", "burn",
+    "img", "lab", "labb", "bb", "pharm", "cssd", "cssds", "phc", "physio", "dental", "ivf", "dm", "mort", "amb", "mobile", "supp", "adm", "ict"];
+
+  const R = Math.round, C = Math.ceil, mx = Math.max;
+  // planning drivers for a hospital of N beds (ratios after Saudi MOH design guidelines, FGI and iHFG)
+  function hosp(N, o) {
+    o = o || {};
+    if (!(N > 0)) return {};
+    const icu = o.icu === 0 ? 0 : mx(o.icuMin != null ? o.icuMin : 4, R(N * (o.icu || 0.08)));
+    const nicu = o.obs ? mx(4, R(N * (o.nicu || 0.06))) : (o.nicuOnly ? mx(4, R(N * o.nicuOnly)) : 0);
+    const ward = mx(0, N - icu);
+    const ors = o.or === 0 ? 0 : mx(o.orMin || 2, R(N / (o.or || 25)));
+    const d = {
+      beds: N, ward: o.psy || o.iso || o.tfc ? 0 : ward, psy: o.psy ? N : 0, iso: o.iso ? N : 0, tfc: o.tfc ? N : 0,
+      nu: C((o.psy || o.iso || o.tfc ? N : ward) / (o.nuSize || 32)),
+      icu, icuU: icu ? C(icu / 12) : 0, nicu, nur: o.obs ? mx(4, R(N * 0.12)) : 0,
+      or: ors, pacu: ors * 2, ldr: o.obs ? mx(2, R(N / (o.ldr || 25))) : 0,
+      cssd: ors || o.cssd ? mx(1, C(mx(ors, 1) / 4)) : 0,
+      er: o.er === 0 ? 0 : mx(o.erMin || 8, R(N * (o.er || 0.15))), resus: o.er === 0 ? 0 : mx(1, R(N / 100)),
+      opd: o.opd === 0 ? 0 : mx(o.opdMin || 6, R(N / (o.opd || 5))),
+      xray: mx(1, R(N / 120)), xmob: mx(1, R(N / 80)), us: mx(1, R(N / 60)), ct: N >= (o.ctAt || 50) ? (N >= 300 ? 2 : 1) : 0,
+      mri: o.mri ? mx(1, R(N / 400)) : 0, mammo: N >= 100 && !o.noMammo ? 1 : 0, fluoro: N >= 150 ? 1 : 0, dexa: N >= 200 ? 1 : 0, echo: N >= 80 ? 1 : 0,
+      img: 1, lab: N < 50 ? 1 : N < 150 ? 2 : N < 300 ? 3 : 4, bb: N >= 30 ? (N < 150 ? 1 : 2) : 0, pharm: N < 100 ? 1 : 2,
+      dial: o.dial != null ? o.dial : (N >= 100 ? R(N / 10) : 0), endo: o.endo != null ? o.endo : (N >= 75 ? (N >= 250 ? 2 : 1) : 0),
+      physio: o.physio != null ? o.physio : mx(4, R(N / 15)), dental: o.dental != null ? o.dental : mx(1, R(N / 60)),
+      card: o.card != null ? o.card : (N >= 100 ? 1 : 0), mort: mx(4, R(N / 20)), amb: N >= 50 ? 2 : 1,
+      staff: R(N * (o.staff || 0.35)) + 15, teach: o.teach ? R(N * 0.3) : 0, ictb: N, hisB: N >= 30 ? 1 : 0
+    };
+    if (o.x) Object.assign(d, o.x(N, d));
+    return d;
+  }
+  // per-centre drivers (units = number of centres, chairs, rooms, ...)
+  const P = {
+    general: { std: 1, d: N => hosp(N, { obs: 1 }) },
+    referral: { std: 1, d: N => hosp(N, { obs: 1, icu: 0.1, or: 20, mri: 1 }) },
+    teaching: { std: 1, d: N => hosp(N, { obs: 1, icu: 0.12, or: 18, mri: 1, teach: 1, staff: 0.45, x: (n, d) => ({ cath: 1, endo: 2 }) }) },
+    city: { std: 1, d: N => hosp(N, { obs: 1, icu: 0.12, or: 18, mri: 1, staff: 0.45, teach: 1, x: (n, d) => ({ cath: mx(1, R(n / 400)), endo: mx(2, R(n / 150)), chemo: R(n / 25), burn: R(n / 100) }) }) },
+    district: { std: 1, d: N => hosp(N, { obs: 1, icu: 0.06, icuMin: 2, ctAt: 50, dial: N >= 40 ? 5 : 0, endo: 0, card: 0, dental: 1, physio: 3, erMin: 6, opdMin: 4 }) },
+    field: { std: 1, d: N => hosp(N, { obs: 1, icu: 0.08, icuMin: 2, ctAt: 999, dial: 0, endo: 0, card: 0, dental: 0, physio: 0, opd: 10, opdMin: 3, x: (n, d) => ({ mort: 2, bb: 1 }) }) },
+    special: { std: 1, d: N => hosp(N, { icu: 0.12, or: 15, mri: 1, dial: R(N / 15) }) },
+    mch: { std: 1, d: N => hosp(N, { obs: 1, nicu: 0.15, ldr: 8, icu: 0.06, or: 30, dial: 0, endo: 0, card: 0, physio: 3, noMammo: 1, x: (n, d) => ({ dexa: 0, fluoro: 0 }) }) },
+    child: { std: 1, d: N => hosp(N, { nicuOnly: 0.15, icu: 0.1, or: 30, dial: R(N / 25), endo: 1, card: 1, noMammo: 1, x: (n, d) => ({ dexa: 0, ldr: 0 }) }) },
+    mat: { std: 1, d: N => hosp(N, { obs: 1, nicu: 0.15, ldr: 6, icu: 0.06, or: 25, dial: 0, endo: 0, card: 0, physio: 2, x: (n, d) => ({ dexa: 0, fluoro: 0 }) }) },
+    eyeh: { std: 1, d: N => hosp(N, { icu: 0, or: 0, er: 0.1, erMin: 4, opd: 2, dial: 0, endo: 0, card: 0, physio: 0, dental: 0, noMammo: 1,
+      x: (n, d) => ({ eye: d.opd, eyeor: mx(2, R(n / 8)), or: mx(2, R(n / 8)), pacu: mx(4, R(n / 4)), cssd: 1, ct: 0, fluoro: 0, dexa: 0, echo: 0, mort: 2, bb: 0 }) }) },
+    ortho: { std: 1, d: N => hosp(N, { icu: 0.08, or: 15, mri: 1, dial: 0, endo: 0, physio: mx(10, R(N / 6)), card: 0, x: (n, d) => ({ dexa: 1 }) }) },
+    psych: { std: 1, d: N => hosp(N, { psy: 1, icu: 0, or: 0, er: 0.05, erMin: 4, opd: 4, dial: 0, endo: 0, card: 0, physio: 2, dental: 1, nuSize: 20, ctAt: 999, noMammo: 1,
+      x: (n, d) => ({ xmob: 0, fluoro: 0, dexa: 0, echo: 0, lab: 1, bb: 0, mort: 2 }) }) },
+    chest: { std: 1, d: N => hosp(N, { iso: 1, icu: 0.12, or: 40, orMin: 1, dial: 0, physio: 2, card: 0, endo: 1, nuSize: 24, noMammo: 1, x: (n, d) => ({ dexa: 0, fluoro: 0, lab: mx(2, d.lab) }) }) },
+    ltc: { std: 1, d: N => hosp(N, { icu: 0, or: 0, er: 0.03, erMin: 2, opd: 15, opdMin: 3, dial: R(N / 20), endo: 0, card: 0, physio: mx(8, R(N / 5)), dental: 1, ctAt: 999, noMammo: 1,
+      x: (n, d) => ({ fluoro: 0, dexa: 0, echo: 0, lab: 1, bb: 0, mort: 2 }) }) },
+    cardiac: { std: 1, d: N => hosp(N, { icu: 0.3, or: 20, orMin: 2, dial: R(N / 20), endo: 0, physio: 3, dental: 0, noMammo: 1,
+      x: (n, d) => ({ cath: mx(1, R(n / 25)), cts: d.or, card: mx(2, R(n / 25)), echo: 0, fluoro: 0, dexa: 0 }) }) },
+    onco: { std: 1, d: N => hosp(N, { icu: 0.08, or: 30, orMin: 1, dial: 0, physio: 2, card: 0, x: (n, d) => ({ chemo: mx(8, R(n * 0.5)), mammo: 1, endo: 1 }) }) },
+    oncort: { std: 1, d: N => hosp(N, { icu: 0.08, or: 30, orMin: 1, dial: 0, physio: 2, card: 0, mri: 1, x: (n, d) => ({ chemo: mx(10, R(n * 0.5)), mammo: 1, endo: 1, linac: mx(1, R(n / 40)) }) }) },
+    burnc: { std: 1, d: N => hosp(N, { icu: 0.3, or: 10, orMin: 1, dial: 0, endo: 0, card: 0, physio: 3, noMammo: 1, x: (n, d) => ({ burn: n, fluoro: 0, dexa: 0 }) }) },
+    rehab: { std: 1, d: N => hosp(N, { icu: 0, or: 0, er: 0.05, erMin: 2, opd: 8, opdMin: 3, dial: 0, endo: 0, card: 0, physio: mx(12, R(N / 2)), dental: 0, ctAt: 999, noMammo: 1,
+      x: (n, d) => ({ fluoro: 0, dexa: 1, echo: 0, lab: 1, bb: 0, mort: 2, burn: 0 }) }) },
+    ertc: { std: 1, d: N => hosp(N, { icu: 0, or: 0, opd: 0, dial: 0, endo: 0, card: 0, physio: 0, dental: 0, er: 1, noMammo: 1,
+      x: (n, d) => ({ ward: 0, nu: 0, er: n, resus: mx(2, R(n / 6)), or: mx(1, R(n / 15)), pacu: mx(2, R(n / 8)), cssd: 1, icu: mx(2, R(n / 5)), icuU: 1, ct: 1, xray: 1, xmob: 1, us: 1, fluoro: 0, dexa: 0, echo: 0, lab: 1, bb: 1, mort: 2, staff: R(n * 0.8) + 10, ictb: n }) }) },
+    epid: { std: 1, d: N => hosp(N, { iso: 1, icu: 0.15, icuMin: 2, or: 0, opd: 0, er: 0.1, erMin: 4, dial: 0, endo: 0, card: 0, physio: 0, dental: 0, nuSize: 24, ctAt: 999, noMammo: 1,
+      x: (n, d) => ({ fluoro: 0, dexa: 0, echo: 0, lab: 1, bb: 0, mort: 2, pharm: 1 }) }) },
+    tfcc: { std: 1, d: N => hosp(N, { tfc: 1, icu: 0, or: 0, opd: 0, er: 0, dial: 0, endo: 0, card: 0, physio: 0, dental: 0, nuSize: 30, ctAt: 999, noMammo: 1,
+      x: (n, d) => ({ img: 0, lab: 0, labb: 1, pharm: 1, bb: 0, mort: 0, amb: 0, staff: R(n * 0.5) + 4 }) }) },
+    emonc: { std: 1, d: N => hosp(N, { obs: 1, nicu: 0.1, ldr: 5, icu: 0, or: 20, orMin: 1, opd: 4, opdMin: 3, er: 0.15, erMin: 3, dial: 0, endo: 0, card: 0, physio: 0, dental: 0, ctAt: 999, noMammo: 1,
+      x: (n, d) => ({ xray: 1, xmob: 0, fluoro: 0, dexa: 0, echo: 0, lab: 1, bb: 1, mort: 1 }) }) },
+    // centres: N = chairs / rooms / clinics / centres
+    dialc: { std: 1, d: N => ({ dial: N, labb: 1, pharm: 1, staff: R(N * 0.4) + 6, opd: mx(2, R(N / 10)), ictb: R(N / 2) }) },
+    phcu: { std: 1, d: N => ({ phc: N, staff: 2 * N }) },
+    phcc: { std: 1, d: N => ({ opd: 8 * N, ldr: 2 * N, er: 2 * N, labb: N, pharm: N, dental: N, img: N, xray: N, us: N, physio: 2 * N, cssds: N, staff: 15 * N, ictb: 10 * N, amb: N }) },
+    dsc: { std: 1, d: N => ({ or: N, pacu: 3 * N, cssd: mx(1, C(N / 4)), endo: N >= 3 ? 1 : 0, labb: 1, pharm: 1, opd: mx(4, 2 * N), img: 1, xmob: 1, us: 1, staff: 6 * N + 6, ictb: 4 * N, amb: 1 }) },
+    dentc: { std: 1, d: N => ({ dental: N, staff: R(N * 0.6) + 4, ictb: R(N / 2), cssds: 1 }) },
+    imgc: { std: 1, d: N => ({ img: N, xray: 2 * N, us: 3 * N, ct: N, mri: N, mammo: N, fluoro: N, dexa: N, staff: 15 * N, ictb: 10 * N }) },
+    dmc: { std: 1, d: N => ({ opd: 10 * N, dm: N, labb: N, pharm: N, img: N, us: N, card: N, staff: 20 * N, ictb: 10 * N }) },
+    ivfc: { std: 1, d: N => ({ ivf: N, or: N, pacu: 3 * N, opd: 4 * N, img: N, us: N, labb: N, cssds: N, staff: 15 * N, ictb: 8 * N }) },
+    poly: { std: 1, d: N => ({ opd: N, img: 1, xray: 1, us: mx(1, R(N / 15)), labb: 1, pharm: 1, dental: mx(1, R(N / 15)), staff: R(N * 0.6) + 8, ictb: R(N / 2) }) },
+    haem: { std: 1, d: N => ({ chemo: N, labb: 1, bb: 1, pharm: 1, opd: mx(2, R(N / 6)), staff: R(N * 0.4) + 6, ictb: R(N / 2) }) },
+    ambs: { std: 1, d: N => ({ amb: 2 * N, staff: 3 * N }) },
+    mobc: { std: 1, d: N => ({ mobile: N }) }
+  };
+  const TYPE = {
+    "Medical City": "city", "University / Teaching Hospital": "teaching", "Referral General Hospital": "referral", "General Hospital": "general",
+    "Rural / District Hospital": "district", "Specialized Hospital": "special", "Maternity & Children Hospital": "mch", "Children's Hospital": "child",
+    "Maternity Hospital": "mat", "Eye Hospital": "eyeh", "Orthopaedic & Trauma Hospital": "ortho", "Psychiatric Hospital": "psych",
+    "Chest & Infectious Diseases Hospital": "chest", "Long-term Care Hospital": "ltc", "Cardiac Center": "cardiac",
+    "Oncology Center (without Radiotherapy)": "onco", "Comprehensive Cancer Center (with Radiotherapy)": "oncort", "Burns Centre": "burnc",
+    "Medical Rehabilitation Center": "rehab", "Emergency & Trauma Centre": "ertc", "Isolation / Epidemic Treatment Centre": "epid",
+    "Therapeutic Feeding Centre": "tfcc", "MCH Center / EmONC": "emonc", "Field / Prefabricated Hospital": "field",
+    "Hemodialysis Center": "dialc", "Health Unit (PHC)": "phcu", "Comprehensive Health Center (PHC)": "phcc", "Day Surgery Centre": "dsc",
+    "Specialised Dental Centre": "dentc", "Diagnostic Imaging Centre": "imgc", "Diabetes & Endocrine Centre": "dmc", "IVF & Fertility Centre": "ivfc",
+    "Specialty Polyclinic": "poly", "Haematology & Thalassaemia Day Centre": "haem", "Ambulance Station": "ambs", "Mobile Clinic": "mobc"
+  };
+  // where equipment quantities follow each country's own practice; price factor = delivered and installed price relative to the base
+  const STD = {
+    YE: ["معايير وزارة الصحة السعودية للتصميم والتجهيز مع دليل FGI", 1.00, "Saudi MOH design and equipment standards with the FGI Guidelines"],
+    SA: ["معايير وزارة الصحة السعودية للتصميم والتجهيز واشتراطات المركز السعودي لاعتماد المنشآت الصحية (CBAHI)", 1.00, "Saudi MOH design and equipment standards and CBAHI requirements"],
+    AE: ["أدلة منشآت دائرة الصحة في أبوظبي وهيئة الصحة بدبي (HFG)", 1.03, "Abu Dhabi DoH and Dubai DHA Health Facility Guidelines (HFG)"],
+    QA: ["أدلة تصميم المنشآت الصحية لوزارة الصحة العامة في قطر (HFG)", 1.05, "Qatar MOPH health facility design guidelines (HFG)"],
+    KW: ["معايير وزارة الصحة الكويتية المبنية على دليل HFG", 1.03, "Kuwait MOH standards based on the HFG"],
+    BH: ["معايير الهيئة الوطنية لتنظيم المهن والخدمات الصحية في البحرين (NHRA)", 1.02, "Bahrain NHRA standards"],
+    OM: ["معايير وزارة الصحة العمانية للمنشآت الصحية", 1.02, "Oman MOH health facility standards"],
+    EG: ["معايير وزارة الصحة المصرية والهيئة العامة للاعتماد والرقابة الصحية (GAHAR)", 0.93, "Egypt MOH and GAHAR standards"],
+    SD: ["معايير وزارة الصحة السودانية مع قوائم منظمة الصحة العالمية للأجهزة الأساسية", 1.12, "Sudan MOH standards with WHO essential equipment lists"]
+  };
+  const DRV = {
+    beds: ["عدد الأسرّة", "Beds"], ward: ["أسرّة التنويم العامة", "General ward beds"], psy: ["أسرّة الطب النفسي", "Psychiatric beds"], iso: ["أسرّة العزل", "Isolation beds"],
+    tfc: ["أسرّة التغذية العلاجية", "Therapeutic feeding beds"], nu: ["وحدات التمريض", "Nursing units"], icu: ["أسرّة العناية المركزة", "ICU beds"], icuU: ["وحدات العناية المركزة", "ICU units"],
+    nicu: ["حاضنات حديثي الولادة", "NICU cots"], nur: ["مهود الحضانة", "Nursery bassinets"], or: ["غرف العمليات", "Operating theatres"], pacu: ["أسرّة الإفاقة والتحضير", "Recovery bays"],
+    ldr: ["غرف الولادة", "Delivery rooms"], cssd: ["خطوط التعقيم", "CSSD lines"], er: ["أسرّة الطوارئ", "Emergency bays"], resus: ["غرف الإنعاش", "Resuscitation bays"],
+    opd: ["العيادات", "Clinic rooms"], xray: ["غرف الأشعة السينية", "X-ray rooms"], xmob: ["أجهزة الأشعة المتنقلة", "Mobile X-ray units"], us: ["أجهزة الموجات الصوتية", "Ultrasound units"],
+    ct: ["أجهزة الأشعة المقطعية", "CT scanners"], mri: ["أجهزة الرنين المغناطيسي", "MRI scanners"], mammo: ["أجهزة الماموجرام", "Mammography units"], fluoro: ["أجهزة الفلوروسكوبي", "Fluoroscopy units"],
+    dexa: ["أجهزة كثافة العظام", "DEXA units"], echo: ["أجهزة الإيكو", "Echo units"], lab: ["مستوى المختبر (1 إلى 4)", "Laboratory tier (1–4)"], labb: ["المختبرات الأساسية", "Basic laboratories"], img: ["أقسام الأشعة", "Imaging departments"], phc: ["الوحدات الصحية", "Health units"], cssds: ["غرف التعقيم", "Sterilisation rooms"], hisB: ["نظام معلومات متكامل (1 نعم، 0 لا)", "Full HIS (1 yes, 0 no)"], bb: ["مستوى بنك الدم", "Blood bank tier"],
+    pharm: ["مستوى الصيدلية", "Pharmacy tier"], dial: ["كراسي الغسيل الكلوي", "Dialysis stations"], endo: ["غرف المناظير", "Endoscopy rooms"], physio: ["مواقع العلاج الطبيعي", "Physiotherapy stations"],
+    dental: ["كراسي الأسنان", "Dental chairs"], card: ["عيادات تشخيص القلب", "Cardiology diagnostic suites"], cath: ["معامل القسطرة", "Cath labs"], cts: ["غرف جراحة القلب", "Cardiac surgery theatres"],
+    chemo: ["كراسي العلاج الكيميائي", "Chemotherapy chairs"], linac: ["أجهزة المعجّل الخطي", "Linear accelerators"], burn: ["أسرّة الحروق", "Burns beds"], eye: ["عيادات العيون", "Eye clinics"],
+    eyeor: ["غرف جراحة العيون", "Eye theatres"], ivf: ["مختبرات الإخصاب", "IVF labs"], dm: ["وحدات السكري", "Diabetes units"], mort: ["سعة الثلاجات (جثة)", "Mortuary spaces"],
+    amb: ["سيارات الإسعاف", "Ambulances"], mobile: ["العيادات المتنقلة", "Mobile clinics"], staff: ["مكاتب الموظفين", "Staff workstations"], teach: ["مقاعد التدريب", "Training seats"],
+    ictb: ["نطاق أنظمة المعلومات (سرير)", "IT scope (beds)"]
+  };
+  // what each driver is based on (shown beside the planning inputs)
+  const NOTE = {
+    icu: "8% إلى 12% من الأسرّة حسب نوع المستشفى (MOH / FGI)", or: "غرفة لكل 20 إلى 25 سريراً في المستشفى العام", pacu: "سريرا إفاقة لكل غرفة عمليات (FGI)",
+    ldr: "غرفة لكل 25 سريراً في المستشفى العام", er: "15% من الأسرّة وبحد أدنى 8", opd: "عيادة لكل 5 أسرّة", nicu: "6% من الأسرّة مع خدمات الولادة",
+    nu: "وحدة تمريض لكل 32 سريراً", dial: "كرسي لكل 10 أسرّة في المستشفيات من 100 سرير", ct: "جهاز من 50 سريراً وجهازان من 300 سرير", mort: "جثة لكل 20 سريراً وبحد أدنى 4"
+  };
+
+  function drivers(t, n) { const p = P[TYPE[t.en]]; return p ? p.d(Math.max(0, Number(n) || 0)) : null; }
+  // builds the bill of quantities; ov = project edits {drv, q, p, off, add}
+  function build(t, n, ov) {
+    const p = P[TYPE[t.en]]; if (!p) return null;
+    ov = ov || {};
+    const base = p.d(Math.max(0, Number(n) || 0)), dv = Object.assign({}, base, ov.drv || {});
+    const lines = [];
+    ord.forEach(dk => {
+      const dep = D[dk], main = Number(dv[dep[2]]) || 0;
+      if (main <= 0) return;
+      dep[3].forEach((r, ix) => {
+        const [id, per, fix, min, other] = r, it = I[id]; if (!it) return;
+        const v = other ? (Number(dv[other]) || 0) : main;
+        if (other && v <= 0 && !fix) return;
+        let q = (per || 0) * v + (fix || 0);
+        q = Math.round(q);
+        if (min) q = Math.max(min, q);
+        if (q <= 0) return;
+        const key = dk + "." + id + (ix ? "." + ix : "");
+        lines.push({ key, dep: dk, id, ar: it[0], en: it[1], cat: it[2], q0: q, p0: it[3] });
+      });
+    });
+    // merge duplicates inside a department (e.g. PCs from two rules)
+    const byKey = new Map();
+    lines.forEach(l => { const k2 = l.dep + "." + l.id; const o = byKey.get(k2); if (o) o.q0 += l.q0; else { l.key = k2; byKey.set(k2, l); } });
+    const out = [...byKey.values()];
+    (ov.add || []).forEach((a, i) => { if (a) out.push({ key: "add." + i, dep: D[a.dep] ? a.dep : "adm", id: "", ar: a.ar || "", en: a.ar || "", cat: CATS[a.cat] ? a.cat : "mm", q0: 0, p0: 0, added: 1, q: Number(a.q) || 0, pOv: Number(a.p) || 0 }); });
+    out.forEach(l => {
+      if (!l.added) { l.q = ov.q && ov.q[l.key] != null ? Number(ov.q[l.key]) : l.q0; l.pOv = ov.p && ov.p[l.key] != null ? Number(ov.p[l.key]) : null; }
+      l.off = !!(ov.off && ov.off.includes(l.key));
+      l.edited = !l.added && (l.q !== l.q0 || l.pOv != null);
+    });
+    // departments in display order, added items after the department's own lines
+    out.sort((x, y) => ord.indexOf(x.dep) - ord.indexOf(y.dep) || (x.added || 0) - (y.added || 0));
+    return { lines: out, drv: dv, base, std: p.std };
+  }
+  window.HFCE_BOQ = { CATS, I, D, ord, P, TYPE, STD, DRV, NOTE, drivers, build };
+})();
+</script>
+<script>
 window.__startApp = function (DEFAULTS) {
 // ENGINE START
 /* pricing data (DEFAULTS) is loaded from the server after sign-in */
@@ -1185,12 +1871,14 @@ function computeProject(inp, A) {
   const Bn = area * rate * t.cf;
   const escF = Math.pow(1 + A.esc, Math.max(0, (Number(inp.year) || A.baseYear) - A.baseYear));
   const addTotal = A.addons.reduce((s, a, i) => s + (Number(inp.addons[i]) || 0) * a.price, 0);
+  const bq = boqOf(t, n, inp, A, C, lvl);          // bill of quantities, when the facility type has one
+  const oldE = eqUnits * t.eq * lvl.eq * C.eq, oldF = Bn * (t.ffe != null ? t.ffe : A.ffe);
   const cols = [0, 1, 2, 3].map(k => {
     const b = Bn * S.bld[k] * loc.f * pk.w;
     const x = Bn * A.ext * S.ext[k] * loc.f * pk.w;
-    const e = eqUnits * t.eq * lvl.eq * C.eq * S.eq[k] * pk.e;
+    const e = (bq ? bq.e : oldE) * S.eq[k] * pk.e;
     const ad = addTotal * pk.e;
-    const ff = Bn * (t.ffe != null ? t.ffe : A.ffe) * S.ffe[k] * pk.f;
+    const ff = (bq ? bq.f : oldF) * S.ffe[k] * pk.f;
     const s = (b + x) * S.soft[k];
     const c = (b + x + s) * S.cont[k] + (e + ad + ff) * S.cont[0];
     const base = b + x + e + ad + ff + s + c;
@@ -1199,7 +1887,30 @@ function computeProject(inp, A) {
     return { b, x, e, ad, ff, s, c, base, escv, total, perUnit: n > 0 ? total / n : 0, usd: total / A.fx, local: C.fx > 0 ? total * C.fx : 0 };
   });
   cols.forEach(cl => { cl.ratio = cols[0].total > 0 ? cl.total / cols[0].total : 0; });
-  return { t, lvl, loc, pk, n, area, Bn, escF, addTotal, cols, C, rate, gfaC };
+  return { t, lvl, loc, pk, n, area, Bn, escF, addTotal, cols, C, rate, gfaC, bq, oldE, oldF };
+}
+
+// bill of quantities priced for a country and level; project edits apply when they belong to this facility type
+function boqOf(t, n, inp, A, C, lvl) {
+  const B = window.HFCE_BOQ; if (!B || !B.TYPE[t.en]) return null;
+  const ov = inp && inp.boq && inp.boq.t === t.en ? inp.boq : null;
+  const r = B.build(t, n, ov); if (!r) return null;
+  const pf = ((B.STD[C.id] || [0, 1])[1] || 1) * lvl.eq;
+  let e = 0, f = 0;
+  r.lines.forEach(l => { l.up = l.pOv != null ? l.pOv : l.p0 * pf; l.tot = l.off ? 0 : l.q * l.up; if (B.CATS[l.cat].grp === "e") e += l.tot; else f += l.tot; });
+  return { r, e, f, pf };
+}
+// typical size of a facility type (middle of its capacity range) for per-unit reference prices
+function refUnits(t) {
+  if (!/سرير|كرسي|عيادة|غرفة/.test(t.unit)) return 1;
+  const m = String(t.cap || "").replace(/,/g, "").match(/\d+/g);
+  return m && m.length >= 2 ? Math.max(1, Math.round((+m[0] + +m[1]) / 2)) : (m ? +m[0] : 1);
+}
+const _refBoq = new Map();
+function refBoq(t, C, j, A) {
+  const key = t.en + "|" + C.id + "|" + j + "|" + A.levels[j].eq;
+  if (!_refBoq.has(key)) { const n = refUnits(t), b = boqOf(t, n, null, A, C, A.levels[j]); _refBoq.set(key, b ? { e: b.e / n, f: b.f / n, n } : null); }
+  return _refBoq.get(key);
 }
 
 // Reference unit price (integrated package, main cities, base year) — matches the Excel reference table.
@@ -1208,7 +1919,8 @@ function unitPrice(t, k, j, A, C) {
   const S = A.scope, lvl = A.levels[j];
   const Bn = t.gfa * C.area * C.rates[j] * t.cf;
   const b = Bn * S.bld[k], x = Bn * A.ext * S.ext[k];
-  const e = t.eq * lvl.eq * C.eq * S.eq[k], ff = Bn * (t.ffe != null ? t.ffe : A.ffe) * S.ffe[k];
+  const rb = refBoq(t, C, j, A);
+  const e = (rb ? rb.e : t.eq * lvl.eq * C.eq) * S.eq[k], ff = (rb ? rb.f : Bn * (t.ffe != null ? t.ffe : A.ffe)) * S.ffe[k];
   const s = (b + x) * S.soft[k];
   const c = (b + x + s) * S.cont[k] + (e + ff) * S.cont[0];
   return { b, x, e, ff, s, c, total: b + x + e + ff + s + c, Bn };
@@ -1292,7 +2004,8 @@ const numSpan = v => `<span class="num">${fmt(v)}</span>`;
 document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
 function showTab(name) {
   document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
-  ["calc", "dash", "ref", "brk", "as", "meth", "users"].forEach(p => { const el = $("p-" + p); if (el) el.hidden = p !== name; });
+  ["calc", "dash", "boq", "ref", "brk", "as", "meth", "users"].forEach(p => { const el = $("p-" + p); if (el) el.hidden = p !== name; });
+  if (name === "boq") { renderBoq(); window.scrollTo({ top: 0 }); }
   if (name === "dash") { renderDash(); window.scrollTo({ top: 0 }); }
   try { localStorage.setItem("hcp-yemen-tab", name); } catch (e) {}
 }
@@ -1452,7 +2165,8 @@ function renderCalc() {
     ["معامل الأجهزة الطبية (المستوى)", R.lvl.eq.toFixed(2)],
     ["معامل الأجهزة الطبية (الدولة)", R.C.eq.toFixed(2)],
     ["معامل المساحات (الدولة)", R.C.area.toFixed(2)],
-    ["الأجهزة الطبية القياسية لكل وحدة (ر.س)", fmt(R.t.eq)],
+    R.bq ? ["تكلفة التجهيز من جدول الكميات (ر.س)", fmt(R.bq.e + R.bq.f)] : ["الأجهزة الطبية القياسية لكل وحدة (ر.س)", fmt(R.t.eq)],
+    R.bq ? ["عدد بنود جدول الكميات", fmt(R.bq.r.lines.filter(l => !l.off && l.q > 0).length)] : ["أساس تسعير التجهيز", "سعر الوحدة"],
     ["معامل الموقع", R.loc.f.toFixed(2)],
     ["معامل التصعيد", R.escF.toFixed(3)],
     ["تكلفة المبنى الجديد المرجعية (ر.س)", fmt(R.Bn)],
@@ -1462,6 +2176,165 @@ function renderCalc() {
   $("params").innerHTML = P.map(([a, b]) => `<dt>${esc(a)}</dt><dd class="num">${esc(b)}</dd>`).join("");
   $("copy-status").textContent = "";
   renderDash();
+  renderBoq();
+}
+
+/* ---------------- bill of quantities (جدول الكميات) ---------------- */
+const BQ = window.HFCE_BOQ;
+const bqEN = () => { const a = document.querySelector(".app"); return !!(a && a.getAttribute("dir") === "ltr"); };
+const bqName = l => (bqEN() && l.en ? l.en : l.ar);
+let bqFilter = { q: "", cat: "", ed: false };
+function bqOv() {
+  const t = A.types[inp.type];
+  if (!inp.boq || inp.boq.t !== t.en) inp.boq = { t: t.en, drv: {}, q: {}, p: {}, off: [], add: [] };
+  ["drv", "q", "p"].forEach(k => { if (!inp.boq[k] || typeof inp.boq[k] !== "object") inp.boq[k] = {}; });
+  ["off", "add"].forEach(k => { if (!Array.isArray(inp.boq[k])) inp.boq[k] = []; });
+  return inp.boq;
+}
+function bqEdited() {
+  const o = inp.boq; if (!o || o.t !== A.types[inp.type].en) return 0;
+  return Object.keys(o.drv || {}).length + Object.keys(o.q || {}).length + Object.keys(o.p || {}).length + (o.off || []).length + (o.add || []).length;
+}
+function bqCommit() { save(KEY_I, inp); changed(); renderBoq(); }
+
+function renderBoq() {
+  const pb = $("p-boq"); if (!pb || pb.hidden) return;
+  const act = document.activeElement, keep = act && act.dataset && act.dataset.k ? [act.dataset.k, act.dataset.f] : null;
+  const R = computeProject(inp, A), t = R.t, bq = R.bq, EN = bqEN();
+  $("bq-none").hidden = !!bq; ["bq-kpis", "bq-basis", "bq-drv-box", "bq-tools", "bq-card"].forEach(id => { $(id).hidden = !bq; });
+  $("bq-desc").textContent = `${t.ar} — ${fmt(R.n)} ${t.unit} — ${R.C.name} — مستوى ${R.lvl.name}`;
+  if (!bq) { $("bq-none-type").textContent = t.ar; return; }
+  const L = bq.r.lines, sum = f => L.filter(f).reduce((s, l) => s + l.tot, 0), grp = g => sum(l => BQ.CATS[l.cat].grp === g);
+  const med = sum(l => l.cat === "me" || l.cat === "mm"), mfur = sum(l => l.cat === "mf"), gen = grp("f"), all = bq.e + bq.f;
+  const old = R.oldE + R.oldF, dv = old > 0 ? all / old - 1 : 0, active = L.filter(l => !l.off && l.q > 0).length;
+  const tile = (lab, v, sub, cls) => `<div class="card d-tile ${cls || ""}"><div class="lab">${esc(lab)}</div><div class="val"><span class="num">${esc(v)}</span><small>ر.س</small></div>${sub ? `<div class="sub">${sub}</div>` : ""}</div>`;
+  $("bq-kpis").innerHTML =
+    tile("إجمالي التجهيزات", fmt(all), `${numSpan(active)} بنداً — ${numSpan(R.n > 0 ? all / R.n : 0)} ر.س لكل ${esc(t.unit)}`, "hero") +
+    tile("الأجهزة الطبية", fmt(med), `${pct(all ? med / all : 0)} من التجهيزات`) +
+    tile("الأثاث الطبي", fmt(mfur), `${pct(all ? mfur / all : 0)} من التجهيزات`) +
+    tile("الأثاث العام وتقنية المعلومات", fmt(gen), `${pct(all ? gen / all : 0)} من التجهيزات`) +
+    tile("طريقة سعر الوحدة السابقة", fmt(old), `${dv >= 0 ? "جدول الكميات أعلى بنسبة" : "جدول الكميات أقل بنسبة"} ${pct(Math.abs(dv))}`);
+  const std = BQ.STD[R.C.id] || BQ.STD.YE;
+  $("bq-basis").innerHTML = `مرجع الكميات: ${esc(EN ? std[2] : std[0])}. الأسعار شاملة التوريد والتركيب والتشغيل والتدريب بأسعار ${A.baseYear}، ` +
+    `مضروبة في معامل المستوى ${R.lvl.eq.toFixed(2)} ومعامل الدولة ${(std[1] || 1).toFixed(2)}. ` +
+    `يضيف التقدير على هذا الجدول احتياطي التجهيز ${pct(A.scope.cont[0])} والتصعيد حتى سنة التنفيذ، ومعامل نطاق العمل في مشاريع التأهيل. الأجهزة الكبرى الإضافية في الحاسبة تُحتسب فوق هذا الجدول.`;
+
+  // planning inputs
+  const ov = inp.boq && inp.boq.t === t.en ? inp.boq : {}, drvOv = ov.drv || {};
+  const shown = Object.keys(BQ.DRV).filter(k => (Number(bq.r.base[k]) || 0) > 0 || drvOv[k] != null);
+  $("bq-drv").innerHTML = shown.map(k => {
+    const ed = drvOv[k] != null, v = bq.r.drv[k], note = !EN && BQ.NOTE[k] ? BQ.NOTE[k] : "";
+    return `<label class="field bq-d ${ed ? "ed" : ""}"><span>${esc(EN ? BQ.DRV[k][1] : BQ.DRV[k][0])}</span>
+      <span class="bq-d-in"><input type="number" min="0" step="1" inputmode="numeric" value="${v}" data-k="drv:${k}" data-f="drv">${ed ? `<button type="button" class="linkbtn" data-act="drvreset" data-key="${k}" title="القيمة القياسية ${bq.r.base[k]}">↺ ${bq.r.base[k]}</button>` : ""}</span>
+      ${note ? `<small class="hint">${esc(note)}</small>` : ""}</label>`;
+  }).join("");
+
+  // table
+  const f = bqFilter, needle = f.q.trim().toLowerCase();
+  const pass = l => (!f.cat || l.cat === f.cat) && (!f.ed || l.edited || l.added || l.off) && (!needle || (l.ar + " " + l.en).toLowerCase().includes(needle));
+  const catOpts = sel => Object.keys(BQ.CATS).map(c => `<option value="${c}" ${c === sel ? "selected" : ""}>${esc(EN ? BQ.CATS[c].en : BQ.CATS[c].ar)}</option>`).join("");
+  let html = `<thead><tr><th class="n">م</th><th>البند</th><th>الفئة</th><th class="n">الكمية</th><th class="n">سعر الوحدة (ر.س)</th><th class="n">الإجمالي (ر.س)</th><th></th></tr></thead><tbody>`;
+  let no = 0, shownN = 0;
+  BQ.ord.forEach(dk => {
+    const rows = L.filter(l => l.dep === dk);
+    if (!rows.length && !(ov.add || []).some(a => a && a.dep === dk)) return;
+    const vis = rows.filter(pass);
+    const depTot = rows.reduce((s, l) => s + l.tot, 0);
+    if (!vis.length && (needle || f.cat || f.ed)) { no += rows.length; return; }
+    html += `<tr class="bq-dep"><td colspan="5"><b>${esc(EN ? BQ.D[dk][1] : BQ.D[dk][0])}</b> <span class="hint">${numSpan(rows.filter(l => !l.off).length)} بنداً</span></td>
+      <td class="n"><b>${fmt(depTot)}</b></td><td><button type="button" class="linkbtn" data-act="add" data-dep="${dk}">+ إضافة بند</button></td></tr>`;
+    rows.forEach(l => {
+      no++;
+      if (!pass(l)) return;
+      shownN++;
+      const cls = (l.off ? "off " : "") + (l.edited ? "ed " : "") + (l.added ? "added" : "");
+      if (l.added) {
+        const i = +l.key.split(".")[1];
+        html += `<tr class="${cls}"><td class="n">${no}</td><td><input type="text" class="bq-name" value="${esc(l.ar)}" placeholder="${esc("اسم البند")}" data-k="${l.key}" data-f="aar" aria-label="اسم البند"></td>
+          <td><select data-k="${l.key}" data-f="acat" aria-label="الفئة">${catOpts(l.cat)}</select></td>
+          <td class="n"><input type="number" min="0" step="1" value="${l.q}" data-k="${l.key}" data-f="aq" aria-label="الكمية"></td>
+          <td class="n"><input type="number" min="0" step="any" value="${Math.round(l.up)}" data-k="${l.key}" data-f="ap" aria-label="سعر الوحدة"></td>
+          <td class="n">${fmt(l.tot)}</td><td><button type="button" class="linkbtn danger" data-act="adel" data-i="${i}">حذف</button></td></tr>`;
+      } else {
+        html += `<tr class="${cls}"><td class="n">${no}</td><td>${esc(bqName(l))}${!EN ? `<span class="en">${esc(l.en)}</span>` : ""}</td>
+          <td><span class="bq-cat c-${l.cat}">${esc(EN ? BQ.CATS[l.cat].en : BQ.CATS[l.cat].ar)}</span></td>
+          <td class="n"><input type="number" min="0" step="1" value="${l.q}" data-k="${l.key}" data-f="q" aria-label="الكمية" ${l.off ? "disabled" : ""}>${l.q !== l.q0 ? `<small class="bq-was">${l.q0}</small>` : ""}</td>
+          <td class="n"><input type="number" min="0" step="any" value="${Math.round(l.up)}" data-k="${l.key}" data-f="p" aria-label="سعر الوحدة" ${l.off ? "disabled" : ""}>${l.pOv != null ? `<small class="bq-was">${fmt(l.p0 * bq.pf)}</small>` : ""}</td>
+          <td class="n">${fmt(l.tot)}</td>
+          <td>${l.off ? `<button type="button" class="linkbtn" data-act="on" data-key="${l.key}">استعادة</button>`
+            : `<button type="button" class="linkbtn danger" data-act="off" data-key="${l.key}">حذف</button>`}${l.edited ? ` <button type="button" class="linkbtn" data-act="undo" data-key="${l.key}" title="القيمة القياسية">↺</button>` : ""}</td></tr>`;
+      }
+    });
+  });
+  html += `</tbody><tfoot><tr class="total"><td></td><td colspan="4">إجمالي التجهيزات (ر.س)</td><td class="n">${fmt(all)}</td><td></td></tr></tfoot>`;
+  $("bq-table").innerHTML = html;
+  $("bq-count").textContent = `${shownN} / ${L.length} بنداً` + (bqEdited() ? ` — ${bqEdited()} تعديلاً` : "");
+  $("bq-cat").innerHTML = `<option value="">كل الفئات</option>` + catOpts(f.cat);
+  $("bq-reset").disabled = !bqEdited();
+  if (keep) { const el = pb.querySelector(`[data-k="${CSS.escape(keep[0])}"][data-f="${keep[1]}"]`); if (el) { el.focus(); if (el.select && el.type !== "text") try { el.select(); } catch (e) {} } }
+}
+
+(() => {
+  const pb = $("p-boq"); if (!pb) return;
+  pb.addEventListener("change", ev => {
+    const el = ev.target, k = el.dataset && el.dataset.k, fld = el.dataset && el.dataset.f; if (!k || !fld) return;
+    const o = bqOv(), v = el.type === "number" ? Math.max(0, Number(el.value) || 0) : el.value;
+    const R = computeProject(inp, A), line = R.bq && R.bq.r.lines.find(l => l.key === k);
+    if (fld === "drv") { const dk = k.slice(4); if (R.bq && Number(R.bq.r.base[dk]) === v) delete o.drv[dk]; else o.drv[dk] = Math.round(v); }
+    else if (fld === "q" && line) { if (v === line.q0) delete o.q[k]; else o.q[k] = Math.round(v); }
+    else if (fld === "p" && line) { if (Math.round(line.p0 * R.bq.pf) === Math.round(v)) delete o.p[k]; else o.p[k] = v; }
+    else if (fld[0] === "a") { const i = +k.split(".")[1], a = o.add[i]; if (!a) return;
+      if (fld === "aar") a.ar = String(v).slice(0, 160); if (fld === "acat") a.cat = v; if (fld === "aq") a.q = Math.round(v); if (fld === "ap") a.p = v; }
+    bqCommit();
+  });
+  pb.addEventListener("click", ev => {
+    const b = ev.target.closest && ev.target.closest("button[data-act]"); if (!b || !pb.contains(b)) return;
+    const o = bqOv(), key = b.dataset.key;
+    switch (b.dataset.act) {
+      case "off": if (!o.off.includes(key)) o.off.push(key); break;
+      case "on": o.off = o.off.filter(x => x !== key); break;
+      case "undo": delete o.q[key]; delete o.p[key]; break;
+      case "drvreset": delete o.drv[key]; break;
+      case "add": o.add.push({ dep: b.dataset.dep, ar: "", cat: "mm", q: 1, p: 0 }); bqCommit();
+        { const el = pb.querySelector(`[data-k="add.${o.add.length - 1}"][data-f="aar"]`); if (el) el.focus(); } return;
+      case "adel": o.add.splice(+b.dataset.i, 1); break;
+      default: return;
+    }
+    bqCommit();
+  });
+  $("bq-search").addEventListener("input", e => { bqFilter.q = e.target.value; renderBoq(); });
+  $("bq-cat").addEventListener("change", e => { bqFilter.cat = e.target.value; renderBoq(); });
+  $("bq-edonly").addEventListener("change", e => { bqFilter.ed = e.target.checked; renderBoq(); });
+  $("bq-reset").addEventListener("click", () => { inp.boq = null; bqCommit(); });
+  $("bq-print").addEventListener("click", () => { document.body.classList.add("print-boq"); window.print(); setTimeout(() => document.body.classList.remove("print-boq"), 500); });
+  $("bq-export").addEventListener("click", () => $("btn-export").click());
+  $("bq-to-calc").addEventListener("click", () => showTab("calc"));
+})();
+
+// Excel: the bill of quantities sheet
+function boqSheet(R) {
+  const bq = R.bq; if (!bq) return null;
+  const EN = bqEN(), sh = sheetBuilder("جدول الكميات", [6, 46, 40, 20, 10, 15, 17]);
+  const std = BQ.STD[R.C.id] || BQ.STD.YE;
+  sh.full(`جدول كميات التجهيزات — ${R.t.ar} — ${fmt(R.n)} ${R.t.unit}`, "title", 28);
+  sh.full(`${R.C.full} — مستوى ${R.lvl.name} — المبالغ بالريال السعودي بأسعار ${A.baseYear} شاملة التوريد والتركيب والتشغيل — مرجع الكميات: ${EN ? std[2] : std[0]}`, "subtitle", 34);
+  sh.blank();
+  sh.add([["م", "hdr"], ["البند", "hdr"], [EN ? "" : "Description", "hdr"], ["الفئة", "hdr"], ["الكمية", "hdr"], ["سعر الوحدة (ر.س)", "hdr"], ["الإجمالي (ر.س)", "hdr"]], 26);
+  let no = 0;
+  BQ.ord.forEach(dk => {
+    const rows = bq.r.lines.filter(l => l.dep === dk && !l.off && l.q > 0);
+    if (!rows.length) return;
+    sh.full(EN ? BQ.D[dk][1] : BQ.D[dk][0], "cat", 22);
+    rows.forEach(l => sh.add([[++no, "int"], [EN ? (l.en || l.ar || "") : (l.ar || ""), "lbl"], [EN ? "" : (l.en || ""), "lbl"], [EN ? BQ.CATS[l.cat].en : BQ.CATS[l.cat].ar, "txt_c"], [l.q, "num"], [Math.round(l.up), "num"], [Math.round(l.tot), "num"]]));
+    sh.add([[null, "lbl_b"], ["إجمالي القسم", "lbl_b"], [null, "lbl_b"], [null, "lbl_b"], [null, "num_b"], [null, "num_b"], [Math.round(rows.reduce((s, l) => s + l.tot, 0)), "num_b"]]);
+  });
+  sh.blank();
+  sh.full("الملخص حسب الفئة", "section", 22);
+  Object.keys(BQ.CATS).forEach(c => sh.kv(EN ? BQ.CATS[c].en : BQ.CATS[c].ar, Math.round(bq.r.lines.filter(l => l.cat === c).reduce((s, l) => s + l.tot, 0)), "lbl", "num"));
+  sh.kv("إجمالي التجهيزات (ر.س)", Math.round(bq.e + bq.f), "lbl_tot", "num_tot", 22);
+  sh.blank();
+  sh.full(`يضيف التقدير على هذا الجدول احتياطي التجهيز ${pct(A.scope.cont[0])} والتصعيد حتى سنة التنفيذ، ومعامل نطاق العمل في مشاريع التأهيل. الكميات مبنية على نسب تخطيطية قابلة للتعديل، وتُراجع مع البرنامج الوظيفي المعتمد قبل الطرح.`, "note", 34);
+  return sh;
 }
 
 /* ---------------- dashboard (لوحة المؤشرات) ---------------- */
@@ -2167,7 +3040,7 @@ function buildReport() {
     ["معامل الأجهزة الطبية (المستوى)", R.lvl.eq, "dec2"],
     ["معامل الأجهزة الطبية (الدولة)", C.eq, "dec2"],
     ["معامل المساحات (الدولة)", C.area, "dec2"],
-    ["الأجهزة الطبية القياسية لكل وحدة (ر.س)", R.t.eq, "num"],
+    R.bq ? ["تكلفة التجهيز من جدول الكميات (ر.س)", Math.round(R.bq.e + R.bq.f), "num"] : ["الأجهزة الطبية القياسية لكل وحدة (ر.س)", R.t.eq, "num"],
     ["معامل الموقع", R.loc.f, "dec2"],
     ["معامل التصعيد", R.escF, "dec3"],
     ["تكلفة المبنى الجديد المرجعية (ر.س)", R.Bn, "num"],
@@ -2252,7 +3125,7 @@ function buildReport() {
   return {
     filename: `تقدير ${R.t.ar} - ${C.name} - ${R.n} ${unit} - ${scopeNames(R.pk)[k]} - ${date}.xlsx`,
     title: `تقدير ${R.t.ar} — ${scopeNames(R.pk)[k]}`,
-    sheets: [s1, s2, s3]
+    sheets: [s1, boqSheet(R), s2, s3].filter(Boolean)
   };
 }
 
@@ -2416,7 +3289,7 @@ const LET = "ؠ-ٟٮ-ۓۺ-ۿ";           // Arabic letters (word boundaries)
 const HAS_AR = /[؀-ۿ]/;
 const PUNCT = { "،": ",", "؛": ";", "؟": "?", "«": "“", "»": "”", "←": "→" };
 const ATTRS = ["placeholder", "title", "aria-label", "label"];
-const UI2 = {"الأداء": "Performance", "وضع خفيف (أسرع)": "Light mode (faster)", "وضع كامل (تأثيرات أكثر)": "Full effects mode", "الثيم النيون الزجاجي": "Neon glass theme", "نيون زجاجي": "Neon glass", "فاتح": "Light", "داكن": "Dark", "بحث وأوامر": "Search & commands", "اكتب للبحث: دولة، نوع منشأة، سنة، أو صفحة…": "Type to search: country, facility type, year or page…", "↑ ↓ للتنقل": "↑ ↓ to move", "Enter للتنفيذ": "Enter to run", "Esc للإغلاق": "Esc to close", "ما لقيت نتيجة": "No results", "الحالي": "Current", "انتقال": "Go to", "السنة التالية (+1)": "Next year (+1)", "السنة السابقة (−1)": "Previous year (−1)", "تبديل الوضع الليلي والنهاري": "Toggle dark / light mode", "المظهر": "Appearance", "سعر البناء بالمتر المربع": "Building cost per m²", "سعر البناء للمتر المربع": "Building cost per m²", "شامل التشطيبات والأنظمة الكهروميكانيكية": "Including finishes and MEP systems", "التكلفة الشاملة للمتر المربع": "All-in cost per m²", "من سعر البناء إلى التكلفة الشاملة للمتر المربع": "From building cost to all-in cost per m²", "حسب مستوى التسعير": "By pricing level", "حسب الدولة (المدن الرئيسية)": "By country (main cities)", "أعمال المبنى شاملة التشطيبات": "Building works incl. finishes", "إنشائي ومعماري وتشطيبات وكهروميكانيكي وغازات طبية": "Structure, architecture, finishes, MEP and medical gases", "أعمال الموقع والبنية التحتية": "Site works and infrastructure", "من أعمال المبنى": "of building works", "من الأعمال": "of works", "من أعمال البناء": "of construction works", "تكلفة البناء الكاملة للمتر المربع": "Full construction cost per m²", "دون الأجهزة والتأثيث": "Excluding equipment and furniture", "الأجهزة الطبية والتأثيث": "Medical equipment and furniture", "مع احتياطيها": "with their contingency", "كل البنود": "All items", "سعر البناء المرجعي": "Reference building rate", "معامل نطاق العمل": "scope factor", "بأسعار سنة الأساس": "At base-year prices", "ويعادل": "equal to", "في سنة التنفيذ": "in execution year", "النطاق المختار لا يشمل البناء، فالسعر هنا مرجعي لمبنى جديد": "The selected scope excludes construction, so this is the reference rate for a new building", "بناء جديد": "New build", "سعر البناء الجديد لنفس المنشأة": "New-build rate for the same facility", "لوحة المؤشرات": "Dashboard", "مؤشرات التقدير الحالي ورسومه البيانية. أي تغيير هنا ينعكس على الحاسبة، واضغط على أي عمود أو نقطة لاعتمادها": "Indicators and charts for the current estimate. Any change here applies to the calculator; tap any bar or point to select it", "العودة إلى الحاسبة": "Back to calculator", "مكونات التكلفة": "Cost composition", "مقسّمة حسب مكونات التكلفة. اضغط على أي شريط لاعتماده": "Split by cost component. Tap any bar to select it", "عرض الجدول": "Show table", "التكلفة حسب الدولة": "Cost by country", "نفس المشروع في كل دولة، في المدن الرئيسية. اضغط على أي دولة لاعتمادها": "The same project in each country, in the main cities. Tap a country to select it", "أثر سنة التنفيذ": "Effect of execution year", "حساسية التقدير": "Estimate sensitivity", "الإجمالي عند تغيير عامل واحد مع تثبيت بقية المدخلات. اضغط على أي شريط لاعتماده": "Total when one factor changes and all other inputs stay fixed. Tap any bar to select it", "المبنى والموقع": "Building and site", "الاحتياطي والتصعيد": "Contingency and escalation", "تكلفة المتر المربع": "Cost per m²", "المساحة المعتمدة": "Area used", "حصة الأجهزة والتأثيث": "Equipment and furniture share", "من الإجمالي التقديري": "of the estimated total", "على مساحة": "over", "التصعيد السنوي": "Annual escalation", "من سنة الأساس": "from base year", "اضغط على أي سنة لاعتمادها": "Tap any year to select it", "عن التقدير الحالي": "vs. current estimate", "عن سنة": "vs.", "مقارنة مع": "vs.", "مليار": "bn", "مليون": "M", "ألف": "k"};
+const UI2 = {"جدول الكميات": "Bill of quantities", "جدول كميات التجهيزات": "Equipment bill of quantities", "استعادة الجدول القياسي": "Restore standard table", "طباعة الجدول": "Print table", "لا يوجد جدول كميات لنوع": "No bill of quantities for", "إجمالي التجهيزات": "Total equipment and furniture", "الأجهزة الطبية": "Medical equipment", "الأثاث الطبي": "Medical furniture", "الأثاث العام وتقنية المعلومات": "General furniture and IT", "طريقة سعر الوحدة السابقة": "Previous unit-rate method", "من التجهيزات": "of equipment", "جدول الكميات أعلى بنسبة": "The bill of quantities is higher by", "جدول الكميات أقل بنسبة": "The bill of quantities is lower by", "بنداً": "items", "مرجع الكميات": "Quantities follow", "مدخلات التخطيط (أعداد الأقسام والغرف التي تُبنى عليها الكميات)": "Planning inputs (departments and rooms the quantities are based on)", "محسوبة من عدد الوحدات بنسب وزارة الصحة السعودية وFGI. عدّل أي رقم ليتغير الجدول كله تلقائياً": "Calculated from the number of units with Saudi MOH and FGI ratios. Change any number and the whole table updates", "بحث في البنود": "Search items", "مثال: جهاز تنفس": "e.g. ventilator", "كل الفئات": "All categories", "البنود المعدلة فقط": "Edited items only", "إضافة بند": "Add item", "اسم البند": "Item name", "حذف": "Remove", "استعادة": "Restore", "إجمالي التجهيزات (ر.س)": "Total equipment and furniture (SAR)", "إجمالي القسم": "Department total", "الملخص حسب الفئة": "Summary by category", "تعديلاً": "edits", "تكلفة التجهيز من جدول الكميات (ر.س)": "Equipment cost from the bill of quantities (SAR)", "عدد بنود جدول الكميات": "Bill of quantities items", "أساس تسعير التجهيز": "Equipment pricing basis", "سعر الوحدة": "Unit rate", "سعر الوحدة (ر.س)": "Unit price (SAR)", "الإجمالي (ر.س)": "Total (SAR)", "الفئة": "Category", "الكمية": "Quantity", "البند": "Item", "الأداء": "Performance", "وضع خفيف (أسرع)": "Light mode (faster)", "وضع كامل (تأثيرات أكثر)": "Full effects mode", "الثيم النيون الزجاجي": "Neon glass theme", "نيون زجاجي": "Neon glass", "فاتح": "Light", "داكن": "Dark", "بحث وأوامر": "Search & commands", "اكتب للبحث: دولة، نوع منشأة، سنة، أو صفحة…": "Type to search: country, facility type, year or page…", "↑ ↓ للتنقل": "↑ ↓ to move", "Enter للتنفيذ": "Enter to run", "Esc للإغلاق": "Esc to close", "ما لقيت نتيجة": "No results", "الحالي": "Current", "انتقال": "Go to", "السنة التالية (+1)": "Next year (+1)", "السنة السابقة (−1)": "Previous year (−1)", "تبديل الوضع الليلي والنهاري": "Toggle dark / light mode", "المظهر": "Appearance", "سعر البناء بالمتر المربع": "Building cost per m²", "سعر البناء للمتر المربع": "Building cost per m²", "شامل التشطيبات والأنظمة الكهروميكانيكية": "Including finishes and MEP systems", "التكلفة الشاملة للمتر المربع": "All-in cost per m²", "من سعر البناء إلى التكلفة الشاملة للمتر المربع": "From building cost to all-in cost per m²", "حسب مستوى التسعير": "By pricing level", "حسب الدولة (المدن الرئيسية)": "By country (main cities)", "أعمال المبنى شاملة التشطيبات": "Building works incl. finishes", "إنشائي ومعماري وتشطيبات وكهروميكانيكي وغازات طبية": "Structure, architecture, finishes, MEP and medical gases", "أعمال الموقع والبنية التحتية": "Site works and infrastructure", "من أعمال المبنى": "of building works", "من الأعمال": "of works", "من أعمال البناء": "of construction works", "تكلفة البناء الكاملة للمتر المربع": "Full construction cost per m²", "دون الأجهزة والتأثيث": "Excluding equipment and furniture", "الأجهزة الطبية والتأثيث": "Medical equipment and furniture", "مع احتياطيها": "with their contingency", "كل البنود": "All items", "سعر البناء المرجعي": "Reference building rate", "معامل نطاق العمل": "scope factor", "بأسعار سنة الأساس": "At base-year prices", "ويعادل": "equal to", "في سنة التنفيذ": "in execution year", "النطاق المختار لا يشمل البناء، فالسعر هنا مرجعي لمبنى جديد": "The selected scope excludes construction, so this is the reference rate for a new building", "بناء جديد": "New build", "سعر البناء الجديد لنفس المنشأة": "New-build rate for the same facility", "لوحة المؤشرات": "Dashboard", "مؤشرات التقدير الحالي ورسومه البيانية. أي تغيير هنا ينعكس على الحاسبة، واضغط على أي عمود أو نقطة لاعتمادها": "Indicators and charts for the current estimate. Any change here applies to the calculator; tap any bar or point to select it", "العودة إلى الحاسبة": "Back to calculator", "مكونات التكلفة": "Cost composition", "مقسّمة حسب مكونات التكلفة. اضغط على أي شريط لاعتماده": "Split by cost component. Tap any bar to select it", "عرض الجدول": "Show table", "التكلفة حسب الدولة": "Cost by country", "نفس المشروع في كل دولة، في المدن الرئيسية. اضغط على أي دولة لاعتمادها": "The same project in each country, in the main cities. Tap a country to select it", "أثر سنة التنفيذ": "Effect of execution year", "حساسية التقدير": "Estimate sensitivity", "الإجمالي عند تغيير عامل واحد مع تثبيت بقية المدخلات. اضغط على أي شريط لاعتماده": "Total when one factor changes and all other inputs stay fixed. Tap any bar to select it", "المبنى والموقع": "Building and site", "الاحتياطي والتصعيد": "Contingency and escalation", "تكلفة المتر المربع": "Cost per m²", "المساحة المعتمدة": "Area used", "حصة الأجهزة والتأثيث": "Equipment and furniture share", "من الإجمالي التقديري": "of the estimated total", "على مساحة": "over", "التصعيد السنوي": "Annual escalation", "من سنة الأساس": "from base year", "اضغط على أي سنة لاعتمادها": "Tap any year to select it", "عن التقدير الحالي": "vs. current estimate", "عن سنة": "vs.", "مقارنة مع": "vs.", "مليار": "bn", "مليون": "M", "ألف": "k"};
 let DICT = Object.assign({}, UI, UI2), RX = null;
 // unit names are plural after a number ("100 beds") and singular after "per", "—" or "(" ("per bed")
 const SG = { "beds": "bed", "emergency beds": "emergency bed", "day beds": "day bed", "clinics": "clinic", "mobile clinics": "mobile clinic",
@@ -2897,7 +3770,7 @@ boot();
         el.style.setProperty("--dl", Math.min(n++, 8) * 70 + "ms"); el.classList.add("d-in");
         setTimeout(() => { el.classList.remove("d-pre", "d-in"); el.style.removeProperty("--dl"); }, 1100); });
     }, { threshold: 0.06 });
-    scope.querySelectorAll(".card").forEach(el => { el.classList.add("d-pre"); io.observe(el); });
+    scope.querySelectorAll(".card").forEach(el => { if (el.offsetHeight > innerHeight * 1.5) return; el.classList.add("d-pre"); io.observe(el); });   // very tall cards (long tables) never reach the threshold
     ioT = setTimeout(() => { if (io) io.disconnect(); scope.querySelectorAll(".d-pre").forEach(el => el.classList.remove("d-pre", "d-in")); }, 6000);
   }
   function paneIn(p) {
